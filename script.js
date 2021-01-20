@@ -1,10 +1,10 @@
 let APIKey = '96ff1dfd-a19d-4b53-a97d-376d0006d337';
 let localStream = null;
 let room;
+let existingroom = null;
 $(function() {
 
   let peer = null;
-  let existingroom = null;
   let audioSelect = $('#audioSource');
   let videoSelect = $('#videoSource');
 
@@ -57,11 +57,11 @@ $(function() {
     });
     setupRoomEventHandlers(room);
   });
-
+/*
   $('#end-call').click(function() {
     existingroom.close();
   });
-
+*/
   function setupGetUserMedia() {
     let audioSource = $('#audioSource').val();
     let videoSource = $('#videoSource').val();
@@ -89,7 +89,7 @@ $(function() {
     if (localStream) {
       localStream = null;
     }
-
+    
     navigator.mediaDevices.getUserMedia(constraints)
       .then(function(stream) {
         // $('#myStream').get(0).srcObject = stream;
@@ -174,8 +174,12 @@ $(function() {
 
 });
 
+function LeaveRoom(){
+  existingroom.close();
+}
+
 function Send(msg) {
-  room.send(msg);
+  if(room)room.send(msg);
 }
 
 function ChangeUI() {
