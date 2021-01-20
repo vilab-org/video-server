@@ -89,7 +89,7 @@ $(function() {
     if (localStream) {
       localStream = null;
     }
-    
+
     navigator.mediaDevices.getUserMedia(constraints)
       .then(function(stream) {
         // $('#myStream').get(0).srcObject = stream;
@@ -117,7 +117,6 @@ $(function() {
     $('#room-id').text(room.name);
 
     room.on('stream', function(stream) {
-      console.log('connnect:' + stream);
       addVideo(stream);
     });
 
@@ -138,8 +137,8 @@ $(function() {
       data,
       src
     }) => {
-      console.log(src + ':' + Object.assign(new Vec(), JSON.parse(data)));
-
+      
+      moveVideo(src,Object.assign(new Vec(), JSON.parse(data)));
     });
   }
 

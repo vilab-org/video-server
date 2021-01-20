@@ -1,9 +1,11 @@
+//https://qiita.com/yusuke84/items/54dce88f9e896903e64f
 let localCap = null;
 let others = [];
 let draggingVideo = null;
 let capture = null;
 let hideCapture = null;
 let checkbox;
+let movingVideo;
 let blackimg;
 function setupVideo(stream) {
   if(capture === null){
@@ -12,8 +14,10 @@ function setupVideo(stream) {
     capture.elt.srcObject = stream;
     capture.elt.autoplay = true;
     let size = new Vec(160, 120);
-    let pos = new Vec(size.x / 2, size.y / 2);
-    localCap = new Video(pos, size, capture);
+    let pos = new Vec(width / 2, width / 2);
+    localCap = new Video(pos, stream.id, capture);
+
+    movingVideo = localCap;
   }
   else localCap.capture.elt.srcObject = stream;
   ResizeVideos();
@@ -31,16 +35,17 @@ function setup() {
 
 function addOtherVideo(stream) {
   console.log('add videos' + stream);
+  console.log('ID:'+stream.id);
   let other = createVideo();
   other.elt.autoplay = true;
   other.elt.srcObject = stream;
   other.hide();
   let size = new Vec(160, 120);
-  let pos = new Vec(size.x / 2, size.y / 2);
+  let pos = new Vec(width / 2, height / 2);
   for (let i = 0; i < others.length; i++) {
     pos.x + others[i].size.x;
   }
-  others.push(new Video(pos, size, other));
+  others.push(new Video(pos, stream.id, other));
   ResizeVideos();
 }
 
@@ -58,9 +63,14 @@ function removeOtherVideo(peerId) {
   others.splice(index, 1);
   ResizeVideos();
 }
-
+let dragInterval = 0;
 function draw() {
-
+  dragInterval++;
+  if (draggingVideo !== null && dragInterval >= 15) {
+    dragInterval = 0;
+    draggingVideo.pos = new Vec(mouseX, mouseY);
+    Send(JSON.stringify(localCap.pos));
+  }
   background(100);
   if (localCap){
     img(localCap);
@@ -87,15 +97,7 @@ function mousePressed() {
 
   if (collide(mouseX, mouseY, localCap)) {
     draggingVideo = localCap;
-  } else {
-    for (let i = 0; i < others.length; i++) {
-      if (collide(mouseX, mouseY, others[i])) {
-        draggingVideo = others[i];
-        break;
-      }
-    }
   }
-  mouseDragged();
 
   function collide(x, y, video) {
     return (abs(video.pos.x - x) < video.size.x / 2) && ((abs(video.pos.y - y) < video.size.y / 2));
@@ -103,10 +105,7 @@ function mousePressed() {
 }
 
 function mouseDragged() {
-  if (draggingVideo !== null) {
-    draggingVideo.pos = new Vec(mouseX, mouseY);
-    Send(JSON.stringify(localCap.pos));
-  }
+
 }
 
 function mouseReleased() {
@@ -114,17 +113,36 @@ function mouseReleased() {
 }
 
 function ResizeVideos() {
-  //let ratio = localCap.capture.height / localCap.capture.width;
-  let ratio = 240/320;
-  console.log(localCap.capture.height +'/'+localCap.capture.width +' =ratio='+ratio);
   let i =0;
   for(;i * i< others.length + 1;i++);
-  let x = (windowWidth/2)/i;
-  console.log('x='+x);
-  let y = x * ratio;
-  localCap.size = new Vec(x,y);
-  console.log(localCap);
+  let size = getSize(localCap.capture,i);
+  localCap.size = size;
   for(i=0;i<others.length;i++){
-    others[i].size = new Vec(x,y);
+    others[i].size = size;
+  }
+  function getSize(capture,num) {
+    let ratio = 240/320;
+    let x = (windowWidth/2)/num;
+    let y = x * ratio;
+    return new Vec(x,y);
+  }
+}
+
+function moveVideo(peerId,pos) {
+  if(movingVideo.ID !== peerId){
+    let index = SerchOthers(peerId);
+    if(index === -1) return;
+    movingVideo = others[index];
+  }
+
+  movingVideo.pos = pos;
+  console.log(movingVideo);
+  function SerchOthers(peerId) {
+    for(let i=0;i<others.length;i++){
+      console.log(others[i].ID);
+      console.log(others[i].capture.elt.srcObject.peerId);
+      if(others[i].capture.elt.srcObject.peerId === peerId) return i;
+    }
+    return -1;
   }
 }
