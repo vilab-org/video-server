@@ -7,8 +7,11 @@ let hideCapture = null;
 let checkbox;
 let movingVideo;
 let blackimg;
+const MOVING = 'MOVING';
+const RESIZE = 'RESIZE';
+
 function setupVideo(stream) {
-  if(capture === null){
+  if (capture === null) {
     capture = createCapture();
     capture.hide();
     capture.elt.srcObject = stream;
@@ -18,16 +21,15 @@ function setupVideo(stream) {
     localCap = new Video(pos, stream.id, capture);
 
     movingVideo = localCap;
-  }
-  else localCap.capture.elt.srcObject = stream;
-  ResizeVideos();
+  } else localCap.capture.elt.srcObject = stream;
+  ResizeAllVideos();
 }
 
 function setup() {
   imageMode(CENTER);
   //canvas作成
   createCanvas(windowWidth, windowHeight);
-  checkbox = createCheckbox('',true);
+  checkbox = createCheckbox('', true);
   checkbox.changed(SwitchVideo);
   blackimg = loadImage('/image/god.ico');
 
@@ -35,7 +37,7 @@ function setup() {
 
 function addOtherVideo(stream) {
   console.log('add videos' + stream);
-  console.log('ID:'+stream.id);
+  console.log('ID:' + stream.id);
   let other = createVideo();
   other.elt.autoplay = true;
   other.elt.srcObject = stream;
@@ -46,7 +48,7 @@ function addOtherVideo(stream) {
     pos.x + others[i].size.x;
   }
   others.push(new Video(pos, stream.id, other));
-  ResizeVideos();
+  ResizeAllVideos();
 }
 
 function removeOtherVideo(peerId) {
@@ -61,20 +63,20 @@ function removeOtherVideo(peerId) {
     return;
   }
   others.splice(index, 1);
-  ResizeVideos();
+  ResizeAllVideos();
 }
 let dragInterval = 0;
+
 function draw() {
   dragInterval++;
   if (draggingVideo !== null && dragInterval >= 15) {
     dragInterval = 0;
-    draggingVideo.pos = new Vec(mouseX, mouseY);
-    Send(JSON.stringify(localCap.pos));
+    Send(MOVING, localCap.pos);
   }
   background(100);
-  if (localCap){
+  if (localCap) {
     img(localCap);
-    checkbox.position(localCap.pos.x,checkbox.size().height/2 + localCap.pos.y + localCap.size.y/2);
+    checkbox.position(localCap.pos.x, checkbox.size().height / 2 + localCap.pos.y + localCap.size.y / 2);
   }
   for (let i = 0; i < others.length; i++) {
     img(others[i]);
@@ -82,21 +84,33 @@ function draw() {
 
 }
 
-function img(cap){
+function img(cap) {
   image(cap.capture === null ? blackimg : cap.capture, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
 }
 
 function SwitchVideo() {
   let capture = localCap.capture;
-  localCap.capture= hideCapture;
+  localCap.capture = hideCapture;
   hideCapture = capture;
-  localStream.getTracks().enable = ! checkbox.checked();
+  localStream.getTracks().enable = !checkbox.checked();
 }
 
 function mousePressed() {
 
   if (collide(mouseX, mouseY, localCap)) {
-    draggingVideo = localCap;
+    if (mouseButton === LEFT) {
+      draggingVideo = localCap;
+    } else { //RIGHT
+      let resize = localCap.size;
+      resize.x *= 0.75;
+      resize.y *= 0.75;
+        console.log('rigiht');
+      if(resize.x < windowWidth/20){
+        resize.x=320;
+        resize.y = 240;
+      }
+      Send(RESIZE,resize);
+    }
   }
 
   function collide(x, y, video) {
@@ -105,44 +119,66 @@ function mousePressed() {
 }
 
 function mouseDragged() {
-
+  if (draggingVideo !== null) {
+    draggingVideo.pos = new Vec(mouseX, mouseY);
+  }
 }
 
 function mouseReleased() {
   draggingVideo = null;
 }
 
-function ResizeVideos() {
-  let i =0;
-  for(;i * i< others.length + 1;i++);
-  let size = getSize(localCap.capture,i);
-  localCap.size = size;
-  for(i=0;i<others.length;i++){
-    others[i].size = size;
+function ResizeAllVideos() {
+  let i = 0;
+  for (; i * i < others.length + 1; i++);
+  let s = getSize(localCap.capture, i);
+  ResizeVideo(localCap,new Vec(s.x,s.y));
+  for (i = 0; i < others.length; i++) {
+    ResizeVideo(others[i],new Vec(s.x,s.y));
   }
-  function getSize(capture,num) {
-    let ratio = 240/320;
-    let x = (windowWidth/2)/num;
+
+  function getSize(capture, num) {
+    let ratio = 240 / 320;
+    let x = (windowWidth / 2) / num;
     let y = x * ratio;
-    return new Vec(x,y);
+    return new Vec(x, y);
   }
 }
 
-function moveVideo(peerId,pos) {
-  if(movingVideo.ID !== peerId){
+function ReceiveMessage(peerID, msg) {
+  console.log(peerID + ':' + msg.data);
+  switch (msg.type) {
+    case MOVING:
+      moveVideo(peerID, msg.data);
+      break;
+    case RESIZE:
+      ResizeOtherVideo(peerID,msg.data);
+      break;
+    default:
+
+  }
+}
+function ResizeVideo(cap,size) {
+  cap.size = size;
+}
+function SerchOthers(peerId) {
+  for (let i = 0; i < others.length; i++) {
+    if (others[i].capture.elt.srcObject.peerId === peerId) return i;
+  }
+  return -1;
+}
+
+function moveVideo(peerId, pos) {
+  if (movingVideo.ID !== peerId) {
     let index = SerchOthers(peerId);
-    if(index === -1) return;
+    if (index === -1) return;
     movingVideo = others[index];
   }
-
   movingVideo.pos = pos;
-  console.log(movingVideo);
-  function SerchOthers(peerId) {
-    for(let i=0;i<others.length;i++){
-      console.log(others[i].ID);
-      console.log(others[i].capture.elt.srcObject.peerId);
-      if(others[i].capture.elt.srcObject.peerId === peerId) return i;
-    }
-    return -1;
-  }
+}
+
+function ResizeOtherVideo(peerID,size) {
+  let index = SerchOthers(peerID);
+  if(index === -1) return;
+  ResizeVideo(others[index],size);
 }

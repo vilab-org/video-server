@@ -137,8 +137,8 @@ $(function() {
       data,
       src
     }) => {
-      
-      moveVideo(src,Object.assign(new Vec(), JSON.parse(data)));
+
+      ReceiveMessage(src,Object.assign(new Message(), JSON.parse(data)));
     });
   }
 
@@ -177,8 +177,8 @@ function LeaveRoom(){
   existingroom.close();
 }
 
-function Send(msg) {
-  if(room)room.send(msg);
+function Send(type,msg) {
+  if(room)room.send(JSON.stringify(new Message(type,msg)));
 }
 
 function ChangeUI() {

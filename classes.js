@@ -16,3 +16,10 @@ class Video{
     this.capture = capture;
   }
 }
+
+class Message{
+  constructor(type,data){
+    this.type = type;
+    this.data = data;
+  }
+}
