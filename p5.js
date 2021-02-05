@@ -31,7 +31,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   checkbox = createCheckbox('', true);
   checkbox.changed(SwitchVideo);
-  blackimg = loadImage('/image/god.ico');
+  blackimg = loadImage('/image/nekocan.png');
 
 }
 
