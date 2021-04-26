@@ -14,6 +14,7 @@ class Video{
     this.pos = pos;
     this.ID = ID;
     this.capture = capture;
+    this.videoEnable = true;
   }
 }
 

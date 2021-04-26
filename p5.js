@@ -6,40 +6,59 @@ let hideCapture = null;
 let checkbox;
 let movingVideo;
 let blackimg;
-let handsImg = null;
 
-const hands = new Hands({locateFile: (file) => {
+const hands = new Hands({
+  locateFile: (file) => {
     return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-}});
+  }
+});
 
 const MOVING = 'MOVING';
 const RESIZE = 'RESIZE';
+const ENAVID = 'ENAVID';
+const HIGTOC = 'HIGTOC';
 
 function setupVideo(stream) {
-
-  let  capture = createCapture(VIDEO);
-    //capture.hide();
+  let first = localCap === null;
+  if (first) {
+    let capture = createCapture(VIDEO);
+    capture.hide();
     capture.elt.srcObject = stream;
     capture.elt.autoplay = true;
-    let size = new Vec(160, 120);
+    console.log(capture);
+    let size = new Vec(capture.width, capture.height);
     let pos = new Vec(width / 2, width / 2);
     localCap = new Video(pos, stream.id, capture);
 
-    movingVideo = localCap;
+    let camera = new Camera(capture.elt, {
+      onFrame: async () => {
+        await hands.send({
+          image: capture.elt
+        });
+      },
+      width: capture.width,
+      height: capture.height
+    });
+    camera.start();
+    console.log(camera);
+  }
+  movingVideo = localCap;
   localCap.capture.elt.srcObject = stream;
   ResizeAllVideos();
-  console.log('setupVideo');
 }
 
 function setup() {
   console.log('setup');
   imageMode(CENTER);
+  rectMode(CENTER);
   //canvas作成
   createCanvas(windowWidth, windowHeight);
+  window.onresize = function() {
+    resizeCanvas(windowWidth, windowHeight);
+  };
   checkbox = createCheckbox('', true);
   checkbox.changed(SwitchVideo);
   blackimg = loadImage('/image/nekocan.png');
-
 }
 
 function addOtherVideo(stream) {
@@ -48,7 +67,7 @@ function addOtherVideo(stream) {
   let other = createVideo();
   other.elt.autoplay = true;
   other.elt.srcObject = stream;
-  //other.hide();
+  other.hide();
   let size = new Vec(160, 120);
   let pos = new Vec(windowWidth / 2, windowHeight / 2);
   for (let i = 0; i < others.length; i++) {
@@ -59,13 +78,7 @@ function addOtherVideo(stream) {
 }
 
 function removeOtherVideo(peerId) {
-  let index = -1;
-  for (let i = 0; i < others.length; i++) {
-    if (others[i].capture.elt.srcObject.peerId === peerId) {
-      index = i;
-      break;
-    }
-  }
+  let index = SearchOthers(peerId);
   if (index === -1) {
     return;
   }
@@ -76,13 +89,13 @@ let dragInterval = 0;
 
 function draw() {
   dragInterval++;
-  if (draggingVideo !== null && dragInterval >= 15) {
+  if (draggingVideo !== null && dragInterval >= getFrameRate()/2) {
     dragInterval = 0;
     Send(MOVING, localCap.pos);
   }
   background(100);
   if (localCap) {
-    if (handsImg !== null) img(localCap);
+    img(localCap);
     checkbox.position(localCap.pos.x, checkbox.size().height / 2 + localCap.pos.y + localCap.size.y / 2);
   }
   for (let i = 0; i < others.length; i++) {
@@ -92,15 +105,12 @@ function draw() {
 }
 
 function img(cap) {
-  image(cap.capture === null ? blackimg : handsImg // cap.capture
-    , cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
+  image(cap.videoEnable ? cap.capture : blackimg, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
 }
 
 function SwitchVideo() {
-  let capture = localCap.capture;
-  localCap.capture = hideCapture;
-  hideCapture = capture;
-  localStream.getTracks().enable = !checkbox.checked();
+  localCap.videoEnable = checkbox.checked();
+  Send(ENAVID, checkbox.checked());
 }
 
 function mousePressed() {
@@ -112,10 +122,9 @@ function mousePressed() {
       let resize = localCap.size;
       resize.x *= 0.75;
       resize.y *= 0.75;
-      console.log('rigiht');
       if (resize.x < windowWidth / 20) {
-        resize.x = 320;
-        resize.y = 240;
+        resize.x = localCap.capture.width;
+        resize.y = localCap.capture.height;
       }
       Send(RESIZE, resize);
     }
@@ -162,7 +171,11 @@ function ReceiveMessage(peerID, msg) {
     case RESIZE:
       ResizeOtherVideo(peerID, msg.data);
       break;
+    case ENAVID:
+      EnableOtherVideo(peerID, msg.data);
+      break;
     default:
+      break;
 
   }
 }
@@ -193,13 +206,108 @@ function ResizeOtherVideo(peerID, size) {
   ResizeVideo(others[index], size);
 }
 
-function onResults(results){
-    
+function EnableOtherVideo(peerID, enable) {
+  let index = SerchOthers(peerID);
+  if (index === -1) {
+    console('not found');
+    return;
+  }
+  others[index].videoEnable = enable;
 }
+
+
+
+
+
+
+function onResults(results) {
+  if (results.multiHandLandmarks) {
+    //console.log(results);
+    for (const landmarks of results.multiHandLandmarks) {
+      DrawRect(localCap, minMax(landmarks), 3);
+      DrawConnectors(localCap, landmarks, 2);
+    }
+  }
+
+}
+
+function tra(video) {
+  translate(video.pos.x - video.size.x / 2, video.pos.y - video.size.y / 2);
+}
+
+function Line(video, pax, pay, pbx, pby) {
+  line(pax * video.size.x, pay * video.size.y, pbx * video.size.x, pby * video.size.y);
+}
+
+function DrawRect(video, pos, weight) {
+  strokeWeight(weight);
+  stroke(0, 255, 0);
+  push();
+  tra(video);
+  Line(video, pos[0], pos[2], pos[0], pos[3]);
+  Line(video, pos[0], pos[3], pos[1], pos[3]);
+  Line(video, pos[1], pos[3], pos[1], pos[2]);
+  Line(video, pos[1], pos[2], pos[0], pos[2]);
+  pop();
+}
+
+function minMax(marks) {
+  let minX = 1,
+    maxX = 0,
+    minY = 1,
+    maxY = 0;
+  for (let i = 0; i < marks.length; i++) {
+    minX = (minX < marks[i].x ? minX : marks[i].x);
+    maxX = (maxX > marks[i].x ? maxX : marks[i].x);
+    minY = (minY < marks[i].y ? minY : marks[i].y);
+    maxY = (maxY > marks[i].y ? maxY : marks[i].y);
+  }
+  return [minX, maxX, minY, maxY];
+}
+
+//https://google.github.io/mediapipe/solutions/hands#javascript-solution-api
+function DrawConnectors(video, marks,weight) {
+  function LineMarks(a, b) {
+    Line(video, marks[a].x, marks[a].y, marks[b].x, marks[b].y);
+  }
+  strokeWeight(weight);
+  stroke(0, 0, 255);
+  push();
+  tra(video);
+  //LineMarks(,);
+  LineMarks(0, 1);
+  LineMarks(1, 2);
+  LineMarks(2, 3);
+  LineMarks(3, 4);
+
+  LineMarks(0, 5);
+  LineMarks(5, 9);
+  LineMarks(9, 13);
+  LineMarks(13, 17);
+  LineMarks(17, 0);
+
+  LineMarks(5, 6);
+  LineMarks(6, 7);
+  LineMarks(7, 8);
+
+  LineMarks(9, 10);
+  LineMarks(10, 11);
+  LineMarks(11, 12);
+
+  LineMarks(13, 14);
+  LineMarks(14, 15);
+  LineMarks(15, 16);
+
+  LineMarks(17, 18);
+  LineMarks(18, 19);
+  LineMarks(19, 20);
+  pop();
+}
+
 
 hands.setOptions({
   maxNumHands: 2,
   minDetectionConfidence: 0.5,
   minTrackingConfidence: 0.5
 });
-
+hands.onResults(onResults);
