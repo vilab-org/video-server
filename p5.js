@@ -192,3 +192,15 @@ function ResizeOtherVideo(peerID, size) {
   if (index === -1) return;
   ResizeVideo(others[index], size);
 }
+
+function onResults(results){
+    
+}
+
+hands.setOptions({
+  maxNumHands: 2,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
+});
+hands.setOptions
+
