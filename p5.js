@@ -2,18 +2,23 @@
 let localCap = null;
 let others = [];
 let draggingVideo = null;
-let capture = null;
 let hideCapture = null;
 let checkbox;
 let movingVideo;
 let blackimg;
+let handsImg = null;
+
+const hands = new Hands({locateFile: (file) => {
+    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+}});
+
 const MOVING = 'MOVING';
 const RESIZE = 'RESIZE';
 
 function setupVideo(stream) {
-  if (capture === null) {
-    capture = createCapture();
-    capture.hide();
+
+  let  capture = createCapture(VIDEO);
+    //capture.hide();
     capture.elt.srcObject = stream;
     capture.elt.autoplay = true;
     let size = new Vec(160, 120);
@@ -21,11 +26,13 @@ function setupVideo(stream) {
     localCap = new Video(pos, stream.id, capture);
 
     movingVideo = localCap;
-  } else localCap.capture.elt.srcObject = stream;
+  localCap.capture.elt.srcObject = stream;
   ResizeAllVideos();
+  console.log('setupVideo');
 }
 
 function setup() {
+  console.log('setup');
   imageMode(CENTER);
   //canvas作成
   createCanvas(windowWidth, windowHeight);
@@ -41,9 +48,9 @@ function addOtherVideo(stream) {
   let other = createVideo();
   other.elt.autoplay = true;
   other.elt.srcObject = stream;
-  other.hide();
+  //other.hide();
   let size = new Vec(160, 120);
-  let pos = new Vec(width / 2, height / 2);
+  let pos = new Vec(windowWidth / 2, windowHeight / 2);
   for (let i = 0; i < others.length; i++) {
     pos.x + others[i].size.x;
   }
@@ -75,7 +82,7 @@ function draw() {
   }
   background(100);
   if (localCap) {
-    img(localCap);
+    if (handsImg !== null) img(localCap);
     checkbox.position(localCap.pos.x, checkbox.size().height / 2 + localCap.pos.y + localCap.size.y / 2);
   }
   for (let i = 0; i < others.length; i++) {
@@ -85,7 +92,8 @@ function draw() {
 }
 
 function img(cap) {
-  image(cap.capture === null ? blackimg : cap.capture, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
+  image(cap.capture === null ? blackimg : handsImg // cap.capture
+    , cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
 }
 
 function SwitchVideo() {
@@ -104,12 +112,12 @@ function mousePressed() {
       let resize = localCap.size;
       resize.x *= 0.75;
       resize.y *= 0.75;
-        console.log('rigiht');
-      if(resize.x < windowWidth/20){
-        resize.x=320;
+      console.log('rigiht');
+      if (resize.x < windowWidth / 20) {
+        resize.x = 320;
         resize.y = 240;
       }
-      Send(RESIZE,resize);
+      Send(RESIZE, resize);
     }
   }
 
@@ -132,9 +140,9 @@ function ResizeAllVideos() {
   let i = 0;
   for (; i * i < others.length + 1; i++);
   let s = getSize(localCap.capture, i);
-  ResizeVideo(localCap,new Vec(s.x,s.y));
+  ResizeVideo(localCap, new Vec(s.x, s.y));
   for (i = 0; i < others.length; i++) {
-    ResizeVideo(others[i],new Vec(s.x,s.y));
+    ResizeVideo(others[i], new Vec(s.x, s.y));
   }
 
   function getSize(capture, num) {
@@ -152,15 +160,17 @@ function ReceiveMessage(peerID, msg) {
       moveVideo(peerID, msg.data);
       break;
     case RESIZE:
-      ResizeOtherVideo(peerID,msg.data);
+      ResizeOtherVideo(peerID, msg.data);
       break;
     default:
 
   }
 }
-function ResizeVideo(cap,size) {
+
+function ResizeVideo(cap, size) {
   cap.size = size;
 }
+
 function SerchOthers(peerId) {
   for (let i = 0; i < others.length; i++) {
     if (others[i].capture.elt.srcObject.peerId === peerId) return i;
@@ -177,8 +187,8 @@ function moveVideo(peerId, pos) {
   movingVideo.pos = pos;
 }
 
-function ResizeOtherVideo(peerID,size) {
+function ResizeOtherVideo(peerID, size) {
   let index = SerchOthers(peerID);
-  if(index === -1) return;
-  ResizeVideo(others[index],size);
+  if (index === -1) return;
+  ResizeVideo(others[index], size);
 }
