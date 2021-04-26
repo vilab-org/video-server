@@ -202,5 +202,4 @@ hands.setOptions({
   minDetectionConfidence: 0.5,
   minTrackingConfidence: 0.5
 });
-hands.setOptions
 
