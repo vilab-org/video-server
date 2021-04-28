@@ -45,7 +45,7 @@ class Video {
 
   onResults(results) {
     if (results.multiHandLandmarks) {
-      console.log(results);
+      //console.log(results);
       for (const landmarks of results.multiHandLandmarks) {
         DrawRect(localCap, minMax(landmarks), 3);
         DrawConnectors(localCap, landmarks, 2);
