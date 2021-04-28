@@ -6,12 +6,29 @@ let hideCapture = null;
 let checkbox;
 let movingVideo;
 let blackimg;
-
+/*
 const hands = new Hands({
-  locateFile: (file) => {
-    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-  }
+ locateFile: (file) => {
+   return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+ }
 });
+hands.setOptions({
+ maxNumHands: 2,
+ minDetectionConfidence: 0.5,
+ minTrackingConfidence: 0.5
+});
+function onResults(results) {
+  if (results.multiHandLandmarks) {
+    //console.log(results);
+    for (const landmarks of results.multiHandLandmarks) {
+      DrawRect(localCap, minMax(landmarks), 3);
+      DrawConnectors(localCap, landmarks, 2);
+    }
+  }
+
+}
+hands.onResults(onResults);
+*/
 
 const MOVING = 'MOVING';
 const RESIZE = 'RESIZE';
@@ -29,7 +46,7 @@ function setupVideo(stream) {
     let size = new Vec(capture.width, capture.height);
     let pos = new Vec(width / 2, width / 2);
     localCap = new Video(pos, stream.id, capture);
-
+    /*
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
         await hands.send({
@@ -39,13 +56,15 @@ function setupVideo(stream) {
       width: capture.width,
       height: capture.height
     });
-    camera.start();
-    console.log(camera);
+    camera.start();*/
+
   }
   movingVideo = localCap;
   localCap.capture.elt.srcObject = stream;
   ResizeAllVideos();
 }
+
+
 
 function setup() {
   console.log('setup');
@@ -220,16 +239,7 @@ function EnableOtherVideo(peerID, enable) {
 
 
 
-function onResults(results) {
-  if (results.multiHandLandmarks) {
-    //console.log(results);
-    for (const landmarks of results.multiHandLandmarks) {
-      DrawRect(localCap, minMax(landmarks), 3);
-      DrawConnectors(localCap, landmarks, 2);
-    }
-  }
 
-}
 
 function tra(video) {
   translate(video.pos.x - video.size.x / 2, video.pos.y - video.size.y / 2);
@@ -303,11 +313,3 @@ function DrawConnectors(video, marks,weight) {
   LineMarks(19, 20);
   pop();
 }
-
-
-hands.setOptions({
-  maxNumHands: 2,
-  minDetectionConfidence: 0.5,
-  minTrackingConfidence: 0.5
-});
-hands.onResults(onResults);
