@@ -10,9 +10,6 @@ Vec.prototype.toString = function() {
 
 class Video {
 
-
-
-
   constructor(pos, ID, capture) {
     this.size = null;
     this.pos = pos;
