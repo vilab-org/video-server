@@ -8,22 +8,33 @@ Vec.prototype.toString = function() {
   return '(' + this.x + ',' + this.y + ')';
 }
 
+class Obj {
+  constructor(pos, size) {
+    this.pos = pos;
+    this.size = size;
+  }
+}
+
 class Video {
-
-
-
-
   constructor(pos, ID, capture) {
-    this.size = null;
+    this.size = new Vec(0,0);
     this.pos = pos;
     this.ID = ID;
     this.capture = capture;
     this.videoEnable = true;
+    this.results = undefined;
+    this.handsEnable = true;
     let hands = new Hands({
-     locateFile: (file) => {
-       return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-     }
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+      }
     });
+    hands.setOptions({
+      maxNumHands: 2,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+/*
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
         await hands.send({
@@ -34,28 +45,18 @@ class Video {
       height: capture.height
     });
     camera.start();
-    hands.setOptions({
-      maxNumHands: 2,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
+*/
+    //
+    //https://pisuke-code.com/javascript-class-this-in-callback/
+    hands.onResults((results) => {
+      this.results = results;
     });
-    hands.onResults(this.onResults);
-
   }
+}
 
-  onResults(results) {
-    if (results.multiHandLandmarks) {
-      //console.log(results);
-      for (const landmarks of results.multiHandLandmarks) {
-        DrawRect(localCap, minMax(landmarks), 3);
-        DrawConnectors(localCap, landmarks, 2);
-      }
-    }
-
-  }
-
-
-
+Video.prototype.toString = function() {
+  return 'video ' + this.ID + '\n{ pos:' + this.pos + ' size:' + this.size + ' enable:' +
+    this.videoEnable + ' stream:' + this.capture.elt.stream + ' }';
 }
 
 class Message {
@@ -63,4 +64,7 @@ class Message {
     this.type = type;
     this.data = data;
   }
+}
+Message.prototype.toString = function() {
+  return '[' + this.type + ' , ' + this.data + ']';
 }

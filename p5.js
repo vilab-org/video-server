@@ -1,5 +1,5 @@
 //https://qiita.com/yusuke84/items/54dce88f9e896903e64f
-let localCap = null;
+let localVideo = null;
 let others = [];
 let draggingVideo = null;
 let hideCapture = null;
@@ -21,8 +21,8 @@ function onResults(results) {
   if (results.multiHandLandmarks) {
     //console.log(results);
     for (const landmarks of results.multiHandLandmarks) {
-      DrawRect(localCap, minMax(landmarks), 3);
-      DrawConnectors(localCap, landmarks, 2);
+      DrawRect(localVideo, minMax(landmarks), 3);
+      DrawConnectors(localVideo, landmarks, 2);
     }
   }
 
@@ -36,16 +36,14 @@ const ENAVID = 'ENAVID';
 const HIGTOC = 'HIGTOC';
 
 function setupVideo(stream) {
-  let first = localCap === null;
+  let first = localVideo === null;
   if (first) {
-    let capture = createCapture(VIDEO);
-    capture.hide();
-    capture.elt.srcObject = stream;
+    let capture = createVideo();
+    //capture.hide();
     capture.elt.autoplay = true;
-    console.log(capture);
     let size = new Vec(capture.width, capture.height);
     let pos = new Vec(width / 2, width / 2);
-    localCap = new Video(pos, stream.id, capture);
+    localVideo = new Video(pos, stream.peerId, capture);
     /*
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
@@ -58,10 +56,11 @@ function setupVideo(stream) {
     });
     camera.start();*/
 
+    movingVideo = localVideo;
   }
-  movingVideo = localCap;
-  localCap.capture.elt.srcObject = stream;
+  localVideo.capture.elt.srcObject = stream;
   ResizeAllVideos();
+  console.log(localVideo);
 }
 
 
@@ -80,20 +79,23 @@ function setup() {
   blackimg = loadImage('/image/nekocan.png');
 }
 
-function addOtherVideo(stream) {
-  console.log('add videos' + stream);
-  console.log('ID:' + stream.id);
-  let other = createVideo();
-  other.elt.autoplay = true;
-  other.elt.srcObject = stream;
-  other.hide();
-  let size = new Vec(160, 120);
+function addOtherVideo(otherStream) {
+  console.log('add videos');
+  console.log(otherStream);
+  console.log(otherStream.id);
+  let capture = createVideo();
+  capture.elt.autoplay = true;
+  //capture.elt.srcObject = otherStream;
+  //other.hide();
   let pos = new Vec(windowWidth / 2, windowHeight / 2);
   for (let i = 0; i < others.length; i++) {
     pos.x + others[i].size.x;
   }
-  others.push(new Video(pos, stream.id, other));
+  let video = new Video(pos, otherStream.peerId, capture);
+  video.capture.elt.srcObject = otherStream;
+  others.push(video);
   ResizeAllVideos();
+  console.log(video);
 }
 
 function removeOtherVideo(peerId) {
@@ -110,12 +112,12 @@ function draw() {
   dragInterval++;
   if (draggingVideo !== null && dragInterval >= getFrameRate()/2) {
     dragInterval = 0;
-    Send(MOVING, localCap.pos);
+    Send(MOVING, localVideo.pos);
   }
   background(100);
-  if (localCap) {
-    img(localCap);
-    checkbox.position(localCap.pos.x, checkbox.size().height / 2 + localCap.pos.y + localCap.size.y / 2);
+  if (localVideo) {
+    img(localVideo);
+    checkbox.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
   }
   for (let i = 0; i < others.length; i++) {
     img(others[i]);
@@ -125,25 +127,36 @@ function draw() {
 
 function img(cap) {
   image(cap.videoEnable ? cap.capture : blackimg, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
+  if(cap.handsEnable &&  cap.results && cap.results.multiHandLandmarks){
+    for (const landmarks of cap.results.multiHandLandmarks) {
+      let obj = new Obj(cap.pos, cap.size);
+      DrawRect(obj, minMax(landmarks), 3);
+      DrawConnectors(obj, landmarks, 2);
+    }
+  }
+  noFill();
+  stroke(0);
+  strokeWeight(1);
+  text(cap.ID,cap.pos.x - cap.size.x/2,cap.pos.y - cap.size.y/2 - 10);
 }
 
 function SwitchVideo() {
-  localCap.videoEnable = checkbox.checked();
+  localVideo.videoEnable = checkbox.checked();
   Send(ENAVID, checkbox.checked());
 }
 
 function mousePressed() {
 
-  if (collide(mouseX, mouseY, localCap)) {
+  if (collide(mouseX, mouseY, localVideo)) {
     if (mouseButton === LEFT) {
-      draggingVideo = localCap;
+      draggingVideo = localVideo;
     } else { //RIGHT
-      let resize = localCap.size;
+      let resize = localVideo.size;
       resize.x *= 0.75;
       resize.y *= 0.75;
       if (resize.x < windowWidth / 20) {
-        resize.x = localCap.capture.width;
-        resize.y = localCap.capture.height;
+        resize.x = localVideo.capture.width;
+        resize.y = localVideo.capture.height;
       }
       Send(RESIZE, resize);
     }
@@ -167,14 +180,14 @@ function mouseReleased() {
 function ResizeAllVideos() {
   let i = 0;
   for (; i * i < others.length + 1; i++);
-  let s = getSize(localCap.capture, i);
-  ResizeVideo(localCap, new Vec(s.x, s.y));
+  let size = getSize(localVideo.capture, i);
+  ResizeVideo(localVideo, size);
   for (i = 0; i < others.length; i++) {
-    ResizeVideo(others[i], new Vec(s.x, s.y));
+    ResizeVideo(others[i], size);
   }
 
   function getSize(capture, num) {
-    let ratio = 240 / 320;
+    let ratio = capture.height / capture.width;
     let x = (windowWidth / 2) / num;
     let y = x * ratio;
     return new Vec(x, y);
@@ -182,7 +195,7 @@ function ResizeAllVideos() {
 }
 
 function ReceiveMessage(peerID, msg) {
-  console.log(peerID + ':' + msg.data);
+  console.log('receive:'+peerID + ':' + msg);
   switch (msg.type) {
     case MOVING:
       moveVideo(peerID, msg.data);
@@ -194,25 +207,28 @@ function ReceiveMessage(peerID, msg) {
       EnableOtherVideo(peerID, msg.data);
       break;
     default:
+    console.log('not format message:'+msg);
       break;
 
   }
 }
 
 function ResizeVideo(cap, size) {
-  cap.size = size;
+  cap.size.x = size.x;
+  cap.size.y = size.y;
 }
 
-function SerchOthers(peerId) {
+function SearchOthers(peerId) {
   for (let i = 0; i < others.length; i++) {
-    if (others[i].capture.elt.srcObject.peerId === peerId) return i;
+    if (others[i].ID === peerId) return i;
   }
+  console.log('not found:'+peerId);
   return -1;
 }
 
 function moveVideo(peerId, pos) {
   if (movingVideo.ID !== peerId) {
-    let index = SerchOthers(peerId);
+    let index = SearchOthers(peerId);
     if (index === -1) return;
     movingVideo = others[index];
   }
@@ -220,15 +236,14 @@ function moveVideo(peerId, pos) {
 }
 
 function ResizeOtherVideo(peerID, size) {
-  let index = SerchOthers(peerID);
+  let index = setupGetUserMediarchOthers(peerID);
   if (index === -1) return;
   ResizeVideo(others[index], size);
 }
 
 function EnableOtherVideo(peerID, enable) {
-  let index = SerchOthers(peerID);
+  let index = SearchOthers(peerID);
   if (index === -1) {
-    console('not found');
     return;
   }
   others[index].videoEnable = enable;

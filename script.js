@@ -121,10 +121,12 @@ $(function() {
     });
 
     room.on('removeStream', function(stream) {
+      console.log('removeStream:'+stream.peerId);
       removeVideo(stream.peerId);
     });
 
     room.on('peerLeave', function(peerId) {
+      console.log('peerLeave:'+peerId);
       removeVideo(peerId);
     });
 
@@ -137,19 +139,18 @@ $(function() {
       data,
       src
     }) => {
-
       ReceiveMessage(src,Object.assign(new Message(), JSON.parse(data)));
     });
   }
 
-  function addVideo(stream) {
-    /*
+  function addVideo(otherStream) {
+
         const videoDom = $('<video autoplay>');
-        videoDom.attr('id',stream.peerId);
-        videoDom.get(0).srcObject = stream;
+        videoDom.attr('id',otherStream.peerId);
+        videoDom.get(0).srcObject = otherStream;
         $('.videosContainer').append(videoDom);
-*/
-    addOtherVideo(stream);
+
+    addOtherVideo(otherStream);
   }
 
   function removeVideo(peerId) {
