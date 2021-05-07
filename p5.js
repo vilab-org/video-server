@@ -193,7 +193,8 @@ function ResizeAllVideos() {
 }
 
 function ReceiveMessage(peerID, msg) {
-  console.log('receive:' + peerID + ':' + msg);
+  console.log('receive:' + peerID + ':');
+  console.log(msg);
   switch (msg.type) {
     case MOVING:
       moveVideo(peerID, msg.data);
