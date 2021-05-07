@@ -8,7 +8,6 @@ Vec.prototype.toString = function() {
   return '(' + this.x + ',' + this.y + ')';
 }
 
-<<<<<<< HEAD
 class Obj {
   constructor(pos, size) {
     this.pos = pos;
@@ -17,10 +16,6 @@ class Obj {
 }
 
 class Video {
-=======
-class Video {
-
->>>>>>> 9899c9d98b2d6eb7e4397040219a4023e909f3e3
   constructor(pos, ID, capture) {
     this.size = new Vec(0,0);
     this.pos = pos;
