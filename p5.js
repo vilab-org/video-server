@@ -212,7 +212,7 @@ function ReceiveMessage(peerID, msg) {
       EnableOtherVideo(peerID, msg.data);
       break;
     case HNDRES:
-
+      HandsOthersResults(peerID,msg.data);
       break;
     default:
       console.log('not format message:' + msg);
