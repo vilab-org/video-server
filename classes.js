@@ -24,6 +24,7 @@ class Video {
     this.videoEnable = true;
     this.results = undefined;
     this.handsEnable = true;
+/*
     let hands = new Hands({
       locateFile: (file) => {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
@@ -34,7 +35,7 @@ class Video {
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5
     });
-/*
+
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
         await hands.send({
@@ -45,12 +46,13 @@ class Video {
       height: capture.height
     });
     camera.start();
-*/
-    //
+
+    //ラムダ式じゃないとthis.が使えない
     //https://pisuke-code.com/javascript-class-this-in-callback/
     hands.onResults((results) => {
       this.results = results;
     });
+    */
   }
 }
 

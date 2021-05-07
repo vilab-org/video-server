@@ -6,45 +6,38 @@ let hideCapture = null;
 let checkbox;
 let movingVideo;
 let blackimg;
-/*
+
 const hands = new Hands({
- locateFile: (file) => {
-   return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
- }
+  locateFile: (file) => {
+    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+  }
 });
 hands.setOptions({
- maxNumHands: 2,
- minDetectionConfidence: 0.5,
- minTrackingConfidence: 0.5
+  maxNumHands: 2,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
 });
 function onResults(results) {
-  if (results.multiHandLandmarks) {
-    //console.log(results);
-    for (const landmarks of results.multiHandLandmarks) {
-      DrawRect(localVideo, minMax(landmarks), 3);
-      DrawConnectors(localVideo, landmarks, 2);
-    }
-  }
-
+  localVideo.results = results;
 }
 hands.onResults(onResults);
-*/
+
 
 const MOVING = 'MOVING';
 const RESIZE = 'RESIZE';
 const ENAVID = 'ENAVID';
 const HIGTOC = 'HIGTOC';
+const HNDRES = 'HNDRES';
 
 function setupVideo(stream) {
   let first = localVideo === null;
   if (first) {
     let capture = createVideo();
-    //capture.hide();
+    capture.hide();
     capture.elt.autoplay = true;
-    let size = new Vec(capture.width, capture.height);
     let pos = new Vec(width / 2, width / 2);
     localVideo = new Video(pos, stream.peerId, capture);
-    /*
+
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
         await hands.send({
@@ -54,7 +47,7 @@ function setupVideo(stream) {
       width: capture.width,
       height: capture.height
     });
-    camera.start();*/
+    camera.start();
 
     movingVideo = localVideo;
   }
@@ -71,7 +64,7 @@ function setup() {
   rectMode(CENTER);
   //canvas作成
   createCanvas(windowWidth, windowHeight);
-  window.onresize = function() {
+  window.onresize = function () {
     resizeCanvas(windowWidth, windowHeight);
   };
   checkbox = createCheckbox('', true);
@@ -86,7 +79,7 @@ function addOtherVideo(otherStream) {
   let capture = createVideo();
   capture.elt.autoplay = true;
   //capture.elt.srcObject = otherStream;
-  //other.hide();
+  other.hide();
   let pos = new Vec(windowWidth / 2, windowHeight / 2);
   for (let i = 0; i < others.length; i++) {
     pos.x + others[i].size.x;
@@ -110,7 +103,7 @@ let dragInterval = 0;
 
 function draw() {
   dragInterval++;
-  if (draggingVideo !== null && dragInterval >= getFrameRate()/2) {
+  if (draggingVideo !== null && dragInterval >= getFrameRate() / 2) {
     dragInterval = 0;
     Send(MOVING, localVideo.pos);
   }
@@ -127,7 +120,7 @@ function draw() {
 
 function img(cap) {
   image(cap.videoEnable ? cap.capture : blackimg, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
-  if(cap.handsEnable &&  cap.results && cap.results.multiHandLandmarks){
+  if (cap.handsEnable && cap.results && cap.results.multiHandLandmarks) {
     for (const landmarks of cap.results.multiHandLandmarks) {
       let obj = new Obj(cap.pos, cap.size);
       DrawRect(obj, minMax(landmarks), 3);
@@ -137,7 +130,7 @@ function img(cap) {
   noFill();
   stroke(0);
   strokeWeight(1);
-  text(cap.ID,cap.pos.x - cap.size.x/2,cap.pos.y - cap.size.y/2 - 10);
+  text(cap.ID, cap.pos.x - cap.size.x / 2, cap.pos.y - cap.size.y / 2 - 10);
 }
 
 function SwitchVideo() {
@@ -195,7 +188,7 @@ function ResizeAllVideos() {
 }
 
 function ReceiveMessage(peerID, msg) {
-  console.log('receive:'+peerID + ':' + msg);
+  console.log('receive:' + peerID + ':' + msg);
   switch (msg.type) {
     case MOVING:
       moveVideo(peerID, msg.data);
@@ -206,8 +199,11 @@ function ReceiveMessage(peerID, msg) {
     case ENAVID:
       EnableOtherVideo(peerID, msg.data);
       break;
+    case HNDRES:
+
+      break;
     default:
-    console.log('not format message:'+msg);
+      console.log('not format message:' + msg);
       break;
 
   }
@@ -222,7 +218,7 @@ function SearchOthers(peerId) {
   for (let i = 0; i < others.length; i++) {
     if (others[i].ID === peerId) return i;
   }
-  console.log('not found:'+peerId);
+  console.log('not found:' + peerId);
   return -1;
 }
 
@@ -291,7 +287,7 @@ function minMax(marks) {
 }
 
 //https://google.github.io/mediapipe/solutions/hands#javascript-solution-api
-function DrawConnectors(video, marks,weight) {
+function DrawConnectors(video, marks, weight) {
   function LineMarks(a, b) {
     Line(video, marks[a].x, marks[a].y, marks[b].x, marks[b].y);
   }
