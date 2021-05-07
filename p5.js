@@ -5,6 +5,7 @@ let draggingVideo = null;
 let hideCapture = null;
 let checkbox;
 let movingVideo;
+let handResults;
 let blackimg;
 
 const hands = new Hands({
@@ -50,6 +51,7 @@ function setupVideo(stream) {
     camera.start();
 
     movingVideo = localVideo;
+    handResults = localVideo.resulets;
   }
   localVideo.capture.elt.srcObject = stream;
   ResizeAllVideos();
@@ -109,7 +111,10 @@ function draw() {
     if(draggingVideo !== null){
       Send(MOVING, new Vec(localVideo.pos.x / windowWidth , localVideo.pos.y / windowHeight));
     }
-    Send(HNDRES,localVideo.results);
+    if(localVideo.resulets || (localVideo.resulets === undefined && handResults)){
+      Send(HNDRES,localVideo.results);
+      handResults = localVideo.resulets;
+    }
   }
   background(100);
   if (localVideo) {
