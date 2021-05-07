@@ -102,6 +102,7 @@ function removeOtherVideo(peerId) {
 let dragInterval = 0;
 
 function draw() {
+  if(localVideo === null) return;
   dragInterval++;
   if (dragInterval >= getFrameRate() / 2) {
     dragInterval = 0;
