@@ -105,7 +105,8 @@ function draw() {
   dragInterval++;
   if (draggingVideo !== null && dragInterval >= getFrameRate() / 2) {
     dragInterval = 0;
-    Send(MOVING, localVideo.pos);
+    let pos = localVideo.po;
+    Send(MOVING, new Vec(localVideo.pos.x / windowWidth , localVideo.pos.y / windowHeight));
   }
   background(100);
   if (localVideo) {
@@ -162,7 +163,7 @@ function mousePressed() {
 
 function mouseDragged() {
   if (draggingVideo !== null) {
-    draggingVideo.pos = new Vec(mouseX / windowWidth, mouseY / windowHeight);
+    draggingVideo.pos = new Vec(mouseX, mouseY);
   }
 }
 
