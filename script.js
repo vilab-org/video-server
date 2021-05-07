@@ -1,3 +1,4 @@
+//Skyway関連処理
 let APIKey = '96ff1dfd-a19d-4b53-a97d-376d0006d337';
 let localStream = null;
 let room;
@@ -144,12 +145,12 @@ $(function() {
   }
 
   function addVideo(otherStream) {
-
+/*
         const videoDom = $('<video autoplay>');
         videoDom.attr('id',otherStream.peerId);
         videoDom.get(0).srcObject = otherStream;
         $('.videosContainer').append(videoDom);
-
+*/
     addOtherVideo(otherStream);
   }
 

@@ -162,11 +162,12 @@ function mousePressed() {
 
 function mouseDragged() {
   if (draggingVideo !== null) {
-    draggingVideo.pos = new Vec(mouseX, mouseY);
+    draggingVideo.pos = new Vec(mouseX / windowWidth, mouseY / windowHeight);
   }
 }
 
 function mouseReleased() {
+  mouseDragged();
   draggingVideo = null;
 }
 
@@ -228,7 +229,7 @@ function moveVideo(peerId, pos) {
     if (index === -1) return;
     movingVideo = others[index];
   }
-  movingVideo.pos = pos;
+  movingVideo.pos = new Vec(pos.x * windowWidth, pos.y * windowHeight)
 }
 
 function ResizeOtherVideo(peerID, size) {
