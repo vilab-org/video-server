@@ -101,10 +101,10 @@ $(function() {
           existingroom.replaceStream(stream);
         }
 
-      }).catch(function(error) {
+      });/*.catch(function(error) {
         console.error('mediaDevice.getUserMedia() error:', error);
         return;
-      });
+      });*/
   }
 
   function setupRoomEventHandlers(room) {
