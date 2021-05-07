@@ -79,7 +79,7 @@ function addOtherVideo(otherStream) {
   let capture = createVideo();
   capture.elt.autoplay = true;
   //capture.elt.srcObject = otherStream;
-  other.hide();
+  capture.hide();
   let pos = new Vec(windowWidth / 2, windowHeight / 2);
   for (let i = 0; i < others.length; i++) {
     pos.x + others[i].size.x;
