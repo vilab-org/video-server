@@ -103,10 +103,12 @@ let dragInterval = 0;
 
 function draw() {
   dragInterval++;
-  if (draggingVideo !== null && dragInterval >= getFrameRate() / 2) {
+  if (dragInterval >= getFrameRate() / 2) {
     dragInterval = 0;
-    let pos = localVideo.po;
-    Send(MOVING, new Vec(localVideo.pos.x / windowWidth , localVideo.pos.y / windowHeight));
+    if(draggingVideo !== null){
+      Send(MOVING, new Vec(localVideo.pos.x / windowWidth , localVideo.pos.y / windowHeight));
+    }
+    Send(HNDRES,localVideo.results);
   }
   background(100);
   if (localVideo) {
@@ -247,6 +249,13 @@ function EnableOtherVideo(peerID, enable) {
   others[index].videoEnable = enable;
 }
 
+function HandsOthersResults(peerID,resulets){
+  let index = SearchOthers(peerID);
+  if (index === -1) {
+    return;
+  }
+  others[idnex].resulets = resulets;
+}
 
 
 
