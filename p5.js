@@ -7,23 +7,6 @@ let checkbox;
 let movingVideo;
 let handResults;
 let blackimg;
-
-const hands = new Hands({
-  locateFile: (file) => {
-    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-  }
-});
-hands.setOptions({
-  maxNumHands: 2,
-  minDetectionConfidence: 0.5,
-  minTrackingConfidence: 0.5
-});
-function onResults(results) {
-  localVideo.results = results;
-}
-hands.onResults(onResults);
-
-
 const MOVING = 'MOVING';
 const RESIZE = 'RESIZE';
 const ENAVID = 'ENAVID';
@@ -51,7 +34,6 @@ function setupVideo(stream) {
     camera.start();
 
     movingVideo = localVideo;
-    handResults = localVideo.resulets;
   }
   localVideo.capture.elt.srcObject = stream;
   ResizeAllVideos();
@@ -66,7 +48,7 @@ function setup() {
   rectMode(CENTER);
   //canvas作成
   createCanvas(windowWidth, windowHeight);
-  window.onresize = function () {
+  window.onresize = function() {
     resizeCanvas(windowWidth, windowHeight);
   };
   checkbox = createCheckbox('', true);
@@ -104,18 +86,19 @@ function removeOtherVideo(peerId) {
 let dragInterval = 0;
 
 function draw() {
-  if(localVideo === null) return;
+  if (localVideo === null) return;
   dragInterval++;
   if (dragInterval >= getFrameRate() / 2) {
     dragInterval = 0;
-    if(draggingVideo !== null){
-      Send(MOVING, new Vec(localVideo.pos.x / windowWidth , localVideo.pos.y / windowHeight));
+    if (draggingVideo !== null) {
+      Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
     }
-    //if(localVideo.resulets || (localVideo.resulets === undefined && handResults)){
-      console.log('send');
-      Send(HNDRES,localVideo.results);
-      handResults = localVideo.resulets;
-    //}
+    if (localVideo.results) {
+      if (localVideo.results.multiHandLandmarks || (!localVideo.results.multiHandLandmarks && (handResults && handResults.multiHandLandmarks))) {
+        Send(HNDRES, localVideo.results);
+        handResults = localVideo.results;
+      }
+    }
   }
   background(100);
   if (localVideo) {
@@ -212,10 +195,11 @@ function ReceiveMessage(peerID, msg) {
       EnableOtherVideo(peerID, msg.data);
       break;
     case HNDRES:
-      HandsOthersResults(peerID,msg.data);
+      HandsOthersResults(peerID, msg.data);
       break;
     default:
-      console.log('not format message:' + msg);
+      console.log('not format message:');
+      console.log(msg);
       break;
 
   }
@@ -257,12 +241,12 @@ function EnableOtherVideo(peerID, enable) {
   others[index].videoEnable = enable;
 }
 
-function HandsOthersResults(peerID,resulets){
+function HandsOthersResults(peerID, results) {
   let index = SearchOthers(peerID);
   if (index === -1) {
     return;
   }
-  others[idnex].resulets = resulets;
+  others[index].results = results;
 }
 
 
