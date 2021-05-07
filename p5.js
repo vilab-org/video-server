@@ -111,11 +111,11 @@ function draw() {
     if(draggingVideo !== null){
       Send(MOVING, new Vec(localVideo.pos.x / windowWidth , localVideo.pos.y / windowHeight));
     }
-    if(localVideo.resulets || (localVideo.resulets === undefined && handResults)){
+    //if(localVideo.resulets || (localVideo.resulets === undefined && handResults)){
       console.log('send');
       Send(HNDRES,localVideo.results);
       handResults = localVideo.resulets;
-    }
+    //}
   }
   background(100);
   if (localVideo) {
