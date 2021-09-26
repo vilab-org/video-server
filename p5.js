@@ -86,6 +86,7 @@ function removeOtherVideo(peerId) {
 let dragInterval = 0;
 
 function draw() {
+  background(100);
   if (localVideo === null) return;
   dragInterval++;
   if (dragInterval >= getFrameRate() / 2) {
@@ -100,7 +101,6 @@ function draw() {
       }
     }
   }
-  background(100);
   if (localVideo) {
     img(localVideo);
     checkbox.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
