@@ -108,7 +108,9 @@ function draw() {
   let aveMinMaxPos = [[0,0,0,0],[0,0,0,0]];
   for (let i = 0; i < others.length; i++) {
     img(others[i]);
-    othersHandAve += others[i].handResults.
+    console.log(others[i].handResults);
+    //if(others[i].handResults.)
+    //othersHandAve += 
   }
 
 }
