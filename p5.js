@@ -59,7 +59,6 @@ function setup() {
 function addOtherVideo(otherStream) {
   console.log('add videos');
   console.log(otherStream);
-  console.log(otherStream.id);
   let capture = createVideo();
   capture.elt.autoplay = true;
   //capture.elt.srcObject = otherStream;
@@ -105,25 +104,46 @@ function draw() {
     img(localVideo);
     checkbox.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
   }
+  let othersHandAve = 0;
+  let aveMinMaxPos = [[0,0,0,0],[0,0,0,0]];
   for (let i = 0; i < others.length; i++) {
     img(others[i]);
+    othersHandAve += others[i].handResults.
   }
 
 }
 
 function img(cap) {
-  image(cap.videoEnable ? cap.capture : blackimg, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
+  if(cap.videoEnable) {
+    /*
+    push()
+    //tra(cap);
+    //scale(-1,1);
+    //tranScale(cap,-2,2);
+    //image(cap.capture, 0, 0, 0, 0);
+    pop();*/
+    image(cap.capture, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
+  }
+  else{
+    image(blackimg, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
+  }
+
+  let minMaxPositions = [];
   if (cap.handsEnable && cap.results && cap.results.multiHandLandmarks) {
     for (const landmarks of cap.results.multiHandLandmarks) {
       let obj = new Obj(cap.pos, cap.size);
-      DrawRect(obj, minMax(landmarks), 3);
+      let minMaxPos = minMax(landmarks);
+      DrawRect(obj, minMaxPos, 3);
       DrawConnectors(obj, landmarks, 2);
+      minMaxPositions.push(minMaxPos);
     }
   }
   noFill();
   stroke(0);
   strokeWeight(1);
   text(cap.ID, cap.pos.x - cap.size.x / 2, cap.pos.y - cap.size.y / 2 - 10);
+
+  return minMaxPositions;
 }
 
 function SwitchVideo() {
@@ -254,7 +274,9 @@ function HandsOthersResults(peerID, results) {
 
 
 
-
+function tranScale(video,scaleX,scaleY){
+  translate((video.pos.x - video.size.x / 2) * scaleX, (video.pos.y - video.size.y / 2) * scaleY);
+}
 function tra(video) {
   translate(video.pos.x - video.size.x / 2, video.pos.y - video.size.y / 2);
 }
