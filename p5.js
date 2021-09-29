@@ -4,7 +4,6 @@ let others = [];
 let draggingVideo = null;
 let hideCapture = null;
 let checkbox;
-let movingVideo;
 let handResults;
 let blackimg;
 const MOVING = 'MOVING';
@@ -32,8 +31,6 @@ function setupVideo(stream) {
       height: capture.height
     });
     camera.start();
-
-    movingVideo = localVideo;
   }
   localVideo.capture.elt.srcObject = stream;
   ResizeAllVideos();
@@ -43,7 +40,6 @@ function setupVideo(stream) {
 
 
 function setup() {
-  console.log('setup');
   imageMode(CENTER);
   rectMode(CENTER);
   //canvas作成
@@ -54,6 +50,7 @@ function setup() {
   checkbox = createCheckbox('', true);
   checkbox.changed(SwitchVideo);
   blackimg = loadImage('/image/nekocan.png');
+  console.log('setup');
 }
 
 function addOtherVideo(otherStream) {
@@ -94,29 +91,27 @@ function draw() {
       Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
     }
     if (localVideo.results) {
-      if (localVideo.results.multiHandLandmarks || (!localVideo.results.multiHandLandmarks && (handResults && handResults.multiHandLandmarks))) {
+      if (localVideo.results.multiHandLandmarks.length > 0 || (handResults && handResults.multiHandLandmarks.length > 0)) {
+        //if(localVideo.results.multiHandLandmarks.length > 0){
         Send(HNDRES, localVideo.results);
         handResults = localVideo.results;
+        //}
       }
     }
   }
   if (localVideo) {
     img(localVideo);
     checkbox.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
+
   }
-  let othersHandAve = 0;
-  let aveMinMaxPos = [[0,0,0,0],[0,0,0,0]];
-  for (let i = 0; i < others.length; i++) {
-    img(others[i]);
-    console.log(others[i].handResults);
-    //if(others[i].handResults.)
-    //othersHandAve += 
+  if(others.length > 0){
+    DrawAndCalcOthers();
   }
 
 }
 
 function img(cap) {
-  if(cap.videoEnable) {
+  if (cap.videoEnable) {
     /*
     push()
     //tra(cap);
@@ -125,27 +120,33 @@ function img(cap) {
     //image(cap.capture, 0, 0, 0, 0);
     pop();*/
     image(cap.capture, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
+    //image(cap.capture,cap.pos.x,cap.pos.y,cap.capture.width,cap.capture.height);
+  } else {
+    image(blackimg, cap.pos.x, cap.pos.y, blackimg.width, blackimg.height);
   }
-  else{
-    image(blackimg, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
-  }
+  text(cap.ID, cap);
+}
 
-  let minMaxPositions = [];
-  if (cap.handsEnable && cap.results && cap.results.multiHandLandmarks) {
-    for (const landmarks of cap.results.multiHandLandmarks) {
-      let obj = new Obj(cap.pos, cap.size);
+function DrawHands(inVideo, outVideo) {
+
+  if (inVideo.handsEnable && inVideo.results && inVideo.results.multiHandLandmarks) {
+    for (let i = 0; i < inVideo.results.multiHandLandmarks.length; i++) {
+      //for (const landmarks of inVideo.results.multiHandLandmarks) {
+      let landmarks = inVideo.results.multiHandLandmarks[i];
+      let obj = new Obj(outVideo.pos, outVideo.size);
       let minMaxPos = minMax(landmarks);
       DrawRect(obj, minMaxPos, 3);
       DrawConnectors(obj, landmarks, 2);
-      minMaxPositions.push(minMaxPos);
+
+      noFill();
+      stroke(255);
+      strokeWeight(1);
+      //[minX, maxX, minY, maxY]
+      console.log(inVideo.results);
+      let cap = outVideo;
+      text(inVideo.results.multiHandedness[i].label, (cap.pos.x - cap.size.x / 2) + (cap.size.x * minMaxPos[0]), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos[2]) + 10);
     }
   }
-  noFill();
-  stroke(0);
-  strokeWeight(1);
-  text(cap.ID, cap.pos.x - cap.size.x / 2, cap.pos.y - cap.size.y / 2 - 10);
-
-  return minMaxPositions;
 }
 
 function SwitchVideo() {
@@ -206,18 +207,24 @@ function ResizeAllVideos() {
 function ReceiveMessage(peerID, msg) {
   console.log('receive:' + peerID + ':');
   console.log(msg);
+  let index = SearchOthers(peerID);
+  if (index === -1) {
+    console.warn("not found peerID");
+    return;
+  }
+
   switch (msg.type) {
     case MOVING:
-      moveVideo(peerID, msg.data);
+      moveVideo(index, msg.data);
       break;
     case RESIZE:
-      ResizeOtherVideo(peerID, msg.data);
+      ResizeOtherVideo(index, msg.data);
       break;
     case ENAVID:
-      EnableOtherVideo(peerID, msg.data);
+      EnableOtherVideo(index, msg.data);
       break;
     case HNDRES:
-      HandsOthersResults(peerID, msg.data);
+      HandsOthersResults(index, msg.data);
       break;
     default:
       console.log('not format message:');
@@ -228,8 +235,11 @@ function ReceiveMessage(peerID, msg) {
 }
 
 function ResizeVideo(cap, size) {
-  cap.size.x = size.x;
-  cap.size.y = size.y;
+  //cap.size.x = size.x;
+  //cap.size.y = size.y;
+  console.log(cap.capture);
+  cap.size.x = cap.capture.width;
+  cap.size.y = cap.capture.height;
 }
 
 function SearchOthers(peerId) {
@@ -240,35 +250,28 @@ function SearchOthers(peerId) {
   return -1;
 }
 
-function moveVideo(peerId, pos) {
-  if (movingVideo.ID !== peerId) {
-    let index = SearchOthers(peerId);
-    if (index === -1) return;
-    movingVideo = others[index];
-  }
-  movingVideo.pos = new Vec(pos.x * windowWidth, pos.y * windowHeight)
+function moveVideo(index, pos) {
+  others[index].pos = new Vec(pos.x * windowWidth, pos.y * windowHeight)
 }
 
-function ResizeOtherVideo(peerID, size) {
-  let index = setupGetUserMediarchOthers(peerID);
-  if (index === -1) return;
+function ResizeOtherVideo(index, size) {
   ResizeVideo(others[index], size);
 }
 
-function EnableOtherVideo(peerID, enable) {
-  let index = SearchOthers(peerID);
-  if (index === -1) {
-    return;
-  }
+function EnableOtherVideo(index, enable) {
   others[index].videoEnable = enable;
 }
 
-function HandsOthersResults(peerID, results) {
-  let index = SearchOthers(peerID);
-  if (index === -1) {
-    return;
-  }
+function HandsOthersResults(index, results) {
   others[index].results = results;
+
+}
+
+function text(text, cap) {
+  noFill();
+  stroke(0);
+  strokeWeight(1);
+  text(text, cap.pos.x - cap.size.x / 2, cap.pos.y - cap.size.y / 2 - 10);
 }
 
 
@@ -276,9 +279,40 @@ function HandsOthersResults(peerID, results) {
 
 
 
-function tranScale(video,scaleX,scaleY){
+function DrawAndCalcOthers(){
+  let othersHandAve = 0;
+  let aveMinMaxPos = [
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
+  ];
+  for (let i = 0; i < others.length; i++) {
+    img(others[i]);
+    //DrawHands(localVideo, others[i]);
+    if (!others[i].results) continue;
+    let handedness = others[i].results.multiHandedness;
+    for (let j = 0; j < handedness.length; j++) {
+      let minMaxPos = minMax(others[i].results.multiHandLandmarks[j]);
+      let index = -1;
+      if (handedness[j].label === "Left") index = 0;
+      else if (handedness[j].label === "Right") index = 1;
+      else continue;
+      for (let k = 0; k < minMaxPos.length; k++) {
+        aveMinMaxPos[index][k] += minMaxPos[k];;
+      }
+    }
+  }
+
+  for (let i = 0; i < aveMinMaxPos.length; i++) {
+    for (let j = 0; j < aveMinMaxPos[i].length; j++)
+      aveMinMaxPos[i][j] /= others.length;
+    DrawRect(localVideo, aveMinMaxPos[i], 1);
+  }
+}
+
+function tranScale(video, scaleX, scaleY) {
   translate((video.pos.x - video.size.x / 2) * scaleX, (video.pos.y - video.size.y / 2) * scaleY);
 }
+
 function tra(video) {
   translate(video.pos.x - video.size.x / 2, video.pos.y - video.size.y / 2);
 }
@@ -291,7 +325,7 @@ function DrawRect(video, pos, weight) {
   strokeWeight(weight);
   stroke(0, 255, 0);
   push();
-  tra(video);
+  tra(video); //minX, maxX, minY, maxY]
   Line(video, pos[0], pos[2], pos[0], pos[3]);
   Line(video, pos[0], pos[3], pos[1], pos[3]);
   Line(video, pos[1], pos[3], pos[1], pos[2]);

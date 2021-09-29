@@ -95,6 +95,7 @@ $(function() {
       .then(function(stream) {
         // $('#myStream').get(0).srcObject = stream;
         localStream = stream;
+        console.log(stream);
         setupVideo(stream);
 
         if (existingroom) {

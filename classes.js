@@ -15,10 +15,9 @@ class Obj {
   }
 }
 
-class Video {
+class Video extends Obj{
   constructor(pos, ID, capture) {
-    this.size = new Vec(0,0);
-    this.pos = pos;
+    super(pos,new Vec(0,0));
     this.ID = ID;
     this.capture = capture;
     this.videoEnable = true;

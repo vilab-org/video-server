@@ -10,6 +10,18 @@ hands.setOptions({
 });
 
 function onResults(results) {
+  if (!checkGoodResults(results)) return;
   localVideo.results = results;
+
+  function checkGoodResults(results) {
+    //console.log("hands on results");
+    //console.log(results);
+    if (results.multiHandedness) return true;
+    //video.results.multiHandedness[i].label "left" or "right"
+    for (let i = 0; i < results.multiHandedness.length; i++) {
+      if (results.multiHandedness[i].score < 0.6) return false;
+    }
+    return true;
+  }
 }
 hands.onResults(onResults);
