@@ -333,9 +333,13 @@ function DrawRect(video, pos, weight) {
   Line(video, pos[0], pos[3], pos[1], pos[3]);
   Line(video, pos[1], pos[3], pos[1], pos[2]);
   Line(video, pos[1], pos[2], pos[0], pos[2]);
-  translate((pos[0]+pos[1])*0.5,(pos[2]+pos[3])*0.5);
+
+  let circleSize = min(pos[1]-pos[0],pos[3]-pos[2]) * 0.3 * video.size.x;
+  translate((pos[0]+pos[1])*0.5 * video.size.x ,(pos[2]+pos[3])*0.5 * video.size.y);
   stroke(255,0,0);
-  ellipse(1,1,1,1);
+  strokeWeight(weight * 2);
+  noFill();
+  ellipse(0,0,circleSize,circleSize);
   pop();
 }
 
