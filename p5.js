@@ -23,7 +23,7 @@ function setupVideo(stream) {
 
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
-        await hands.send({
+        await hands.send({//手の映像を送信
           image: capture.elt
         });
       },
@@ -68,6 +68,7 @@ function addOtherVideo(otherStream) {
   video.capture.elt.srcObject = otherStream;
   others.push(video);
   ResizeAllVideos();
+  console.log("addOtherVideo");
   console.log(video);
 }
 
@@ -92,10 +93,8 @@ function draw() {
     }
     if (localVideo.results) {
       if (localVideo.results.multiHandLandmarks.length > 0 || (handResults && handResults.multiHandLandmarks.length > 0)) {
-        //if(localVideo.results.multiHandLandmarks.length > 0){
         Send(HNDRES, localVideo.results);
         handResults = localVideo.results;
-        //}
       }
     }
   }
@@ -131,7 +130,6 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
 
   if (inVideo.handsEnable && inVideo.results && inVideo.results.multiHandLandmarks) {
     for (let i = 0; i < inVideo.results.multiHandLandmarks.length; i++) {
-      //for (const landmarks of inVideo.results.multiHandLandmarks) {
       let landmarks = inVideo.results.multiHandLandmarks[i];
       let obj = new Obj(outVideo.pos, outVideo.size);
       let minMaxPos = minMax(landmarks);
@@ -144,7 +142,7 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
       //[minX, maxX, minY, maxY]
       //console.log(inVideo.results);
       let cap = outVideo;
-      text(inVideo.results.multiHandedness[i].label, (cap.pos.x - cap.size.x / 2) + (cap.size.x * minMaxPos[0]), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos[2]) + 10);
+      text(inVideo.results.multiHandedness[i].label, (cap.pos.x - cap.size.x / 2) + (cap.size.x * minMaxPos[0]), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos[3]) + 10);
     }
   }
 }
@@ -286,19 +284,19 @@ function DrawAndCalcOthers() {
     [0, 0, 0, 0]
   ];
   let valueChanged = [false, false];
-  for (let i = 0; i < others.length; i++) {
+  for (let i = 0; i < others.length; i++) {//他参加者を網羅するfor
     img(others[i]);
     //DrawHands(others[i], others[i],1,1);
     if (!others[i].results) continue;
     let handedness = others[i].results.multiHandedness;
-    for (let j = 0; j < handedness.length; j++) {
+    for (let j = 0; j < handedness.length; j++) { //右手左手用のfor
       let minMaxPos = minMax(others[i].results.multiHandLandmarks[j]);
       let index = -1;
       if (handedness[j].label === "Left") index = 0;
       else if (handedness[j].label === "Right") index = 1;
       else continue;
       valueChanged[j] = true;
-      for (let k = 0; k < minMaxPos.length; k++) {
+      for (let k = 0; k < minMaxPos.length; k++) { //検出した手の四隅用のfor
         aveMinMaxPos[index][k] += minMaxPos[k];
       }
     }
@@ -335,6 +333,9 @@ function DrawRect(video, pos, weight) {
   Line(video, pos[0], pos[3], pos[1], pos[3]);
   Line(video, pos[1], pos[3], pos[1], pos[2]);
   Line(video, pos[1], pos[2], pos[0], pos[2]);
+  translate((pos[0]+pos[1])*0.5,(pos[2]+pos[3])*0.5);
+  stroke(255,0,0);
+  ellipse(1,1,1,1);
   pop();
 }
 
