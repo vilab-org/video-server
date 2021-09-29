@@ -102,7 +102,7 @@ function draw() {
   if (localVideo) {
     img(localVideo);
     checkbox.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
-
+    DrawHands(localVideo,localVideo,0.5,0.5);
   }
   if(others.length > 0){
     DrawAndCalcOthers();
@@ -127,7 +127,7 @@ function img(cap) {
   text(cap.ID, cap);
 }
 
-function DrawHands(inVideo, outVideo) {
+function DrawHands(inVideo, outVideo,recStroke,connStroke) {
 
   if (inVideo.handsEnable && inVideo.results && inVideo.results.multiHandLandmarks) {
     for (let i = 0; i < inVideo.results.multiHandLandmarks.length; i++) {
@@ -135,14 +135,14 @@ function DrawHands(inVideo, outVideo) {
       let landmarks = inVideo.results.multiHandLandmarks[i];
       let obj = new Obj(outVideo.pos, outVideo.size);
       let minMaxPos = minMax(landmarks);
-      DrawRect(obj, minMaxPos, 3);
-      DrawConnectors(obj, landmarks, 2);
+      DrawRect(obj, minMaxPos, recStroke);
+      DrawConnectors(obj, landmarks, connStroke);
 
       noFill();
       stroke(255);
       strokeWeight(1);
       //[minX, maxX, minY, maxY]
-      console.log(inVideo.results);
+      //console.log(inVideo.results);
       let cap = outVideo;
       text(inVideo.results.multiHandedness[i].label, (cap.pos.x - cap.size.x / 2) + (cap.size.x * minMaxPos[0]), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos[2]) + 10);
     }
@@ -227,8 +227,8 @@ function ReceiveMessage(peerID, msg) {
       HandsOthersResults(index, msg.data);
       break;
     default:
-      console.log('not format message:');
-      console.log(msg);
+      console.warn('not format message:');
+      console.warn(msg);
       break;
 
   }
@@ -287,7 +287,7 @@ function DrawAndCalcOthers(){
   ];
   for (let i = 0; i < others.length; i++) {
     img(others[i]);
-    //DrawHands(localVideo, others[i]);
+    //DrawHands(others[i], others[i],1,1);
     if (!others[i].results) continue;
     let handedness = others[i].results.multiHandedness;
     for (let j = 0; j < handedness.length; j++) {
@@ -305,7 +305,7 @@ function DrawAndCalcOthers(){
   for (let i = 0; i < aveMinMaxPos.length; i++) {
     for (let j = 0; j < aveMinMaxPos[i].length; j++)
       aveMinMaxPos[i][j] /= others.length;
-    DrawRect(localVideo, aveMinMaxPos[i], 1);
+    DrawRect(localVideo, aveMinMaxPos[i], 2);
   }
 }
 
