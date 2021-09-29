@@ -102,9 +102,9 @@ function draw() {
   if (localVideo) {
     img(localVideo);
     checkbox.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
-    DrawHands(localVideo,localVideo,0.5,0.5);
+    DrawHands(localVideo, localVideo, 0.5, 0.5);
   }
-  if(others.length > 0){
+  if (others.length > 0) {
     DrawAndCalcOthers();
   }
 
@@ -127,7 +127,7 @@ function img(cap) {
   text(cap.ID, cap);
 }
 
-function DrawHands(inVideo, outVideo,recStroke,connStroke) {
+function DrawHands(inVideo, outVideo, recStroke, connStroke) {
 
   if (inVideo.handsEnable && inVideo.results && inVideo.results.multiHandLandmarks) {
     for (let i = 0; i < inVideo.results.multiHandLandmarks.length; i++) {
@@ -279,12 +279,13 @@ function text(text, cap) {
 
 
 
-function DrawAndCalcOthers(){
+function DrawAndCalcOthers() {
   let othersHandAve = 0;
   let aveMinMaxPos = [
     [0, 0, 0, 0],
     [0, 0, 0, 0]
   ];
+  let valueChanged = [false, false];
   for (let i = 0; i < others.length; i++) {
     img(others[i]);
     //DrawHands(others[i], others[i],1,1);
@@ -296,17 +297,21 @@ function DrawAndCalcOthers(){
       if (handedness[j].label === "Left") index = 0;
       else if (handedness[j].label === "Right") index = 1;
       else continue;
+      valueChanged[j] = true;
       for (let k = 0; k < minMaxPos.length; k++) {
-        aveMinMaxPos[index][k] += minMaxPos[k];;
+        aveMinMaxPos[index][k] += minMaxPos[k];
       }
     }
   }
 
   for (let i = 0; i < aveMinMaxPos.length; i++) {
-    for (let j = 0; j < aveMinMaxPos[i].length; j++)
-      aveMinMaxPos[i][j] /= others.length;
-    DrawRect(localVideo, aveMinMaxPos[i], 2);
+    if (valueChanged[i]) {
+      for (let j = 0; j < aveMinMaxPos[i].length; j++)
+        aveMinMaxPos[i][j] /= others.length;
+      DrawRect(localVideo, aveMinMaxPos[i], 2);
+    }
   }
+
 }
 
 function tranScale(video, scaleX, scaleY) {
