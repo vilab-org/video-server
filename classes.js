@@ -69,10 +69,3 @@ class Message {
 Message.prototype.toString = function() {
   return '[' + this.type + ' , ' + this.data + ']';
 }
-
-class HighFive{
-  constructor(type, data) {
-    this.type = type;
-    this.data = data;
-  }
-}

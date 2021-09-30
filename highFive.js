@@ -1,13 +1,18 @@
-let aveOthersHands = [//四隅の平均値
-    [0, 0, 0, 0],
-    [0, 0, 0, 0]
-  ];
+let aveOthersHands = [
+  [0, 0, 0, 0],
+  [0, 0, 0, 0]
+];
 
-function HighFive(){
-    let localHandsMinMax = [];
-    for(let i=0;i<localVideo.results.multiHandLandmarks.length;i++){
-        localHandsMinMax.push(minMax(localVideo.results));
+function HighFive() {
+  let localHandsMinMax = [];
+  let localResults = localVideo.results;
+  if (localResults) {
+    for (let i = 0; i < localResults.multiHandLandmarks.length; i++) {
+      localHandsMinMax.push(minMax(localResults.multiHandLandmarks[i]));
+
+      DrawCenterMark(localVideo,localHandsMinMax[i],2);
     }
-    console.log(localHandsMinMax);
-    
+  }
+
+
 }

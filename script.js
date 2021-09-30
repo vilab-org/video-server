@@ -190,5 +190,5 @@ function ChangeUI() {
 }
 
 function ChangeDrawRect(){
-  drawRect = $('changeDrawRect').value;
+  drawRect = $('#changeDrawRect').prop('checked');
 }

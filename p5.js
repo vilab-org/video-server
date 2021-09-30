@@ -140,6 +140,7 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
       let minMaxPos = minMax(landmarks);
       DrawRect(obj, minMaxPos, recStroke);
       DrawConnectors(obj, landmarks, connStroke);
+      DrawCenterMark(outVideo,minMaxPos,2);
 
       noFill();
       stroke(255);
@@ -313,7 +314,7 @@ function DrawAndCalcOthers() {
       if (drawRect){
         DrawRect(localVideo, aveMinMaxPos[i], 2);
         DrawCenterMark(localVideo,aveMinMaxPos[i],2);
-      } 
+      }
     }
   }
 
@@ -356,18 +357,18 @@ function DrawCenterMark(video, pos, weight) {
   //let size = min(pos[1] - pos[0], pos[3] - pos[2]) * 0.3 * video.size.x;
   //translate((pos[0] + pos[1]) * 0.5 * video.size.x, (pos[2] + pos[3]) * 0.5 * video.size.y);
   let center = getCenterMark(video,pos);
-  translate(center.pos);
   let size = center.size;
   stroke(255, 0, 0);
   strokeWeight(weight);
   noFill();
-  ellipse(0, 0, size, size);
+  ellipse(center.pos.x, center.pos.y, center.size.x, center.size.y);
   pop();
 }
+
 function getCenterMark(video,minMaxPos){
-  let size = min(pos[1] - pos[0], pos[3] - pos[2]) * 0.3 * max(video.size.x,video.size.y);
+  let size = min(minMaxPos[1] - minMaxPos[0], minMaxPos[3] - minMaxPos[2]) * 0.3 * max(video.size.x,video.size.y);
   let lu = getLeftUpPos(video);
-  let pos = new Vec(lu.x + ((pos[0] + pos[1]) * 0.5) * video.size.x,lu + ((pos[2] + pos[3]) * 0.5) * video.size.y);
+  let pos = new Vec(lu.x + ((minMaxPos[0] + minMaxPos[1]) * 0.5) * video.size.x,lu.y + ((minMaxPos[2] + minMaxPos[3]) * 0.5) * video.size.y);
 
   return new Obj(pos,new Vec(size,size));
 }
