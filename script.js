@@ -3,6 +3,7 @@ let APIKey = '96ff1dfd-a19d-4b53-a97d-376d0006d337';
 let localStream = null;
 let room;
 let existingroom = null;
+let drawRect = false;
 $(function() {
 
   let peer = null;
@@ -185,5 +186,9 @@ function Send(type,msg) {
 }
 
 function ChangeUI() {
-  $('#setting').toggle(500, 'swing');
+  $('#settings').toggle(500, 'swing');
+}
+
+function ChangeDrawRect(){
+  drawRect = $('changeDrawRect').value;
 }

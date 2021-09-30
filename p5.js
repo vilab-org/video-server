@@ -6,6 +6,7 @@ let hideCapture = null;
 let checkbox;
 let handResults;
 let blackimg;
+let backColor = 100;
 const MOVING = 'MOVING';
 const RESIZE = 'RESIZE';
 const ENAVID = 'ENAVID';
@@ -44,7 +45,7 @@ function setup() {
   rectMode(CENTER);
   //canvas作成
   createCanvas(windowWidth, windowHeight);
-  window.onresize = function() {
+  window.onresize = function () {
     resizeCanvas(windowWidth, windowHeight);
   };
   checkbox = createCheckbox('', true);
@@ -83,7 +84,7 @@ function removeOtherVideo(peerId) {
 let dragInterval = 0;
 
 function draw() {
-  background(100);
+  background(backColor);
   if (localVideo === null) return;
   dragInterval++;
   if (dragInterval >= getFrameRate() / 2) {
@@ -92,6 +93,7 @@ function draw() {
       Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
     }
     if (localVideo.results) {
+      //(今回手を認識している || 前回手を認識している)
       if (localVideo.results.multiHandLandmarks.length > 0 || (handResults && handResults.multiHandLandmarks.length > 0)) {
         Send(HNDRES, localVideo.results);
         handResults = localVideo.results;
@@ -101,11 +103,14 @@ function draw() {
   if (localVideo) {
     img(localVideo);
     checkbox.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
-    DrawHands(localVideo, localVideo, 0.5, 0.5);
+    if (drawRect) {
+      DrawHands(localVideo, localVideo, 0.5, 0.5);
+    }
   }
   if (others.length > 0) {
     DrawAndCalcOthers();
   }
+  HighFive();
 
 }
 
@@ -187,7 +192,7 @@ function mouseReleased() {
 
 function ResizeAllVideos() {
   let i = 0;
-  for (; i * i < others.length + 1; i++);
+  for (; i * i <= others.length; i++);
   let size = getSize(localVideo.capture, i);
   ResizeVideo(localVideo, size);
   for (i = 0; i < others.length; i++) {
@@ -249,7 +254,7 @@ function SearchOthers(peerId) {
 }
 
 function moveVideo(index, pos) {
-  others[index].pos = new Vec(pos.x * windowWidth, pos.y * windowHeight)
+  others[index].pos = new Vec(pos.x * windowWidth, pos.y * windowHeight);
 }
 
 function ResizeOtherVideo(index, size) {
@@ -278,8 +283,7 @@ function text(text, cap) {
 
 
 function DrawAndCalcOthers() {
-  let othersHandAve = 0;
-  let aveMinMaxPos = [
+  let aveMinMaxPos = [//四隅の平均値
     [0, 0, 0, 0],
     [0, 0, 0, 0]
   ];
@@ -287,6 +291,7 @@ function DrawAndCalcOthers() {
   for (let i = 0; i < others.length; i++) {//他参加者を網羅するfor
     img(others[i]);
     //DrawHands(others[i], others[i],1,1);
+
     if (!others[i].results) continue;
     let handedness = others[i].results.multiHandedness;
     for (let j = 0; j < handedness.length; j++) { //右手左手用のfor
@@ -295,29 +300,38 @@ function DrawAndCalcOthers() {
       if (handedness[j].label === "Left") index = 0;
       else if (handedness[j].label === "Right") index = 1;
       else continue;
-      valueChanged[j] = true;
       for (let k = 0; k < minMaxPos.length; k++) { //検出した手の四隅用のfor
         aveMinMaxPos[index][k] += minMaxPos[k];
       }
+      valueChanged[j] = true;
     }
   }
 
   for (let i = 0; i < aveMinMaxPos.length; i++) {
     if (valueChanged[i]) {
-      for (let j = 0; j < aveMinMaxPos[i].length; j++)
-        aveMinMaxPos[i][j] /= others.length;
-      DrawRect(localVideo, aveMinMaxPos[i], 2);
+      for (let j = 0; j < aveMinMaxPos[i].length; j++) aveMinMaxPos[i][j] /= others.length;
+      if (drawRect){
+        DrawRect(localVideo, aveMinMaxPos[i], 2);
+        DrawCenterMark(localVideo,aveMinMaxPos[i],2);
+      } 
     }
   }
 
+  return aveMinMaxPos;
+}
+
+function getLeftUpPos(video){
+  return new Vec(video.pos.x - video.size.x / 2,video.pos.y - video.size.y / 2);
 }
 
 function tranScale(video, scaleX, scaleY) {
-  translate((video.pos.x - video.size.x / 2) * scaleX, (video.pos.y - video.size.y / 2) * scaleY);
+  let pos = getLeftUpPos(video);
+  translate(pos.x * scaleX, pos.y * scaleY);
 }
 
 function tra(video) {
-  translate(video.pos.x - video.size.x / 2, video.pos.y - video.size.y / 2);
+  let pos = getLeftUpPos(video);
+  translate(pos.x, pos.y);
 }
 
 function Line(video, pax, pay, pbx, pby) {
@@ -333,14 +347,29 @@ function DrawRect(video, pos, weight) {
   Line(video, pos[0], pos[3], pos[1], pos[3]);
   Line(video, pos[1], pos[3], pos[1], pos[2]);
   Line(video, pos[1], pos[2], pos[0], pos[2]);
-
-  let circleSize = min(pos[1]-pos[0],pos[3]-pos[2]) * 0.3 * video.size.x;
-  translate((pos[0]+pos[1])*0.5 * video.size.x ,(pos[2]+pos[3])*0.5 * video.size.y);
-  stroke(255,0,0);
-  strokeWeight(weight * 2);
-  noFill();
-  ellipse(0,0,circleSize,circleSize);
   pop();
+}
+
+function DrawCenterMark(video, pos, weight) {
+  push();
+  //tra(video);
+  //let size = min(pos[1] - pos[0], pos[3] - pos[2]) * 0.3 * video.size.x;
+  //translate((pos[0] + pos[1]) * 0.5 * video.size.x, (pos[2] + pos[3]) * 0.5 * video.size.y);
+  let center = getCenterMark(video,pos);
+  translate(center.pos);
+  let size = center.size;
+  stroke(255, 0, 0);
+  strokeWeight(weight);
+  noFill();
+  ellipse(0, 0, size, size);
+  pop();
+}
+function getCenterMark(video,minMaxPos){
+  let size = min(pos[1] - pos[0], pos[3] - pos[2]) * 0.3 * max(video.size.x,video.size.y);
+  let lu = getLeftUpPos(video);
+  let pos = new Vec(lu.x + ((pos[0] + pos[1]) * 0.5) * video.size.x,lu + ((pos[2] + pos[3]) * 0.5) * video.size.y);
+
+  return new Obj(pos,new Vec(size,size));
 }
 
 function minMax(marks) {

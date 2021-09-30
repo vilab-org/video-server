@@ -16,6 +16,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
   <script type="text/javascript" src="hands.js"></script>
+  <script type="text/javascript" src="highFive.js"></script>
 </head>
 
 <body>
@@ -32,7 +33,7 @@
   <div class="myControllerContainer">
     <input type="checkbox" id="switch1" onchange="ChangeUI()">非/表示</input>
 
-    <div id="setting">
+    <div id="settings">
       <p>Your id: <span id="my-id">...</span></p>
       <div class="select">
         <label for="audioSource">Audio input source: </label><select id="audioSource"></select>
@@ -49,6 +50,7 @@
         <p>Currently in room <span id="room-id">...</span></p>
         <button type="button" onclick="LeaveRoom()">Leave</button>
       </div>
+      <input type="checkbox" id="changeDrawRect" onchange="ChangeDrawRect()">手のひら検出表示</input>
     </div>
   </div>
 
