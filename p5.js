@@ -362,7 +362,7 @@ function DrawRectC(video, pos, weight,color){
 }
 
 function DrawCenterMark(video, pos, weight) {
-  DrawCenterMarkC(video, pos, weight,color(255, 0, 0));
+  return DrawCenterMarkC(video, pos, weight,color(255, 0, 0));
 }
 function DrawCenterMarkC(video, pos, weight,color) {
   push();
@@ -375,8 +375,16 @@ function DrawCenterMarkC(video, pos, weight,color) {
   noFill();
   ellipse(center.pos.x, center.pos.y, center.size.x, center.size.y);
   pop();
+  return center;
 }
-
+function getCenterMarks(video,minMaxPoses){
+  let marks = [undefined, undefined];
+  for (let i = 0; i < 2 ; i++) {
+    if(!minMaxPoses[i]) continue;
+    marks[i] = getCenterMark(video,minMaxPoses[i]);
+  }
+  return marks;
+}
 function getCenterMark(video,minMaxPos){
   let size = min(minMaxPos[1] - minMaxPos[0], minMaxPos[3] - minMaxPos[2]) * 0.3 * max(video.size.x,video.size.y);
   let lu = getLeftUpPos(video);
