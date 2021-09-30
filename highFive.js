@@ -14,10 +14,13 @@ function HighFive() {
     }
   }
   for (let i = 0; i < 2; i++) {
-    if (localHandsMinMax[i]) DrawRect(localVideo, localHandsMinMax[i], 1);
+    if (localHandsMinMax[i]) {
+      DrawRectC(localVideo, localHandsMinMax[i], 1,color(0,0,255));
+      DrawCenterMarkC(localVideo, aveOthersHands[i], 2,color(0,0,255));
+    }
     if (aveOthersHands[i]) {
-      DrawRect(localVideo, aveOthersHands[i], 1);
-      DrawCenterMark(localVideo, aveOthersHands[i], 2);
+      DrawRectC(localVideo, aveOthersHands[i], 1,color(0,0,255));
+      DrawCenterMarkC(localVideo, aveOthersHands[i], 2,color(0,0,255));
     }
   }
   //noFill();

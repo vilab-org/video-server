@@ -104,11 +104,11 @@ function draw() {
     img(localVideo);
     checkbox.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
     if (drawRect) {
-      //DrawHands(localVideo, localVideo, 0.5, 0.5);
+      DrawHands(localVideo, localVideo, 0.5, 0.5);
     }
   }
   if (others.length > 0) {
-    aveOthersHands = DrawAndCalcOthers();
+    aveOthersHands = DrawAndCalcOthers();//他参加者のdrawと手の位置の平均値計算して返す
   }
   HighFive();
 
@@ -145,8 +145,6 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
       noFill();
       stroke(255);
       strokeWeight(1);
-      //[minX, maxX, minY, maxY]
-      //console.log(inVideo.results);
       let cap = outVideo;
       text(inVideo.results.multiHandedness[i].label, (cap.pos.x - cap.size.x / 2) + (cap.size.x * minMaxPos[0]), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos[3]) + 10);
     }
@@ -283,6 +281,7 @@ function text(text, cap) {
 
 
 
+//他参加者のdrawと手の位置の平均値計算して返す
 function DrawAndCalcOthers() {
   let aveMinMaxPos = [//四隅の平均値
     [0, 0, 0, 0],
@@ -291,7 +290,7 @@ function DrawAndCalcOthers() {
   let valueChanged = [false, false];
   for (let i = 0; i < others.length; i++) {//他参加者を網羅するfor
     img(others[i]);
-    //DrawHands(others[i], others[i],1,1);
+    if(drawRect)DrawHands(others[i], others[i],1,1);
 
     if (!others[i].results) continue;
     let handedness = others[i].results.multiHandedness;
@@ -320,13 +319,14 @@ function DrawAndCalcOthers() {
   }
   return aveMinMaxPos;
 }
-
+//左手は0右手は1　その他がありえたら-1を返す
 function getIndexLR(handedness){
   if (handedness.label === "Left") return 0;
   else if (handedness.label === "Right") return 1;
   else return -1;
 }
 
+//映像の左上を取得
 function getLeftUpPos(video){
   return new Vec(video.pos.x - video.size.x / 2,video.pos.y - video.size.y / 2);
 }
@@ -346,10 +346,14 @@ function Line(video, pax, pay, pbx, pby) {
 }
 
 function DrawRect(video, pos, weight) {
+  DrawRectC(video, pos, weight,color(0, 255, 0));
+}
+function DrawRectC(video, pos, weight,color){
   strokeWeight(weight);
-  stroke(0, 255, 0);
+  stroke(color);
   push();
-  tra(video); //minX, maxX, minY, maxY]
+  tra(video); 
+  //pos[minX, maxX, minY, maxY]
   Line(video, pos[0], pos[2], pos[0], pos[3]);
   Line(video, pos[0], pos[3], pos[1], pos[3]);
   Line(video, pos[1], pos[3], pos[1], pos[2]);
@@ -358,13 +362,15 @@ function DrawRect(video, pos, weight) {
 }
 
 function DrawCenterMark(video, pos, weight) {
+  DrawCenterMarkC(video, pos, weight,color(255, 0, 0));
+}
+function DrawCenterMarkC(video, pos, weight,color) {
   push();
   //tra(video);
   //let size = min(pos[1] - pos[0], pos[3] - pos[2]) * 0.3 * video.size.x;
   //translate((pos[0] + pos[1]) * 0.5 * video.size.x, (pos[2] + pos[3]) * 0.5 * video.size.y);
   let center = getCenterMark(video,pos);
-  let size = center.size;
-  stroke(255, 0, 0);
+  stroke(color);
   strokeWeight(weight);
   noFill();
   ellipse(center.pos.x, center.pos.y, center.size.x, center.size.y);
