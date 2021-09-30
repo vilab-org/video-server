@@ -104,11 +104,11 @@ function draw() {
     img(localVideo);
     checkbox.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
     if (drawRect) {
-      DrawHands(localVideo, localVideo, 0.5, 0.5);
+      //DrawHands(localVideo, localVideo, 0.5, 0.5);
     }
   }
   if (others.length > 0) {
-    DrawAndCalcOthers();
+    aveOthersHands = DrawAndCalcOthers();
   }
   HighFive();
 
@@ -297,14 +297,12 @@ function DrawAndCalcOthers() {
     let handedness = others[i].results.multiHandedness;
     for (let j = 0; j < handedness.length; j++) { //右手左手用のfor
       let minMaxPos = minMax(others[i].results.multiHandLandmarks[j]);
-      let index = -1;
-      if (handedness[j].label === "Left") index = 0;
-      else if (handedness[j].label === "Right") index = 1;
-      else continue;
+      let index = getIndexLR(handedness[j]);
+      if (index == -1)  continue;
       for (let k = 0; k < minMaxPos.length; k++) { //検出した手の四隅用のfor
         aveMinMaxPos[index][k] += minMaxPos[k];
       }
-      valueChanged[j] = true;
+      valueChanged[index] = true;
     }
   }
 
@@ -312,13 +310,21 @@ function DrawAndCalcOthers() {
     if (valueChanged[i]) {
       for (let j = 0; j < aveMinMaxPos[i].length; j++) aveMinMaxPos[i][j] /= others.length;
       if (drawRect){
-        DrawRect(localVideo, aveMinMaxPos[i], 2);
+        DrawRect(localVideo, aveMinMaxPos[i], 1);
         DrawCenterMark(localVideo,aveMinMaxPos[i],2);
       }
     }
+    else {
+      aveMinMaxPos[i] = undefined;
+    }
   }
-
   return aveMinMaxPos;
+}
+
+function getIndexLR(handedness){
+  if (handedness.label === "Left") return 0;
+  else if (handedness.label === "Right") return 1;
+  else return -1;
 }
 
 function getLeftUpPos(video){
