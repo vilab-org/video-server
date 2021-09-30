@@ -352,7 +352,7 @@ function DrawRectC(video, pos, weight,color){
   strokeWeight(weight);
   stroke(color);
   push();
-  tra(video); 
+  tra(video);
   //pos[minX, maxX, minY, maxY]
   Line(video, pos[0], pos[2], pos[0], pos[3]);
   Line(video, pos[0], pos[3], pos[1], pos[3]);

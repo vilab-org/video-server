@@ -23,7 +23,11 @@ function HighFive() {
       DrawCenterMarkC(localVideo, aveOthersHands[i], 2,color(0,0,255));
     }
   }
-  if(CollisionHands(getMinMaxPoses(localHandsMinMax),getMinMaxPoses(aveOthersHands))){
+
+  let localMarks = getCenterMarks(localVideo,localHandsMinMax);
+  let otherMarks = getCenterMarks(localVideo,aveOthersHands);
+  if(CollisionHands(localMarks,otherMarks)){
+    console.log("HIT");
     backColor += 20;
     backColor %= 255;
   }
@@ -31,21 +35,27 @@ function HighFive() {
 
 //両手が当たってる判定ならtrue
 function CollisionHands(localHands,othersHands){
+  let nondefined  =false;
+  if(!localHands || !othersHands) return false;
   for (let i = 0; i < 2; i++) {
     if(!localHands[i] || !othersHands[i]) continue;//どっちかがundefinedならcontinue
+    nondefined = true;
     if(!Collision(localHands[i],othersHands[i]))return false;
   }
+  if(!nondefined) return false;
   return true;
 }
 
 function Collision(center1,center2){
   let minSize = Math.min(center1.size.x,center2.size.x);
+  let absolute = Math.abs(center1.size.x - center2.size.x);
   //中央円の大きさが小さい方の円2個分違ったらfalse
-  if(Math.abs(center1.size.x - center2.size.x) >  minSize) return false;
+  if(absolute >  minSize) return false;
 
   let distX = center1.pos.x - center2.pos.x;
   let distY = center1.pos.y - center2.pos.y;
+  let root = Math.sqrt((distX * distX)+(distY * distY)) ;
   //距離が小さい円よりあったらfalse
-  if(Math.sqrt((distX * distX)+(distY * distY)) > minSize)return false;
+  if(root > minSize)return false;
   return true;
 }
