@@ -4,6 +4,7 @@ let aveOthersHands = [
 ];
 let effectsMana;
 
+//ハイタッチのメイン関数
 function HighFive() {
   let localHandsMinMax = [undefined, undefined];
   let localResults = localVideo.results;
@@ -28,7 +29,6 @@ function HighFive() {
   let localMarks = getCenterMarks(localVideo, localHandsMinMax);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
   if (CollisionHands(localMarks, otherMarks)) {
-
     for (let i = 0; i < 2; i++) {
       if (localHandsMinMax[i])
         effectsMana.addEffect(localHandsMinMax[i]);

@@ -109,25 +109,25 @@ class EffectsManager {
     let theta = Math.random();
     let pos;
     let dire;
-    //ue kara tokeimawarini hen no pos
-    if (ram < 0.25) {//ue no hen
+    
+    if (ram < 0.25) {//上の辺
       dire = createVector(Math.cos(Math.PI * theta), Math.sin(Math.PI * theta));
       pos = createVector(minMax[0] + ((minMax[1] - minMax[0]) * theta), minMax[2]);
     }
-    else if (ram < 0.25) {//migi no hen
+    else if (ram < 0.5) {//右の辺
       dire = createVector(Math.cos(Math.PI * theta / 2), Math.sin(Math.PI * theta / 2));
       pos = createVector(minMax[1], minMax[2] + ((minMax[3] - minMax[2]) * theta));
     }
-    else if (ram < 0.75) {//sita no hen
+    else if (ram < 0.75) {//下の返
       dire = createVector(Math.cos(Math.PI * theta), Math.sin(Math.PI * theta));
       pos = createVector(minMax[0] + ((minMax[1] - minMax[0]) * theta), minMax[3]);
     }
-    else {//hidari no hen
+    else {//左の辺
       dire = createVector(Math.cos(Math.PI - Math.PI * theta / 2), Math.sin(Math.PI - Math.PI * theta / 2));
       pos = createVector(minMax[0], minMax[2] + ((minMax[3] - minMax[2]) * theta));
     }
     dire.mult(this.speed);
-    dire.y *= -1;//ue muki ha minus
+    dire.y *= -1;//上向きはマイナス
     pos.x *= this.video.size.x;
     pos.y *= this.video.size.y;
     pos.add(getLeftUpPos(this.video));
@@ -151,14 +151,14 @@ class EffectsManager {
         continue;
       }
 
-      effect.size.add(this.force);//jiyu rakka
-      effect.color.a -= this.speed;//fade out
+      effect.size.add(this.force);//自由落下
+      effect.color.a -= this.speed;//フェードアウト
       effect.pos.add(effect.size);
-      if (effect.pos.x - this.size < 0 || effect.pos.x + this.size > width ||
-        effect.pos.y - this.size < 0 || effect.pos.y + this.size > height ||
-        effect.color.a <= 0) {
+      if (effect.pos.x - this.size < 0 || effect.pos.x + this.size > width ||//X画面外
+        effect.pos.y - this.size < 0 || effect.pos.y + this.size > height ||//Y画面外
+        effect.color.a <= 0) {//透明になった
         this.pool.push(this.effects[i]);
-        this.effects.splice(i, 1);//i banme 1 ko toridasi
+        this.effects.splice(i, 1);//i番目1個取り出す
         continue;
       }
       fill(effect.color.getColor());

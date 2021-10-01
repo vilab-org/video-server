@@ -103,7 +103,7 @@ function draw() {
   if (localVideo) {
     img(localVideo);
     checkbox.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
-    if (drawRect) {
+    if (isDrawRect) {
       DrawHands(localVideo, localVideo, 0.5, 0.5);
     }
   }
@@ -290,7 +290,7 @@ function DrawAndCalcOthers() {
   let valueChanged = [false, false];
   for (let i = 0; i < others.length; i++) {//他参加者を網羅するfor
     img(others[i]);
-    if(drawRect)DrawHands(others[i], others[i],1,1);
+    if(isDrawRect)DrawHands(others[i], others[i],1,1);
 
     if (!others[i].results) continue;
     let handedness = others[i].results.multiHandedness;
@@ -308,7 +308,7 @@ function DrawAndCalcOthers() {
   for (let i = 0; i < aveMinMaxPos.length; i++) {
     if (valueChanged[i]) {
       for (let j = 0; j < aveMinMaxPos[i].length; j++) aveMinMaxPos[i][j] /= others.length;
-      if (drawRect){
+      if (isDrawRect){
         DrawRect(localVideo, aveMinMaxPos[i], 1);
         DrawCenterMark(localVideo,aveMinMaxPos[i],2);
       }
