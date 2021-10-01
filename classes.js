@@ -102,7 +102,7 @@ class EffectsManager {
     this.pool = [];
     this.force = createVector(0, 1.0);
     this.speed = 10;
-    this.size = 10;
+    this.size = 5;
   }
   addEffect(minMax) {
     let ram = Math.random();
@@ -135,7 +135,7 @@ class EffectsManager {
     if (this.pool.length > 0) {
       effect = this.pool.pop();
       effect.pos = pos;
-      effect.size = dire;
+      effect.dire = dire;
       effect.color.a = 255;
     }
     else effect = new Effect(pos, this.size * theta, dire, new Color(225, 225, 0, 255));
@@ -151,9 +151,9 @@ class EffectsManager {
         continue;
       }
 
-      effect.size.add(this.force);//自由落下
-      effect.color.a -= this.speed;//フェードアウト
-      effect.pos.add(effect.size);
+      effect.dire.add(this.force);//自由落下
+      effect.color.a -= this.speed * 2;//フェードアウト
+      effect.pos.add(effect.dire);
       if (effect.pos.x - this.size < 0 || effect.pos.x + this.size > width ||//X画面外
         effect.pos.y - this.size < 0 || effect.pos.y + this.size > height ||//Y画面外
         effect.color.a <= 0) {//透明になった

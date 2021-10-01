@@ -3,7 +3,7 @@ let APIKey = '96ff1dfd-a19d-4b53-a97d-376d0006d337';
 let localStream = null;
 let room;
 let existingroom = null;
-let drawRect = false;
+let isDrawRect = false;
 $(function() {
 
   let peer = null;
@@ -190,5 +190,5 @@ function ChangeUI() {
 }
 
 function ChangeDrawRect(){
-  drawRect = $('#changeDrawRect').prop('checked');
+  isDrawRect = $('#changeDrawRect').prop('checked');
 }

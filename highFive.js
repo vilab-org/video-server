@@ -17,12 +17,12 @@ function HighFive() {
   }
   for (let i = 0; i < 2; i++) {
     if (localHandsMinMax[i]) {
-      DrawRectC(localVideo, localHandsMinMax[i], 1, color(0, 0, 255));
-      DrawCenterMarkC(localVideo, localHandsMinMax[i], 2, color(0, 0, 255));
+      DrawRectC(localVideo, localHandsMinMax[i], 1, color(50,200,50));
+      DrawCenterMarkC(localVideo, localHandsMinMax[i], 2, color(50, 200, 50));
     }
     if (aveOthersHands[i]) {
-      DrawRectC(localVideo, aveOthersHands[i], 1, color(0, 0, 255));
-      DrawCenterMarkC(localVideo, aveOthersHands[i], 2, color(0, 0, 255));
+      DrawRectC(localVideo, aveOthersHands[i], 1, color(200, 50, 50));
+      DrawCenterMarkC(localVideo, aveOthersHands[i], 2, color(255, 0, 0));
     }
   }
 
@@ -30,8 +30,10 @@ function HighFive() {
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
   if (CollisionHands(localMarks, otherMarks)) {
     for (let i = 0; i < 2; i++) {
-      if (localHandsMinMax[i])
+      if (localHandsMinMax[i]){
         effectsMana.addEffect(localHandsMinMax[i]);
+        effectsMana.addEffect(localHandsMinMax[i]);
+      }
     }
   }
   effectsMana.update();
