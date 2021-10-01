@@ -6,7 +6,6 @@ let hideCapture = null;
 let checkbox;
 let handResults;
 let blackimg;
-let backColor = 100;
 const MOVING = 'MOVING';
 const RESIZE = 'RESIZE';
 const ENAVID = 'ENAVID';
@@ -19,7 +18,7 @@ function setupVideo(stream) {
     let capture = createVideo();
     capture.hide();
     capture.elt.autoplay = true;
-    let pos = new Vec(width / 2, width / 2);
+    let pos = createVector(width / 2, width / 2);
     localVideo = new Video(pos, stream.peerId, capture);
 
     let camera = new Camera(capture.elt, {
@@ -32,6 +31,7 @@ function setupVideo(stream) {
       height: capture.height
     });
     camera.start();
+    effectsMana = new EffectsManager(localVideo);//init effect manager
   }
   localVideo.capture.elt.srcObject = stream;
   ResizeAllVideos();
@@ -61,7 +61,7 @@ function addOtherVideo(otherStream) {
   capture.elt.autoplay = true;
   //capture.elt.srcObject = otherStream;
   capture.hide();
-  let pos = new Vec(windowWidth / 2, windowHeight / 2);
+  let pos = createVector(windowWidth / 2, windowHeight / 2);
   for (let i = 0; i < others.length; i++) {
     pos.x + others[i].size.x;
   }
@@ -84,10 +84,10 @@ function removeOtherVideo(peerId) {
 let dragInterval = 0;
 
 function draw() {
-  background(backColor);
+  background(100);
   if (localVideo === null) return;
   dragInterval++;
-  if (dragInterval >= getFrameRate() / 2) {
+  if (dragInterval >= getFrameRate() / 3) {
     dragInterval = 0;
     if (draggingVideo !== null) {
       Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
@@ -180,7 +180,7 @@ function mousePressed() {
 
 function mouseDragged() {
   if (draggingVideo !== null) {
-    draggingVideo.pos = new Vec(mouseX, mouseY);
+    draggingVideo.pos = createVector(mouseX, mouseY);
   }
 }
 
@@ -202,7 +202,7 @@ function ResizeAllVideos() {
     let ratio = capture.height / capture.width;
     let x = (windowWidth / 2) / num;
     let y = x * ratio;
-    return new Vec(x, y);
+    return createVector(x, y);
   }
 }
 
@@ -253,7 +253,7 @@ function SearchOthers(peerId) {
 }
 
 function moveVideo(index, pos) {
-  others[index].pos = new Vec(pos.x * windowWidth, pos.y * windowHeight);
+  others[index].pos = createVector(pos.x * windowWidth, pos.y * windowHeight);
 }
 
 function ResizeOtherVideo(index, size) {
@@ -328,7 +328,7 @@ function getIndexLR(handedness){
 
 //映像の左上を取得
 function getLeftUpPos(video){
-  return new Vec(video.pos.x - video.size.x / 2,video.pos.y - video.size.y / 2);
+  return createVector(video.pos.x - video.size.x / 2,video.pos.y - video.size.y / 2);
 }
 
 function tranScale(video, scaleX, scaleY) {
@@ -388,9 +388,9 @@ function getCenterMarks(video,minMaxPoses){
 function getCenterMark(video,minMaxPos){
   let size = min(minMaxPos[1] - minMaxPos[0], minMaxPos[3] - minMaxPos[2]) * 0.3 * max(video.size.x,video.size.y);
   let lu = getLeftUpPos(video);
-  let pos = new Vec(lu.x + ((minMaxPos[0] + minMaxPos[1]) * 0.5) * video.size.x,lu.y + ((minMaxPos[2] + minMaxPos[3]) * 0.5) * video.size.y);
+  let pos = createVector(lu.x + ((minMaxPos[0] + minMaxPos[1]) * 0.5) * video.size.x,lu.y + ((minMaxPos[2] + minMaxPos[3]) * 0.5) * video.size.y);
 
-  return new Obj(pos,new Vec(size,size));
+  return new Obj(pos,createVector(size,size));
 }
 
 function minMax(marks) {
