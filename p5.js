@@ -240,8 +240,8 @@ function ResizeVideo(cap, size) {
   //cap.size.x = size.x;
   //cap.size.y = size.y;
   console.log(cap.capture);
-  cap.size.x = cap.capture.width;
-  cap.size.y = cap.capture.height;
+  cap.size.x = cap.capture.width * 2;
+  cap.size.y = cap.capture.height * 2;
 }
 
 function SearchOthers(peerId) {
@@ -405,6 +405,18 @@ function minMax(marks) {
     maxY = (maxY > marks[i].y ? maxY : marks[i].y);
   }
   return [minX, maxX, minY, maxY];
+}
+
+function getHandsMinMax(video){
+  let minMax = [undefined, undefined];
+  if(video.results){
+    for(let i=0;i<video.results.multiHandLandmarks.length; i++){
+      let index = getIndexLR(video.results.multiHandedness[i]);
+      if (index == -1) continue;
+      minMax[index] = minMax(video.results.multiHandLandmarks[i]);
+    }
+  }
+  return minMax;
 }
 
 //https://google.github.io/mediapipe/solutions/hands#javascript-solution-api
