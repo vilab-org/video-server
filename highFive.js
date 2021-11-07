@@ -4,10 +4,13 @@ let aveOthersHands = [
 ];
 let effectsMana;
 
+function HighFiveInit(){
+  effectsMana = new EffectsManager(localVideo);//init effect manager
+}
 //ハイタッチのメイン関数
 function HighFive() {
   //SamePosHandsHighFive();
-  UpPosHighFive();
+  UpPosHighFive(localVideo);
 }
 
 //お互いの手の位置でハイタッチできるやつ
@@ -75,41 +78,60 @@ function SamePosHandsHighFive() {
 }
 
 function UpPosHighFive(video) {
-  let localMinMax = getHandsMinMax(localVideo);
-  let size = video.size.y / 3;
+  let handsMinMax = getHandsMinMax(video);
+  let size = video.size.y / 2;
+
   let leftUp = getLeftUpPos(video);
+  let rightUp = getRightUpPos(video);
 
-  CalcArch();
-  DrawArch();
-  let handsCollision = UpCollision();
-  console.log(handsCollision);
+  //let handsCollision = UpCollision();
+  let handsCollision = [collisionPos(leftUp, createVector(mouseX, mouseY)),collisionPos(rightUp, createVector(mouseX, mouseY))];
+  DrawArch([handsCollision[0] ? 200 : 50,handsCollision[1] ? 200 : 50]);
 
+  
   function UpCollision() {
     let coll = [false, false];
-    if (localMinMax[0]) {
-      let dist = leftUp.dist(createVector(localMinMax[0][1], localMinMax[0][3]));
-      coll[0] = dist < size;
-    }
-    if (localMinMax[1]) {
-      let rightUp = leftUp.add(createVector(video.size.x, 0));
-      let dist = rightUp.dist(createVector(localMinMax[1][0], localMinMax[1][2]));
-      coll[1] = dist < size;
-    }
-    return coll;
 
+    if (handsMinMax[0]) {
+      ellipse(handsMinMax[0][1], handsMinMax[0][3], size / 2, size / 2);
+      coll[0] = collisionPos(leftUp,handCollPos(handsMinMax[0][1], handsMinMax[0][3]));
+    }
+    if (handsMinMax[1]) {
+      coll[1] = collisionPos(rightUp,handCollPos(handsMinMax[1][0], handsMinMax[1][2]));
+    }
+
+    return coll;
   }
-  function DrawArch() {
-    //arc(x,y,w,h,start,end,[mode]);x: 中心のx座標,y: 中心のy座標,w: 幅,h: 高さ,start: 描画開始角度,end: 描画終了角度,mode: 描画モード
-    let c = color(100, 225, 100);
-    fill(c.r, c.g, c.b, 150);
+
+  function handCollPos(x, y) {
+    return createVector(x * video.size.x, y * video.size.y).add(leftUp);
+  }
+  function collisionPos(targetPos, movePos) {
+    if (movePos.x < leftUp.x || movePos.x > rightUp.x || movePos.y < leftUp.y || movePos.y > leftUp.y + video.size.y)
+      return false;
+    return targetPos.dist(movePos) < size;
+  }
+
+  function DrawArch(colorings) {
+    let c = new Color(100, 225, 100);
     stroke(c.r, c.g, c.b, 255);
-    arc(leftUp.x, leftUp.y, size, size, 0, PI / 2);
-    push();
-    rotate(0, 0, PI);
-    arc(leftUp.x, leftUp.y, size, size, 0, PI / 2);
-    pop();
+    //arc(x,y,w,h,start,end,[mode]);x: 中心のx座標,y: 中心のy座標,w: 幅,h: 高さ,start: 描画開始角度,end: 描画終了角度,mode: 描画モード
+    
+    fill(c.r, c.g, c.b, colorings[0]);
+    arc(leftUp.x, leftUp.y, size * 2, size * 2, 0, PI / 2);
+    fill(c.r, c.g, c.b, colorings[1]);
+    arc(rightUp.x, rightUp.y, size * 2, size * 2, PI / 2, PI);
+  }
+  function mouseCollision() {
+    let coll = [false, false];
+    let dist0 = leftUp.dist(createVector(mouseX, mouseY));
+    coll[0] = dist0 < size;
+    if (coll[0])
+      line(leftUp.x, leftUp.y, mouseX, mouseY);
+    let dist1 = rightUp.dist(createVector(mouseX, mouseY));
+    coll[1] = dist1 < size;
+    return coll;
   }
 }
-
 
 

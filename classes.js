@@ -20,7 +20,7 @@ class Color {
     this.r = r;
     this.g = g;
     this.b = b;
-    this.a = a;
+    this.a = a ? a : 255;
   }
   getColor() {
     return color(this.r, this.g, this.b, this.a);

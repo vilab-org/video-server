@@ -23,19 +23,22 @@ function setupVideo(stream) {
 
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
+        
         await hands.send({//手の映像を送信
           image: capture.elt
         });
+        
       },
       width: capture.width,
       height: capture.height
     });
     camera.start();
-    effectsMana = new EffectsManager(localVideo);//init effect manager
+    localVideo.size = new Vec(capture.width,capture.height);
+    HighFiveInit();
   }
   localVideo.capture.elt.srcObject = stream;
   ResizeAllVideos();
-  console.log(localVideo);
+  console.log("localVideo:",localVideo);
 }
 
 
@@ -239,7 +242,7 @@ function ReceiveMessage(peerID, msg) {
 function ResizeVideo(cap, size) {
   //cap.size.x = size.x;
   //cap.size.y = size.y;
-  console.log(cap.capture);
+  console.log("cap.capture:",cap.capture);
   cap.size.x = cap.capture.width * 2;
   cap.size.y = cap.capture.height * 2;
 }
@@ -330,6 +333,9 @@ function getIndexLR(handedness){
 function getLeftUpPos(video){
   return createVector(video.pos.x - video.size.x / 2,video.pos.y - video.size.y / 2);
 }
+function getRightUpPos(video){
+  return createVector(video.pos.x + video.size.x / 2,video.pos.y - video.size.y / 2);
+}
 
 function tranScale(video, scaleX, scaleY) {
   let pos = getLeftUpPos(video);
@@ -408,15 +414,15 @@ function minMax(marks) {
 }
 
 function getHandsMinMax(video){
-  let minMax = [undefined, undefined];
+  let handsMinMax = [undefined, undefined];
   if(video.results){
     for(let i=0;i<video.results.multiHandLandmarks.length; i++){
       let index = getIndexLR(video.results.multiHandedness[i]);
       if (index == -1) continue;
-      minMax[index] = minMax(video.results.multiHandLandmarks[i]);
+      handsMinMax[index] = minMax(video.results.multiHandLandmarks[i]);
     }
   }
-  return minMax;
+  return handsMinMax;
 }
 
 //https://google.github.io/mediapipe/solutions/hands#javascript-solution-api

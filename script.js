@@ -96,7 +96,7 @@ $(function() {
       .then(function(stream) {
         // $('#myStream').get(0).srcObject = stream;
         localStream = stream;
-        console.log(stream);
+        console.log("getUserMedia stream:",stream);
         setupVideo(stream);
 
         if (existingroom) {
