@@ -23,17 +23,16 @@ function setupVideo(stream) {
 
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
-        
         await hands.send({//手の映像を送信
           image: capture.elt
         });
-        
       },
       width: capture.width,
       height: capture.height
     });
     camera.start();
-    localVideo.size = new Vec(capture.width,capture.height);
+    console.log("camera",camera);
+    localVideo.size = new Vec(camera.g.width,camera.g.height);
     HighFiveInit();
   }
   localVideo.capture.elt.srcObject = stream;
@@ -334,7 +333,7 @@ function getLeftUpPos(video){
   return createVector(video.pos.x - video.size.x / 2,video.pos.y - video.size.y / 2);
 }
 function getRightUpPos(video){
-  return createVector(video.pos.x + video.size.x / 2,video.pos.y - video.size.y / 2);
+  return createVector(video.pos.x + video.size.x / 2-37,video.pos.y - video.size.y / 2);
 }
 
 function tranScale(video, scaleX, scaleY) {
@@ -419,6 +418,7 @@ function getHandsMinMax(video){
     for(let i=0;i<video.results.multiHandLandmarks.length; i++){
       let index = getIndexLR(video.results.multiHandedness[i]);
       if (index == -1) continue;
+      //[minX, maxX, minY, maxY];
       handsMinMax[index] = minMax(video.results.multiHandLandmarks[i]);
     }
   }

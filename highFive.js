@@ -11,6 +11,7 @@ function HighFiveInit(){
 function HighFive() {
   //SamePosHandsHighFive();
   UpPosHighFive(localVideo);
+  effectsMana.update();
 }
 
 //お互いの手の位置でハイタッチできるやつ
@@ -47,7 +48,6 @@ function SamePosHandsHighFive() {
       }
     }
   }
-  effectsMana.update();
 
   //両手が当たってる判定ならtrue
   function CollisionHands(localHands, othersHands) {
@@ -76,39 +76,46 @@ function SamePosHandsHighFive() {
     return true;
   }
 }
-
+/***************************************************************************************************/
 function UpPosHighFive(video) {
-  let handsMinMax = getHandsMinMax(video);
+  let handsMinMax = getHandsMinMax(video);//[minX, maxX, minY, maxY];
   let size = video.size.y / 2;
 
   let leftUp = getLeftUpPos(video);
   let rightUp = getRightUpPos(video);
-
-  //let handsCollision = UpCollision();
-  let handsCollision = [collisionPos(leftUp, createVector(mouseX, mouseY)),collisionPos(rightUp, createVector(mouseX, mouseY))];
+  let localMarks = getCenterMarks(localVideo, handsMinMax);
+  
+  let handsCollision = UpCollision();
+  //let handsCollision = [collisionPos(leftUp, createVector(mouseX, mouseY)),collisionPos(rightUp, createVector(mouseX, mouseY))];
   DrawArch([handsCollision[0] ? 200 : 50,handsCollision[1] ? 200 : 50]);
+
+  //Effect
+  for (let i = 0; i < 2; i++) {
+    if (handsMinMax[i] && handsCollision[i]) {
+      effectsMana.addEffect(handsMinMax[i]);
+      effectsMana.addEffect(handsMinMax[i]);
+    }
+  }
 
   
   function UpCollision() {
     let coll = [false, false];
-
-    if (handsMinMax[0]) {
-      ellipse(handsMinMax[0][1], handsMinMax[0][3], size / 2, size / 2);
-      coll[0] = collisionPos(leftUp,handCollPos(handsMinMax[0][1], handsMinMax[0][3]));
+    let r = 5;
+    noFill();stroke(100,225,100);
+    if(localMarks[0]){
+      ellipse(localMarks[0].pos.x,localMarks[0].pos.y,r,r);
+      coll[0] = collisionPos(leftUp,localMarks[0].pos);
     }
-    if (handsMinMax[1]) {
-      coll[1] = collisionPos(rightUp,handCollPos(handsMinMax[1][0], handsMinMax[1][2]));
+    if(localMarks[1]){
+      ellipse(localMarks[1].pos.x,localMarks[1].pos.y,r,r);
+      coll[1] = collisionPos(rightUp,localMarks[1].pos);
     }
-
     return coll;
   }
-
-  function handCollPos(x, y) {
-    return createVector(x * video.size.x, y * video.size.y).add(leftUp);
-  }
   function collisionPos(targetPos, movePos) {
-    if (movePos.x < leftUp.x || movePos.x > rightUp.x || movePos.y < leftUp.y || movePos.y > leftUp.y + video.size.y)
-      return false;
+    //out of image size
+    //if (movePos.x < leftUp.x || movePos.x > rightUp.x || movePos.y < leftUp.y || movePos.y > leftUp.y + video.size.y)
+    //  return false;
     return targetPos.dist(movePos) < size;
   }
 
