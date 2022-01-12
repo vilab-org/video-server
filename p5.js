@@ -32,8 +32,9 @@ function setupVideo(stream) {
     });
     camera.start();
     console.log("camera",camera);
-    localVideo.size = new Vec(camera.g.width,camera.g.height);
+    localVideo.size = new Vec(camera.h.width,camera.h.height);
     HighFiveInit();
+    catchBallInit();
   }
   localVideo.capture.elt.srcObject = stream;
   ResizeAllVideos();
@@ -113,6 +114,7 @@ function draw() {
     aveOthersHands = DrawAndCalcOthers();//他参加者のdrawと手の位置の平均値計算して返す
   }
   HighFive();
+  catchBallUpdate();
 
 }
 
