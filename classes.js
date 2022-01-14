@@ -1,3 +1,16 @@
+class Mathf {
+  constructor() {
+    this.sin = [];
+    this.cos = [];
+    for (let i = 0; i < 360; i++) {
+      this.sin.push(sin(i));
+      this.cos.push(cos(i));
+    }
+    this.sin.push(this.sin[0]);
+    this.cos.push(this.cos[0]);
+  }
+}
+
 class Vec {
   constructor(x, y) {
     this.x = x;
@@ -91,7 +104,12 @@ class Effect extends Obj {
   constructor(pos, size, dire, color) {
     super(pos, size);
     this.dire = dire;
+    this.initDire = dire.copy();
     this.color = color;
+  }
+  reset() {
+    this.dire = initDire.copy();
+    this.color.a = 255;
   }
 }
 
@@ -104,41 +122,21 @@ class EffectsManager {
     this.speed = 10;
     this.size = 5;
   }
-  addEffect(minMax) {
-    let ram = Math.random();
-    let theta = Math.random();
-    let pos;
-    let dire;
-    
-    if (ram < 0.25) {//上の辺
-      dire = createVector(Math.cos(Math.PI * theta), Math.sin(Math.PI * theta));
-      pos = createVector(minMax[0] + ((minMax[1] - minMax[0]) * theta), minMax[2]);
-    }
-    else if (ram < 0.5) {//右の辺
-      dire = createVector(Math.cos(Math.PI * theta / 2), Math.sin(Math.PI * theta / 2));
-      pos = createVector(minMax[1], minMax[2] + ((minMax[3] - minMax[2]) * theta));
-    }
-    else if (ram < 0.75) {//下の返
-      dire = createVector(Math.cos(Math.PI * theta), Math.sin(Math.PI * theta));
-      pos = createVector(minMax[0] + ((minMax[1] - minMax[0]) * theta), minMax[3]);
-    }
-    else {//左の辺
-      dire = createVector(Math.cos(Math.PI - Math.PI * theta / 2), Math.sin(Math.PI - Math.PI * theta / 2));
-      pos = createVector(minMax[0], minMax[2] + ((minMax[3] - minMax[2]) * theta));
-    }
-    dire.mult(this.speed);
-    dire.y *= -1;//上向きはマイナス
-    pos.x *= this.video.size.x;
-    pos.y *= this.video.size.y;
-    pos.add(getLeftUpPos(this.video));
+  addEffect(pos) {
+    let theta = int(random(360));
     let effect;
+
     if (this.pool.length > 0) {
       effect = this.pool.pop();
       effect.pos = pos;
-      effect.dire = dire;
-      effect.color.a = 255;
+      effect.reset();
+    } else {
+      let dire = createVector(mathf.cos[theta],mathf.sin[theta]);
+      dire.mult(this.speed);
+      dire.y *= -1;//上向きはマイナス
+      effect = new Effect(pos, this.size * theta, dire, new Color(225, 225, 0, 255));
     }
-    else effect = new Effect(pos, this.size * theta, dire, new Color(225, 225, 0, 255));
+    effect.pos = pos.add(effect.dire);
     this.effects.push(effect);
   }
   update() {

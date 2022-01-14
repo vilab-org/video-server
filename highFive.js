@@ -91,10 +91,15 @@ function UpPosHighFive(video) {
 
   //Effect
   for (let i = 0; i < 2; i++) {
+    /*
     if (handsMinMax[i] && handsCollision[i]) {
       effectsMana.addEffect(handsMinMax[i]);
       effectsMana.addEffect(handsMinMax[i]);
     }
+    */
+   if(localMarks[i] && handsCollision[i]){
+     effectsMana.addEffect(localMarks[i].pos);
+   }
   }
 
   
@@ -125,9 +130,9 @@ function UpPosHighFive(video) {
     //arc(x,y,w,h,start,end,[mode]);x: 中心のx座標,y: 中心のy座標,w: 幅,h: 高さ,start: 描画開始角度,end: 描画終了角度,mode: 描画モード
     
     fill(c.r, c.g, c.b, colorings[0]);
-    arc(leftUp.x, leftUp.y, size * 2, size * 2, 0, PI / 2);
+    arc(leftUp.x, leftUp.y, size * 2, size * 2, 0, HALF_PI);
     fill(c.r, c.g, c.b, colorings[1]);
-    arc(rightUp.x, rightUp.y, size * 2, size * 2, PI / 2, PI);
+    arc(rightUp.x, rightUp.y, size * 2, size * 2, HALF_PI, PI);
   }
   function mouseCollision() {
     let coll = [false, false];

@@ -6,6 +6,7 @@ let hideCapture = null;
 let checkbox;
 let handResults;
 let blackimg;
+let mathf;
 const MOVING = 'MOVING';
 const RESIZE = 'RESIZE';
 const ENAVID = 'ENAVID';
@@ -46,6 +47,7 @@ function setupVideo(stream) {
 function setup() {
   imageMode(CENTER);
   rectMode(CENTER);
+  mathf = new Mathf();
   //canvas作成
   createCanvas(windowWidth, windowHeight);
   window.onresize = function () {
