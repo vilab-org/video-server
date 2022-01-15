@@ -108,7 +108,7 @@ class Effect extends Obj {
     this.color = color;
   }
   reset() {
-    this.dire = initDire.copy();
+    this.dire = this.initDire.copy();
     this.color.a = 255;
   }
 }
@@ -122,21 +122,21 @@ class EffectsManager {
     this.speed = 10;
     this.size = 5;
   }
-  addEffect(pos) {
+  addEffect(obj) {
     let theta = int(random(360));
     let effect;
 
     if (this.pool.length > 0) {
       effect = this.pool.pop();
-      effect.pos = pos;
+      effect.pos = obj.pos;
       effect.reset();
     } else {
       let dire = createVector(mathf.cos[theta],mathf.sin[theta]);
       dire.mult(this.speed);
       dire.y *= -1;//上向きはマイナス
-      effect = new Effect(pos, this.size * theta, dire, new Color(225, 225, 0, 255));
+      effect = new Effect(obj.pos, this.size * theta, dire, new Color(225, 225, 0, 255));
     }
-    effect.pos = pos.add(effect.dire);
+    effect.pos = obj.pos.add(effect.dire);
     this.effects.push(effect);
   }
   update() {

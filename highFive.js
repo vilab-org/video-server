@@ -98,7 +98,7 @@ function UpPosHighFive(video) {
     }
     */
    if(localMarks[i] && handsCollision[i]){
-     effectsMana.addEffect(localMarks[i].pos);
+     effectsMana.addEffect(localMarks[i]);
    }
   }
 
