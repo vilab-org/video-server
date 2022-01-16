@@ -23,6 +23,9 @@ function setupVideo(stream) {
   if (first) {
     let capture = createVideo();
     capture.hide();
+    let videoSize = new Vec(320,240);
+    capture.elt.videowidth = videoSize.x;
+    capture.elt.videoheight = videoSize.y;
     capture.elt.autoplay = true;
     let pos = createVector(width / 2, width / 2);
     localVideo = new Video(pos, stream.peerId, capture);
@@ -33,12 +36,14 @@ function setupVideo(stream) {
           image: capture.elt
         });
       },
-      width: capture.width,
-      height: capture.height
+      width: videoSize.x,
+      height: videoSize.y
     });
     camera.start();
     console.log("camera",camera);
-    localVideo.size = new Vec(camera.h.width,camera.h.height);
+    
+    console.log("capture",capture.width,capture.height);
+    localVideo.size = new Vec(videoSize.x,videoSize.y);
     HighFiveInit();
     catchBallInit();
   }
@@ -99,7 +104,7 @@ function draw() {
     Send(REGULAR,new ReceiveMessage(Date.now()));
   }
   if (localVideo === null) return;
-  
+  rect(localVideo.pos.x,localVideo.pos.y,localVideo.size.x,localVideo.size.y);
   if (!dragTimer.isWait) {
     dragTimer.startTimer();
     
@@ -133,12 +138,11 @@ function img(cap) {
   if (cap.videoEnable) {
     
     push()
-    //tra(cap);
-    //scale(-1,1);
-    tranScale(cap,-1,1);
+    tra(cap);
+    scale(-1,1);
     image(cap.capture, 0, 0, cap.size.x, cap.size.y);//鏡チャレンジ
     pop();
-    image(cap.capture, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);//鏡なし 通常
+    //image(cap.capture, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);//鏡なし 通常
     //image(cap.capture,cap.pos.x,cap.pos.y,cap.capture.width,cap.capture.height);
   } else {
     image(blackimg, cap.pos.x, cap.pos.y, blackimg.width, blackimg.height);
@@ -214,7 +218,7 @@ function ResizeAllVideos() {
   }
 
   function getSize(capture, num) {
-    let ratio = capture.height / capture.width;
+    let ratio = capture.size.x / capture.size.y;
     let x = (windowWidth / 2) / num;
     let y = x * ratio;
     return createVector(x, y);
@@ -365,7 +369,7 @@ function getLeftUpPos(video){
   return createVector(video.pos.x - video.size.x / 2,video.pos.y - video.size.y / 2);
 }
 function getRightUpPos(video){
-  return createVector(video.pos.x + video.size.x / 2-37,video.pos.y - video.size.y / 2);
+  return createVector(video.pos.x + video.size.x / 2,video.pos.y - video.size.y / 2);
 }
 
 function tranScale(video, scaleX, scaleY) {
