@@ -199,5 +199,5 @@ function ChangeDrawRect() {
 
 function ChangeIsHighFive(){
   isHighFive = $('#ChangeIsHighFive').prop('checked');
-  Send(isHighFive,isHighFive);
+  Send(ISHIGH,isHighFive);
 }
