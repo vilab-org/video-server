@@ -65,7 +65,7 @@ class Video extends Obj {
     this.highFive = [false, false];
     this.ping = 1;
     /*
-        let hands = new Hands({
+       let hands = new Hands({
           locateFile: (file) => {
             return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
           }
@@ -123,17 +123,18 @@ class EffectsManager {
   constructor(color) {
     this.color = color;
     this.effects = [];
-    this.force = createVector(0, 0.2);
+    this.force = createVector(0, 0.5);
     this.speed = 10;
     this.size = 5;
   }
   addEffect(circle) {
+
     let theta = int(random(360));
     let effect;
     let dire = createVector(mathf.cos[theta], mathf.sin[theta]);
     dire.mult(this.speed);
     dire.y *= -1;//上向きはマイナス
-    effect = new Effect(circle.pos, this.size * theta, dire, this.color);
+    effect = new Effect(circle.pos, this.size, dire, this.color);
     effect.pos = circle.pos.add(effect.dire);
     this.effects.push(effect);
   }
@@ -150,7 +151,7 @@ class EffectsManager {
       effect.dire.add(this.force);//自由落下
       //effect.color.a -= this.speed * 2;//フェードアウト
       effect.pos.add(effect.dire);
-      if (this.out()) {
+      if (this.out(effect)) {
         this.effects.splice(i, 1);//i番目1個取り出す
         continue;
       }
@@ -177,17 +178,21 @@ class EffectsManager {
         if(disableRangeBoolean){
           disableRange++;
         }
+	i++;
         continue;
       } else disableRangeBoolean = false;
       effect.dire.add(this.force);//自由落下
       //effect.color.a -= this.speed * 2;//フェードアウト
       effect.pos.add(effect.dire);
-      if(this.out()){
+      if(this.out(effect)){
         effect.enbale = false;
+      } else {
+        fill(effect.color.getColor());
+	rect(effect.pos.x,effect.pos.y,this.size,this.size);
       }
       i++;
     }//while end }
-    if(min(this.effects.length,3) < disableRange){
+    if(min(this.effects.length,10) <= disableRange){
       this.effects.splice(0,disableRange);
     }
   }

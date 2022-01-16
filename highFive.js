@@ -4,10 +4,12 @@ let aveOthersHands = [
 ];
 let effectsMana;
 let otherEffectsMana;
+let effectInterval;
 
 function HighFiveInit() {
   effectsMana = new EffectsManager(new Color(255, 255, 0));//init effect manager
   otherEffectsMana = new EffectsManager(new Color(255, 0, 255));
+  effectInterval = new Timer(0.1);
 }
 //ハイタッチのメイン関数
 function HighFive() {
@@ -85,6 +87,8 @@ function UpPosHighFive(video) {
   DrawArch([handsCollision[0] ? 200 : 50, handsCollision[1] ? 200 : 50]);
 
   //Effect
+  if(!effectInterval.isWait){
+    effectInterval.startTimer();
   for (let i = 0; i < 2; i++) {
     //自分がハイタッチ範囲に手をかざしてたらエフェクト
     if (localMarks[i] && handsCollision[i]) {
@@ -95,6 +99,8 @@ function UpPosHighFive(video) {
       otherEffectsMana.addEffect(othersMark[i]);
     }
   }
+  }
+
   function UpCollision(marks) {
     let coll = [false, false];
     let r = 15;
