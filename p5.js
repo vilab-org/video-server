@@ -16,8 +16,7 @@ const RESIZE = 'RESIZE';
 const ENAVID = 'ENAVID';
 const HIGTOC = 'HIGTOC';
 const HNDRES = 'HNDRES';
-const REGULAR = 'REGULAR';
-const RECEIVEHIGTOC = 'RECEIVEHIGTOC';
+const REGULAR = 'REGULAR';//定期送信
 
 function setupVideo(stream) {
   let first = localVideo === null;

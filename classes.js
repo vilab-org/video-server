@@ -156,9 +156,10 @@ class EffectsManager {
         continue;
       }
       fill(effect.color.getColor());
-      ellipse(effect.pos.x, effect.pos.y, this.size, this.size);
+      //ellipse(effect.pos.x, effect.pos.y, this.size, this.size);
+      rect(effect.pos.x, effect.pos.y, this.size, this.size);
       i++;
-    }
+    }// while end }
 
   }
 }
