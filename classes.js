@@ -210,3 +210,17 @@ class Timer {
     }, this.waitTime * 1000);
   }
 }
+
+class Ball extends Obj{
+  constructor(pos,size){
+    super(pos, size);
+    this.isMoving = false;
+    this.target;
+  }
+  update(){
+    //ボールの表示
+    ellipse(this.pos.x,this.pos.y,this.size,this.size);
+
+
+  }
+}

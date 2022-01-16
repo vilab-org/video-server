@@ -16,7 +16,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
   <script type="text/javascript" src="handsInit.js"></script>
-  <script type="text/javascript" src="catchBall.js"></script>
 </head>
 
 <body>
@@ -51,11 +50,13 @@
         <button type="button" onclick="LeaveRoom()">Leave</button>
       </div>
       <input type="checkbox" id="changeDrawRect" onchange="ChangeDrawRect()">手のひら検出表示</input>
+      <input type="checkbox" id="ChangeIsHighFive" onchange="ChangeIsHighFive()">ハイタッチ</input>
     </div>
   </div>
 
   <script type="text/javascript" src="p5.js"></script>
   <script type="text/javascript" src="highFive.js"></script>
+  <script type="text/javascript" src="catchBall.js"></script>
 </body>
 
 </html>

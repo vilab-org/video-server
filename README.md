@@ -14,8 +14,9 @@ Jitsi-meet構築時は`/usr/share/jitsi-meet`のパスで証明書を発行し�
 
 ## 証明書の自動更新
 cronを仕様して自動で証明書の更新を行う
-設定ファイルに以下を記述
-'0 10 10,20 * * sudo certbot renew'
-0分10時10日,20日 指定なし 指定なし のタイミングで更新をかける
+設定ファイルに以下を記述\n
+'0 10 10,20 * * sudo certbot renew'\n
+0分10時10日,20日 指定なし 指定なし のタイミングで更新をかける\n
+
 参考
 [Let’s EncryptのSSL証明書を更新する(手動とcronによる自動更新)](https://it-jog.com/khow/serv/renewletsencrypt)

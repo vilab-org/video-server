@@ -4,6 +4,7 @@ let localStream = null;
 let room;
 let existingroom = null;
 let isDrawRect = false;
+let isHighFive
 $(function () {
 
   let peer = null;
@@ -194,4 +195,9 @@ function ChangeUI() {
 
 function ChangeDrawRect() {
   isDrawRect = $('#changeDrawRect').prop('checked');
+}
+
+function ChangeIsHighFive(){
+  isHighFive = $('#ChangeIsHighFive').prop('checked');
+  Send(isHighFive,isHighFive);
 }

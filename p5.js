@@ -17,6 +17,7 @@ const ENAVID = 'ENAVID';
 const HIGTOC = 'HIGTOC';
 const HNDRES = 'HNDRES';
 const REGULAR = 'REGULAR';//定期送信
+const ISHIGH = 'ISHIGH';
 
 function setupVideo(stream) {
   let first = localVideo === null;
@@ -129,7 +130,10 @@ function draw() {
   if (others.length > 0) {
     aveOthersHands = DrawAndCalcOthers();//他参加者のdrawと手の位置の平均値計算して返す
   }
-  HighFive();
+  if (isHighFive) {
+    HighFive();
+  }
+
   catchBallUpdate();
 
 }
@@ -250,6 +254,9 @@ function ReceivedMessage(peerID, msg) {
     case REGULAR:
       ReceiveRegular(index, msg.data);
       break;
+    case ISHIGH:
+      ReceiveIsHighFive(index, msg.data);
+      break;
     default:
       console.warn('not format message:');
       console.warn(msg);
@@ -305,6 +312,11 @@ function ReceiveRegular(index, receiveMessage) {
     console.log(averagePing);
   }
 
+}
+
+function ReceiveIsHighFive(index, isHigh) {
+  isHighFive = isHigh;
+  document.getElementById("ChangeIsHighFive").checked = isHighFive;
 }
 
 function text(text, cap) {
