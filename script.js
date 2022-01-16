@@ -142,7 +142,7 @@ $(function() {
       data,
       src
     }) => {
-      ReceiveMessage(src,Object.assign(new Message(), JSON.parse(data)));
+      ReceivedMessage(src,Object.assign(new Message(), JSON.parse(data)));
     });
   }
 
@@ -182,7 +182,10 @@ function LeaveRoom(){
 }
 
 function Send(type,msg) {
-  if(room)room.send(JSON.stringify(new Message(type,msg)));
+  if(room)room.send(toJSON(new Message(type,msg)));
+}
+function toJSON(classtype){
+  return JSON.stringify(classtype);
 }
 
 function ChangeUI() {

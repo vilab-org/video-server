@@ -11,6 +11,14 @@ class Mathf {
   }
 }
 
+class ReceiveMessage{
+  constructor(msg){
+    this.isGo = true;
+    this.msg = msg;
+    this.remsg;
+  }
+}
+
 class Vec {
   constructor(x, y) {
     this.x = x;
@@ -54,6 +62,8 @@ class Video extends Obj {
     this.videoEnable = true;
     this.results = undefined;
     this.handsEnable = true;
+    this.highFive = [false,false];
+    this.ping = 1;
     /*
         let hands = new Hands({
           locateFile: (file) => {
@@ -104,39 +114,26 @@ class Effect extends Obj {
   constructor(pos, size, dire, color) {
     super(pos, size);
     this.dire = dire;
-    this.initDire = dire.copy();
     this.color = color;
-  }
-  reset() {
-    this.dire = this.initDire.copy();
-    this.color.a = 255;
   }
 }
 
 class EffectsManager {
-  constructor(video) {
-    this.video = video;
+  constructor(color) {
+    this.color = color;
     this.effects = [];
-    this.pool = [];
-    this.force = createVector(0, 1.0);
+    this.force = createVector(0, 0.2);
     this.speed = 10;
     this.size = 5;
   }
-  addEffect(obj) {
+  addEffect(circle) {
     let theta = int(random(360));
     let effect;
-
-    if (this.pool.length > 0) {
-      effect = this.pool.pop();
-      effect.pos = obj.pos;
-      effect.reset();
-    } else {
-      let dire = createVector(mathf.cos[theta],mathf.sin[theta]);
-      dire.mult(this.speed);
-      dire.y *= -1;//上向きはマイナス
-      effect = new Effect(obj.pos, this.size * theta, dire, new Color(225, 225, 0, 255));
-    }
-    effect.pos = obj.pos.add(effect.dire);
+    let dire = createVector(mathf.cos[theta],mathf.sin[theta]);
+    dire.mult(this.speed);
+    dire.y *= -1;//上向きはマイナス
+    effect = new Effect(circle.pos, this.size * theta, dire, this.color);
+    effect.pos = circle.pos.add(effect.dire);
     this.effects.push(effect);
   }
   update() {
@@ -150,12 +147,11 @@ class EffectsManager {
       }
 
       effect.dire.add(this.force);//自由落下
-      effect.color.a -= this.speed * 2;//フェードアウト
+      //effect.color.a -= this.speed * 2;//フェードアウト
       effect.pos.add(effect.dire);
       if (effect.pos.x - this.size < 0 || effect.pos.x + this.size > width ||//X画面外
         effect.pos.y - this.size < 0 || effect.pos.y + this.size > height ||//Y画面外
         effect.color.a <= 0) {//透明になった
-        this.pool.push(this.effects[i]);
         this.effects.splice(i, 1);//i番目1個取り出す
         continue;
       }
@@ -164,5 +160,18 @@ class EffectsManager {
       i++;
     }
 
+  }
+}
+
+class Timer{
+  constructor(second){
+    this.waitTime = second;
+    this.isWait = false;
+  }
+  startTimer(){
+    this.isWait = true;
+    setTimeout(()=>{
+      this.isWait = false;
+    },this.waitTime * 1000);
   }
 }

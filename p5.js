@@ -7,11 +7,17 @@ let checkbox;
 let handResults;
 let blackimg;
 let mathf;
+let averagePing = 0;
+let regularTime = new Timer(10);
+let dragTimer = new Timer(0.5);
+
 const MOVING = 'MOVING';
 const RESIZE = 'RESIZE';
 const ENAVID = 'ENAVID';
 const HIGTOC = 'HIGTOC';
 const HNDRES = 'HNDRES';
+const REGULAR = 'REGULAR';
+const RECEIVEHIGTOC = 'RECEIVEHIGTOC';
 
 function setupVideo(stream) {
   let first = localVideo === null;
@@ -86,14 +92,18 @@ function removeOtherVideo(peerId) {
   others.splice(index, 1);
   ResizeAllVideos();
 }
-let dragInterval = 0;
 
 function draw() {
   background(100);
+  if(!regularTime.isWait){
+    regularTime.startTimer();
+    Send(REGULAR,new ReceiveMessage(Date.now()));
+  }
   if (localVideo === null) return;
-  dragInterval++;
-  if (dragInterval >= getFrameRate() / 3) {
-    dragInterval = 0;
+  
+  if (!dragTimer.isWait) {
+    dragTimer.startTimer();
+    
     if (draggingVideo !== null) {
       Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
     }
@@ -124,10 +134,10 @@ function img(cap) {
   if (cap.videoEnable) {
     /*
     push()
-    //tra(cap);
-    //scale(-1,1);
+    tra(cap);
+    scale(-1,1);
     //tranScale(cap,-2,2);
-    //image(cap.capture, 0, 0, 0, 0);
+    image(cap.capture, 0, 0, cap.size.x, cap.size.y);
     pop();*/
     image(cap.capture, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
     //image(cap.capture,cap.pos.x,cap.pos.y,cap.capture.width,cap.capture.height);
@@ -212,7 +222,7 @@ function ResizeAllVideos() {
   }
 }
 
-function ReceiveMessage(peerID, msg) {
+function ReceivedMessage(peerID, msg) {
   console.log('receive:' + peerID + ':');
   console.log(msg);
   let index = SearchOthers(peerID);
@@ -234,6 +244,9 @@ function ReceiveMessage(peerID, msg) {
     case HNDRES:
       HandsOthersResults(index, msg.data);
       break;
+      case REGULAR:
+        ReceiveRegular(index,msg.data);
+        break;
     default:
       console.warn('not format message:');
       console.warn(msg);
@@ -272,6 +285,22 @@ function EnableOtherVideo(index, enable) {
 
 function HandsOthersResults(index, results) {
   others[index].results = results;
+
+}
+
+function ReceiveRegular(index,receiveMessage){
+  if(receiveMessage.isGo){
+    receiveMessage.isGo = false;
+    receiveMessage.remsg = Date.now();
+    Send(REGULAR,receiveMessage);
+  }
+  else{
+    others[index].ping = receiveMessage.remsg - receiveMessage.msg;
+    let ave = localVideo.ping;
+    for(let i=0;i<others.length; i++)ave += others[i].ping;
+    averagePing = ave / (others.length + 1);
+    console.log(averagePing);
+  }
 
 }
 
@@ -346,8 +375,7 @@ function tranScale(video, scaleX, scaleY) {
 }
 
 function tra(video) {
-  let pos = getLeftUpPos(video);
-  translate(pos.x, pos.y);
+  translate(video.pos.x, video.pos.y);
 }
 
 function Line(video, pax, pay, pbx, pby) {

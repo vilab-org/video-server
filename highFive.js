@@ -3,15 +3,18 @@ let aveOthersHands = [
   [0, 0, 0, 0]
 ];
 let effectsMana;
+let otherEffectsMana;
 
 function HighFiveInit(){
-  effectsMana = new EffectsManager(localVideo);//init effect manager
+  effectsMana = new EffectsManager(new Color(255,255,0));//init effect manager
+  otherEffectsMana = new EffectsManager(new Color(255,0,255));
 }
 //ハイタッチのメイン関数
 function HighFive() {
   //SamePosHandsHighFive();
   UpPosHighFive(localVideo);
   effectsMana.update();
+  otherEffectsMana.update();
 }
 
 //お互いの手の位置でハイタッチできるやつ
@@ -84,36 +87,33 @@ function UpPosHighFive(video) {
   let leftUp = getLeftUpPos(video);
   let rightUp = getRightUpPos(video);
   let localMarks = getCenterMarks(localVideo, handsMinMax);
-  
-  let handsCollision = UpCollision();
+  let othersMark = getCenterMarks(localVideo, aveOthersHands);
+  let handsCollision = UpCollision(localMarks);
+  let othersCollision = UpCollision(othersMark);
   //let handsCollision = [collisionPos(leftUp, createVector(mouseX, mouseY)),collisionPos(rightUp, createVector(mouseX, mouseY))];
   DrawArch([handsCollision[0] ? 200 : 50,handsCollision[1] ? 200 : 50]);
 
   //Effect
   for (let i = 0; i < 2; i++) {
-    /*
-    if (handsMinMax[i] && handsCollision[i]) {
-      effectsMana.addEffect(handsMinMax[i]);
-      effectsMana.addEffect(handsMinMax[i]);
-    }
-    */
    if(localMarks[i] && handsCollision[i]){
      effectsMana.addEffect(localMarks[i]);
    }
+   if(othersMark[i] && othersCollision[i] && others.length > 0){
+    otherEffectsMana.addEffect(othersMark[i]);
+     console.log(otherEffectsMana);
+   }
   }
-
-  
-  function UpCollision() {
+  function UpCollision(marks) {
     let coll = [false, false];
-    let r = 5;
-    noFill();stroke(100,225,100);
-    if(localMarks[0]){
-      ellipse(localMarks[0].pos.x,localMarks[0].pos.y,r,r);
-      coll[0] = collisionPos(leftUp,localMarks[0].pos);
+    let r = 15;
+    noFill();stroke(100,100,255);
+    if(marks[0]){
+      ellipse(marks[0].pos.x,marks[0].pos.y,r,r);
+      coll[0] = collisionPos(leftUp,marks[0].pos);
     }
-    if(localMarks[1]){
-      ellipse(localMarks[1].pos.x,localMarks[1].pos.y,r,r);
-      coll[1] = collisionPos(rightUp,localMarks[1].pos);
+    if(marks[1]){
+      ellipse(marks[1].pos.x,marks[1].pos.y,r,r);
+      coll[1] = collisionPos(rightUp,marks[1].pos);
     }
     return coll;
   }
