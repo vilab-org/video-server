@@ -4,14 +4,14 @@ let localStream = null;
 let room;
 let existingroom = null;
 let isDrawRect = false;
-$(function() {
+$(function () {
 
   let peer = null;
   let audioSelect = $('#audioSource');
   let videoSelect = $('#videoSource');
 
   navigator.mediaDevices.enumerateDevices()
-    .then(function(deviceInfos) {
+    .then(function (deviceInfos) {
       for (let i = 0; i !== deviceInfos.length; ++i) {
         let deviceInfo = deviceInfos[i];
         let option = $('<option>');
@@ -27,7 +27,7 @@ $(function() {
       videoSelect.on('change', setupGetUserMedia);
       audioSelect.on('change', setupGetUserMedia);
       setupGetUserMedia();
-    }).catch(function(error) {
+    }).catch(function (error) {
       console.error('mediaDevices.enumerateDevices() error:', error);
       return;
     });
@@ -37,15 +37,15 @@ $(function() {
     debug: 3
   });
 
-  peer.on('open', function() {
+  peer.on('open', function () {
     $('#my-id').text(peer.id);
   });
 
-  peer.on('error', function(err) {
+  peer.on('error', function (err) {
     alert(err.message);
   });
 
-  $('#make-call').submit(function(e) {
+  $('#make-call').submit(function (e) {
     e.preventDefault();
     let roomName = $('#join-room').val();
 
@@ -59,11 +59,11 @@ $(function() {
     });
     setupRoomEventHandlers(room);
   });
-/*
-  $('#end-call').click(function() {
-    existingroom.close();
-  });
-*/
+  /*
+    $('#end-call').click(function() {
+      existingroom.close();
+    });
+  */
   function setupGetUserMedia() {
     let audioSource = $('#audioSource').val();
     let videoSource = $('#videoSource').val();
@@ -93,10 +93,10 @@ $(function() {
     }
 
     navigator.mediaDevices.getUserMedia(constraints)
-      .then(function(stream) {
+      .then(function (stream) {
         // $('#myStream').get(0).srcObject = stream;
         localStream = stream;
-        console.log("getUserMedia stream:",stream);
+        console.log("getUserMedia stream:", stream);
         setupVideo(stream);
 
         if (existingroom) {
@@ -119,21 +119,21 @@ $(function() {
     setupEndCallUI();
     $('#room-id').text(room.name);
 
-    room.on('stream', function(stream) {
+    room.on('stream', function (stream) {
       addVideo(stream);
     });
 
-    room.on('removeStream', function(stream) {
-      console.log('removeStream:'+stream.peerId);
+    room.on('removeStream', function (stream) {
+      console.log('removeStream:' + stream.peerId);
       removeVideo(stream.peerId);
     });
 
-    room.on('peerLeave', function(peerId) {
-      console.log('peerLeave:'+peerId);
+    room.on('peerLeave', function (peerId) {
+      console.log('peerLeave:' + peerId);
       removeVideo(peerId);
     });
 
-    room.on('close', function() {
+    room.on('close', function () {
       removeAllRemoteVideos();
       setupMakeCallUI();
     });
@@ -142,17 +142,17 @@ $(function() {
       data,
       src
     }) => {
-      ReceivedMessage(src,Object.assign(new Message(), JSON.parse(data)));
+      ReceivedMessage(src, Object.assign(new Message(), JSON.parse(data)));
     });
   }
 
   function addVideo(otherStream) {
-/*
-        const videoDom = $('<video autoplay>');
-        videoDom.attr('id',otherStream.peerId);
-        videoDom.get(0).srcObject = otherStream;
-        $('.videosContainer').append(videoDom);
-*/
+    /*
+            const videoDom = $('<video autoplay>');
+            videoDom.attr('id',otherStream.peerId);
+            videoDom.get(0).srcObject = otherStream;
+            $('.videosContainer').append(videoDom);
+    */
     addOtherVideo(otherStream);
   }
 
@@ -177,14 +177,14 @@ $(function() {
 
 });
 
-function LeaveRoom(){
+function LeaveRoom() {
   existingroom.close();
 }
 
-function Send(type,msg) {
-  if(room)room.send(toJSON(new Message(type,msg)));
+function Send(type, msg) {
+  if (room) room.send(toJSON(new Message(type, msg)));
 }
-function toJSON(classtype){
+function toJSON(classtype) {
   return JSON.stringify(classtype);
 }
 
@@ -192,6 +192,6 @@ function ChangeUI() {
   $('#settings').toggle(500, 'swing');
 }
 
-function ChangeDrawRect(){
+function ChangeDrawRect() {
   isDrawRect = $('#changeDrawRect').prop('checked');
 }

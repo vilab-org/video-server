@@ -11,8 +11,8 @@ class Mathf {
   }
 }
 
-class ReceiveMessage{
-  constructor(msg){
+class ReceiveMessage {
+  constructor(msg) {
     this.isGo = true;
     this.msg = msg;
     this.remsg;
@@ -62,7 +62,7 @@ class Video extends Obj {
     this.videoEnable = true;
     this.results = undefined;
     this.handsEnable = true;
-    this.highFive = [false,false];
+    this.highFive = [false, false];
     this.ping = 1;
     /*
         let hands = new Hands({
@@ -115,6 +115,7 @@ class Effect extends Obj {
     super(pos, size);
     this.dire = dire;
     this.color = color;
+    this.enbale = true;
   }
 }
 
@@ -129,7 +130,7 @@ class EffectsManager {
   addEffect(circle) {
     let theta = int(random(360));
     let effect;
-    let dire = createVector(mathf.cos[theta],mathf.sin[theta]);
+    let dire = createVector(mathf.cos[theta], mathf.sin[theta]);
     dire.mult(this.speed);
     dire.y *= -1;//上向きはマイナス
     effect = new Effect(circle.pos, this.size * theta, dire, this.color);
@@ -149,9 +150,7 @@ class EffectsManager {
       effect.dire.add(this.force);//自由落下
       //effect.color.a -= this.speed * 2;//フェードアウト
       effect.pos.add(effect.dire);
-      if (effect.pos.x - this.size < 0 || effect.pos.x + this.size > width ||//X画面外
-        effect.pos.y - this.size < 0 || effect.pos.y + this.size > height ||//Y画面外
-        effect.color.a <= 0) {//透明になった
+      if (this.out()) {
         this.effects.splice(i, 1);//i番目1個取り出す
         continue;
       }
@@ -162,17 +161,47 @@ class EffectsManager {
     }// while end }
 
   }
+  out(effect) {
+    return effect.pos.x - this.size < 0 || effect.pos.x + this.size > width ||//X画面外
+      effect.pos.y - this.size < 0 || effect.pos.y + this.size > height ||//Y画面外
+      effect.color.a <= 0;//透明になった
+  }
+  update2() {
+    noStroke();
+    let i = 0;
+    let disableRange = 0;
+    let disableRangeBoolean = true;//連続でenableがfalse
+    while (i < this.effects.length) {
+      let effect = this.effects[i];
+      if(!effect.enbale) {
+        if(disableRangeBoolean){
+          disableRange++;
+        }
+        continue;
+      } else disableRangeBoolean = false;
+      effect.dire.add(this.force);//自由落下
+      //effect.color.a -= this.speed * 2;//フェードアウト
+      effect.pos.add(effect.dire);
+      if(this.out()){
+        effect.enbale = false;
+      }
+      i++;
+    }//while end }
+    if(min(this.effects.length,3) < disableRange){
+      this.effects.splice(0,disableRange);
+    }
+  }
 }
 
-class Timer{
-  constructor(second){
+class Timer {
+  constructor(second) {
     this.waitTime = second;
     this.isWait = false;
   }
-  startTimer(){
+  startTimer() {
     this.isWait = true;
-    setTimeout(()=>{
+    setTimeout(() => {
       this.isWait = false;
-    },this.waitTime * 1000);
+    }, this.waitTime * 1000);
   }
 }

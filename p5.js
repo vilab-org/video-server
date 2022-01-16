@@ -23,7 +23,7 @@ function setupVideo(stream) {
   if (first) {
     let capture = createVideo();
     capture.hide();
-    let videoSize = new Vec(320,240);
+    let videoSize = new Vec(320, 240);
     capture.elt.videowidth = videoSize.x;
     capture.elt.videoheight = videoSize.y;
     capture.elt.autoplay = true;
@@ -40,16 +40,16 @@ function setupVideo(stream) {
       height: videoSize.y
     });
     camera.start();
-    console.log("camera",camera);
-    
-    console.log("capture",capture.width,capture.height);
-    localVideo.size = new Vec(videoSize.x,videoSize.y);
+    console.log("camera", camera);
+
+    console.log("capture", capture.width, capture.height);
+    localVideo.size = new Vec(videoSize.x, videoSize.y);
     HighFiveInit();
     catchBallInit();
   }
   localVideo.capture.elt.srcObject = stream;
   ResizeAllVideos();
-  console.log("localVideo:",localVideo);
+  console.log("localVideo:", localVideo);
 }
 
 
@@ -99,15 +99,15 @@ function removeOtherVideo(peerId) {
 
 function draw() {
   background(100);
-  if(!regularTime.isWait){
+  if (!regularTime.isWait) {
     regularTime.startTimer();
-    Send(REGULAR,new ReceiveMessage(Date.now()));
+    Send(REGULAR, new ReceiveMessage(Date.now()));
   }
   if (localVideo === null) return;
-  rect(localVideo.pos.x,localVideo.pos.y,localVideo.size.x,localVideo.size.y);
+  rect(localVideo.pos.x, localVideo.pos.y, localVideo.size.x, localVideo.size.y);
   if (!dragTimer.isWait) {
     dragTimer.startTimer();
-    
+
     if (draggingVideo !== null) {
       Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
     }
@@ -159,7 +159,7 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
       let minMaxPos = minMax(landmarks);
       DrawRect(obj, minMaxPos, recStroke);
       DrawConnectors(obj, landmarks, connStroke);
-      DrawCenterMark(outVideo,minMaxPos,2);
+      DrawCenterMark(outVideo, minMaxPos, 2);
 
       noFill();
       stroke(255);
@@ -247,9 +247,9 @@ function ReceivedMessage(peerID, msg) {
     case HNDRES:
       HandsOthersResults(index, msg.data);
       break;
-      case REGULAR:
-        ReceiveRegular(index,msg.data);
-        break;
+    case REGULAR:
+      ReceiveRegular(index, msg.data);
+      break;
     default:
       console.warn('not format message:');
       console.warn(msg);
@@ -261,7 +261,7 @@ function ReceivedMessage(peerID, msg) {
 function ResizeVideo(cap, size) {
   //cap.size.x = size.x;
   //cap.size.y = size.y;
-  console.log("cap.capture:",cap.capture);
+  console.log("cap.capture:", cap.capture);
   cap.size.x = cap.capture.width * 2;
   cap.size.y = cap.capture.height * 2;
 }
@@ -291,16 +291,16 @@ function HandsOthersResults(index, results) {
 
 }
 
-function ReceiveRegular(index,receiveMessage){
-  if(receiveMessage.isGo){
+function ReceiveRegular(index, receiveMessage) {
+  if (receiveMessage.isGo) {
     receiveMessage.isGo = false;
     receiveMessage.remsg = Date.now();
-    Send(REGULAR,receiveMessage);
+    Send(REGULAR, receiveMessage);
   }
-  else{
+  else {
     others[index].ping = receiveMessage.remsg - receiveMessage.msg;
     let ave = localVideo.ping;
-    for(let i=0;i<others.length; i++)ave += others[i].ping;
+    for (let i = 0; i < others.length; i++)ave += others[i].ping;
     averagePing = ave / (others.length + 1);
     console.log(averagePing);
   }
@@ -328,14 +328,14 @@ function DrawAndCalcOthers() {
   let valueChanged = [false, false];
   for (let i = 0; i < others.length; i++) {//他参加者を網羅するfor
     img(others[i]);
-    if(isDrawRect)DrawHands(others[i], others[i],1,1);
+    if (isDrawRect) DrawHands(others[i], others[i], 1, 1);
 
     if (!others[i].results) continue;
     let handedness = others[i].results.multiHandedness;
     for (let j = 0; j < handedness.length; j++) { //右手左手用のfor
       let minMaxPos = minMax(others[i].results.multiHandLandmarks[j]);
       let index = getIndexLR(handedness[j]);
-      if (index == -1)  continue;
+      if (index == -1) continue;
       for (let k = 0; k < minMaxPos.length; k++) { //検出した手の四隅用のfor
         aveMinMaxPos[index][k] += minMaxPos[k];
       }
@@ -346,9 +346,9 @@ function DrawAndCalcOthers() {
   for (let i = 0; i < aveMinMaxPos.length; i++) {
     if (valueChanged[i]) {
       for (let j = 0; j < aveMinMaxPos[i].length; j++) aveMinMaxPos[i][j] /= others.length;
-      if (isDrawRect){
+      if (isDrawRect) {
         DrawRect(localVideo, aveMinMaxPos[i], 1);
-        DrawCenterMark(localVideo,aveMinMaxPos[i],2);
+        DrawCenterMark(localVideo, aveMinMaxPos[i], 2);
       }
     }
     else {
@@ -358,18 +358,18 @@ function DrawAndCalcOthers() {
   return aveMinMaxPos;
 }
 //左手は0右手は1　その他がありえたら-1を返す
-function getIndexLR(handedness){
+function getIndexLR(handedness) {
   if (handedness.label === "Left") return 0;
   else if (handedness.label === "Right") return 1;
   else return -1;
 }
 
 //映像の左上を取得
-function getLeftUpPos(video){
-  return createVector(video.pos.x - video.size.x / 2,video.pos.y - video.size.y / 2);
+function getLeftUpPos(video) {
+  return createVector(video.pos.x - video.size.x / 2, video.pos.y - video.size.y / 2);
 }
-function getRightUpPos(video){
-  return createVector(video.pos.x + video.size.x / 2,video.pos.y - video.size.y / 2);
+function getRightUpPos(video) {
+  return createVector(video.pos.x + video.size.x / 2, video.pos.y - video.size.y / 2);
 }
 
 function tranScale(video, scaleX, scaleY) {
@@ -386,9 +386,9 @@ function Line(video, pax, pay, pbx, pby) {
 }
 
 function DrawRect(video, pos, weight) {
-  DrawRectC(video, pos, weight,color(0, 255, 0));
+  DrawRectC(video, pos, weight, color(0, 255, 0));
 }
-function DrawRectC(video, pos, weight,color){
+function DrawRectC(video, pos, weight, color) {
   strokeWeight(weight);
   stroke(color);
   push();
@@ -402,14 +402,14 @@ function DrawRectC(video, pos, weight,color){
 }
 
 function DrawCenterMark(video, pos, weight) {
-  return DrawCenterMarkC(video, pos, weight,color(255, 0, 0));
+  return DrawCenterMarkC(video, pos, weight, color(255, 0, 0));
 }
-function DrawCenterMarkC(video, pos, weight,color) {
+function DrawCenterMarkC(video, pos, weight, color) {
   push();
   //tra(video);
   //let size = min(pos[1] - pos[0], pos[3] - pos[2]) * 0.3 * video.size.x;
   //translate((pos[0] + pos[1]) * 0.5 * video.size.x, (pos[2] + pos[3]) * 0.5 * video.size.y);
-  let center = getCenterMark(video,pos);
+  let center = getCenterMark(video, pos);
   stroke(color);
   strokeWeight(weight);
   noFill();
@@ -417,20 +417,20 @@ function DrawCenterMarkC(video, pos, weight,color) {
   pop();
   return center;
 }
-function getCenterMarks(video,minMaxPoses){
+function getCenterMarks(video, minMaxPoses) {
   let marks = [undefined, undefined];
-  for (let i = 0; i < 2 ; i++) {
-    if(!minMaxPoses[i]) continue;
-    marks[i] = getCenterMark(video,minMaxPoses[i]);
+  for (let i = 0; i < 2; i++) {
+    if (!minMaxPoses[i]) continue;
+    marks[i] = getCenterMark(video, minMaxPoses[i]);
   }
   return marks;
 }
-function getCenterMark(video,minMaxPos){
-  let size = min(minMaxPos[1] - minMaxPos[0], minMaxPos[3] - minMaxPos[2]) * 0.3 * max(video.size.x,video.size.y);
+function getCenterMark(video, minMaxPos) {
+  let size = min(minMaxPos[1] - minMaxPos[0], minMaxPos[3] - minMaxPos[2]) * 0.3 * max(video.size.x, video.size.y);
   let lu = getLeftUpPos(video);
-  let pos = createVector(lu.x + ((minMaxPos[0] + minMaxPos[1]) * 0.5) * video.size.x,lu.y + ((minMaxPos[2] + minMaxPos[3]) * 0.5) * video.size.y);
+  let pos = createVector(lu.x + ((minMaxPos[0] + minMaxPos[1]) * 0.5) * video.size.x, lu.y + ((minMaxPos[2] + minMaxPos[3]) * 0.5) * video.size.y);
 
-  return new Obj(pos,createVector(size,size));
+  return new Obj(pos, createVector(size, size));
 }
 
 function minMax(marks) {
@@ -447,10 +447,10 @@ function minMax(marks) {
   return [minX, maxX, minY, maxY];
 }
 
-function getHandsMinMax(video){
+function getHandsMinMax(video) {
   let handsMinMax = [undefined, undefined];
-  if(video.results){
-    for(let i=0;i<video.results.multiHandLandmarks.length; i++){
+  if (video.results) {
+    for (let i = 0; i < video.results.multiHandLandmarks.length; i++) {
       let index = getIndexLR(video.results.multiHandedness[i]);
       if (index == -1) continue;
       //[minX, maxX, minY, maxY];

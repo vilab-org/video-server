@@ -13,14 +13,14 @@ function HighFiveInit() {
 function HighFive() {
   //SamePosHandsHighFive();
   UpPosHighFive(localVideo);
-  effectsMana.update();
-  otherEffectsMana.update();
+  effectsMana.update2();
+  otherEffectsMana.update2();
 }
 
 //お互いの手の位置でハイタッチできるやつ
 function SamePosHandsHighFive() {
   let localHandsMinMax = getHandsMinMax(localVideo);
-  
+
   for (let i = 0; i < 2; i++) {
     if (localHandsMinMax[i]) {
       DrawRectC(localVideo, localHandsMinMax[i], 1, color(50, 200, 50));
