@@ -131,14 +131,14 @@ function draw() {
 
 function img(cap) {
   if (cap.videoEnable) {
-    /*
+    
     push()
-    tra(cap);
-    scale(-1,1);
-    //tranScale(cap,-2,2);
-    image(cap.capture, 0, 0, cap.size.x, cap.size.y);
-    pop();*/
-    image(cap.capture, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);
+    //tra(cap);
+    //scale(-1,1);
+    tranScale(cap,-1,1);
+    image(cap.capture, 0, 0, cap.size.x, cap.size.y);//鏡チャレンジ
+    pop();
+    image(cap.capture, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);//鏡なし 通常
     //image(cap.capture,cap.pos.x,cap.pos.y,cap.capture.width,cap.capture.height);
   } else {
     image(blackimg, cap.pos.x, cap.pos.y, blackimg.width, blackimg.height);
