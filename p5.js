@@ -1,7 +1,7 @@
 //https://qiita.com/yusuke84/items/54dce88f9e896903e64f
 let localVideo = null;
 let others = [];
-let dummy = [];
+let dummys = [];
 let draggingVideo = null;
 let hideCapture = null;
 let checkbox;
@@ -201,9 +201,9 @@ function mousePressed() {
       Send(RESIZE, resize);
     }
   } else { //マウスの位置は自分のビデオじゃない
-    for (let i = 0; i < dummy.length; i++) { //ダミーをクリックしてる説
-      if (collide(mouseX, mouseY, dummy[i])) {
-        draggingVideo = dummy[i];
+    for (let i = 0; i < dummys.length; i++) { //ダミーをクリックしてる説
+      if (collide(mouseX, mouseY, dummys[i])) {
+        draggingVideo = dummys[i];
       }
     }
   }
@@ -226,7 +226,7 @@ function mouseReleased() {
 
 function ResizeAllVideos() {
   let i = 1;//自身の1
-  for (; i * i <= others.length + dummy.length; i++);
+  for (; i * i <= others.length + dummys.length; i++);
   let size = getSize(localVideo, i);
 	console.log(size);
   ResizeVideo(localVideo, size);
