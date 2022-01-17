@@ -59,7 +59,8 @@ class Color {
 
 class Video extends Obj {
   constructor(pos, ID, capture) {
-    super(pos, new Vec(0, 0));
+    super(pos, null);
+console.log(this.size);
     this.ID = ID;
     this.capture = capture;
     this.videoEnable = true;
@@ -96,9 +97,6 @@ class Video extends Obj {
           this.results = results;
         });
         */
-  }
-  copy(){
-    
   }
 }
 

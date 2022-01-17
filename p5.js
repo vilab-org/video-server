@@ -25,29 +25,33 @@ function setupVideo(stream) {
   if (first) {
     let capture = createVideo();
     capture.hide();
-    let videoSize = new Vec(320, 240);
-    capture.elt.videowidth = videoSize.x;
-    capture.elt.videoheight = videoSize.y;
+    let VideoSize = new Vec(320, 240);
+console.log(VideoSize);
+    capture.elt.videowidth = VideoSize.x;
+    capture.elt.videoheight = VideoSize.y;
     capture.elt.autoplay = true;
     let pos = createVector(width / 2, width / 2);
     localVideo = new Video(pos, stream.peerId, capture);
-
+console.log(localVideo);
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
         await hands.send({//手の映像を送信
           image: capture.elt
         });
       },
-      width: videoSize.x,
-      height: videoSize.y
+      width: VideoSize.x,
+      height: VideoSize.y
     });
     camera.start();
     console.log("camera", camera);
-console.log(videoSize);
+console.log(VideoSize);
 console.log(localVideo.size);
-    localVideo.size = videoSize.copy();
-    console.log(localVideo);
-	  HighFiveInit();
+console.log(VideoSize.copy());
+    localVideo.size = {x:VideoSize.x,y:VideoSize.y};
+    console.log(localVideo.size);
+localVideo.size = VideoSize;
+console.log(localVideo.size);	
+  HighFiveInit();
     catchBallInit();
   }
   localVideo.capture.elt.srcObject = stream;
