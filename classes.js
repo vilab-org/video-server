@@ -224,6 +224,7 @@ class Ball extends Obj {
     this.from;
     this.target = target;
     this.amt = 0;
+    this.dist;
   }
   update() {
     this.pos = p5.Vector.lerp(this.from.pos, this.target.pos, this.amt);
@@ -236,7 +237,7 @@ class Ball extends Obj {
     if (this.amt >= 1) {
       this.isCatch = false;
     } else {
-      this.amt += 1 / getFrameRate();
+      this.amt += dist / getFrameRate();
     }
 
   }
@@ -245,6 +246,7 @@ class Ball extends Obj {
     this.amt = 0;
     this.from = this.target;
     this.target = target;
+    this.dist = dist(this.from.pos.x,this.from.pos.y,this.target.pos.x,this.target.pos.y);
   }
 }
 
