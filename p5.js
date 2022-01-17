@@ -43,10 +43,11 @@ function setupVideo(stream) {
     });
     camera.start();
     console.log("camera", camera);
-
-    console.log("capture", capture.width, capture.height);
-    localVideo.size = new Vec(videoSize.x, videoSize.y);
-    HighFiveInit();
+console.log(videoSize);
+console.log(localVideo.size);
+    localVideo.size = videoSize.copy();
+    console.log(localVideo);
+	  HighFiveInit();
     catchBallInit();
   }
   localVideo.capture.elt.srcObject = stream;
@@ -220,16 +221,17 @@ function mouseReleased() {
 }
 
 function ResizeAllVideos() {
-  let i = 0;
+  let i = 1;//自身の1
   for (; i * i <= others.length + dummy.length; i++);
-  let size = getSize(localVideo.capture, i);
+  let size = getSize(localVideo, i);
+	console.log(size);
   ResizeVideo(localVideo, size);
   for (i = 0; i < others.length; i++) {
     ResizeVideo(others[i], size);
   }
 
-  function getSize(capture, num) {
-    let ratio = capture.size.x / capture.size.y;
+  function getSize(video, num) {
+    let ratio = video.size.x / video.size.y;
     let x = (windowWidth / 2) / num;
     let y = x * ratio;
     return createVector(x, y);
@@ -275,8 +277,8 @@ function ReceivedMessage(peerID, msg) {
 function ResizeVideo(cap, size) {
   cap.size.x = size.x;
   cap.size.y = size.y;
-  cap.capture.videowidth = size.x;
-  cap.capture.videoheight = size.y;
+  cap.capture.elt.videowidth = size.x;
+  cap.capture.elt.videoheight = size.y;
   //cap.size.x = cap.capture.width * 2;
   //cap.size.y = cap.capture.height * 2;
   console.log("cap.capture:", cap.capture);

@@ -24,6 +24,9 @@ class Vec {
     this.x = x;
     this.y = y;
   }
+  copy(){
+    return new Vec(this.x,this.y);
+  }
 }
 Vec.prototype.toString = function () {
   return '(' + this.x + ',' + this.y + ')';
