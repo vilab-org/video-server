@@ -218,15 +218,15 @@ class Timer {
 }
 
 class Ball extends Obj {
-  constructor(pos, size) {
+  constructor(pos, size, target) {
     super(pos, size);
     this.isCatch = false;
     this.from;
-    this.target;
+    this.target = target;
     this.amt = 0;
   }
   update() {
-    this.pos = p5.Vector.lerp(from.pos, target.pos, this.amt);
+    this.pos = p5.Vector.lerp(this.from.pos, this.target.pos, this.amt);
     //ボールの表示
     noStroke();
     fill(255);
@@ -236,7 +236,7 @@ class Ball extends Obj {
     if (this.amt >= 1) {
       this.isCatch = false;
     } else {
-      this.amt += 1 / frameRate;
+      this.amt += 1 / getFrameRate();
     }
 
   }
@@ -248,7 +248,7 @@ class Ball extends Obj {
   }
 }
 
-class BallManagaer {
+class BallManager {
   constructor(endFunc) {
     this.member;
     this.ball;
@@ -258,15 +258,16 @@ class BallManagaer {
     //配列の早いコピーらしい
     //https://qiita.com/takahiro_itazuri/items/882d019f1d8215d1cb67#:~:text=let%20arr2%20%3D%20%5B...arr1%5D%3B
     this.member = [...others].concat(dummys);
-    this.ball = new Ball(localVideo.pos.copy(), 20);
+    this.ball = new Ball(localVideo.pos.copy(), 20, localVideo);
+    this.selectTarget();
   }
   update() {
     this.ball.update();
     if (!this.ball.isCatch) {
-      selectTartget();
+      this.selectTarget();
     }
   }
-  selectTartget() {
+  selectTarget() {
     let next;
     if (this.member.length === 0) {
       if(this.ball.target === localVideo){
@@ -276,8 +277,10 @@ class BallManagaer {
       next = localVideo;
     } else {
       let index = randomInt(this.member.length);
-      next = this.member.splice(index, 1);
+      next = this.member[index];
+      this.member.splice(index, 1);
     }
+
     this.ball.setTarget(next);
   }
 }

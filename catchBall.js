@@ -9,12 +9,14 @@ function catchBallInit(){
 }
 
 function catchStart(){
-    isCatch = true;
+    isCatched = true;
     ballManager.start();
 }
 
 function catchBallUpdate(){
-    ballManager.update();
+    if(isCatched){
 
+      ballManager.update();
+    }
 
 }
