@@ -244,7 +244,7 @@ class Ball extends Obj {
     this.amt = 0;
     this.from = this.target;
     this.target = target;
-    this.dist = dist(this.from.pos.x,this.from.pos.y,this.target.pos.x,this.target.pos.y);
+    this.dist = dist(this.from.pos.x, this.from.pos.y, this.target.pos.x, this.target.pos.y);
   }
 }
 
@@ -273,10 +273,11 @@ class BallManager {
     let next;
     //もう渡ってない人がいない
     if (this.member.length === 0) {
-      if(this.ball.target === localVideo){ //ラストの目標が自分なら1周
+      if (this.ball.target === localVideo) { //ラストの目標が自分なら1周
         this.endFunc();
+        Send(CATBAL, END);
         return;//キャッチボール終了
-      } 
+      }
       next = localVideo;//ラスト自分
     } else {
       let index = randomInt(this.member.length);
@@ -285,5 +286,6 @@ class BallManager {
     }
 
     this.ball.setTarget(next);
+    Send(CATBAL, this.ball);
   }
 }

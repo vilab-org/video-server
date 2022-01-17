@@ -19,7 +19,8 @@ const HIGTOC = 'HIGTOC';
 const HNDRES = 'HNDRES';
 const REGULAR = 'REGULAR';//定期送信
 const ISHIGH = 'ISHIGH';
-const STARTCATCH = 'STARTCATCH';
+const CATBAL = 'CATBAL';
+const END = 'END';
 
 function setupVideo(stream) {
   let first = localVideo === null;
@@ -230,8 +231,8 @@ function ResizeAllVideos() {
   for (i = 0; i < others.length; i++) {
     ResizeVideo(others[i], size);
   }
-  for(i = 0; i < dummys.length; i++){
-    ResizeVideo(dummys[i],size);
+  for (i = 0; i < dummys.length; i++) {
+    ResizeVideo(dummys[i], size);
   }
 
   function getSize(video, num) {
@@ -270,9 +271,9 @@ function ReceivedMessage(peerID, msg) {
     case ISHIGH:
       ReceiveIsHighFive(index, msg.data);
       break;
-      case STARTCATCH:
-        ReceiveIsCatch(index, msg.data);
-        break;
+    case CATBAL:
+      ReceiveStartCatch(index, msg.data);
+      break;
     default:
       console.warn('not format message:');
       console.warn(msg);
@@ -337,8 +338,9 @@ function ReceiveIsHighFive(index, isHigh) {
   document.getElementById("ChangeIsHighFive").checked = isHighFive;
 }
 
-function ReceiveIsCatch(index, isCatch) {
-  
+function ReceiveStartCatch(index, ball) {
+  if (ball === END) selfBall = undefined;
+  selfBall = ball;
 }
 
 function text(text, cap) {
@@ -377,11 +379,11 @@ function DrawAndCalcOthers() {
   }
   return aveMinMaxPos;
 
-  function groupAverage(group){
+  function groupAverage(group) {
     for (let i = 0; i < group.length; i++) {//他参加者を網羅するfor
       img(group[i]);
       if (isDrawRect) DrawHands(group[i], group[i], 0.7, 0.7);
-  
+
       if (!group[i].results) continue;
       let handedness = group[i].results.multiHandedness;
       for (let j = 0; j < handedness.length; j++) { //右手左手用のfor
@@ -539,6 +541,6 @@ function DrawConnectors(video, marks, weight) {
   pop();
 }
 
-function randomInt(max){
+function randomInt(max) {
   return Math.floor(Math.random() * max);
 }
