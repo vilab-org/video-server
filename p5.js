@@ -25,7 +25,7 @@ function setupVideo(stream) {
   if (first) {
     let capture = createVideo();
     capture.hide();
-    let VideoSize = new Vec(320, 240);
+    let VideoSize = new Vec(321, 242);
 console.log(VideoSize);
     capture.elt.videowidth = VideoSize.x();
     capture.elt.videoheight = VideoSize.y();
@@ -55,7 +55,7 @@ console.log(localVideo.size);
     catchBallInit();
   }
   localVideo.capture.elt.srcObject = stream;
-  ResizeAllVideos();
+  //ResizeAllVideos();
   console.log("localVideo:", localVideo);
 }
 
@@ -240,7 +240,7 @@ function ResizeAllVideos() {
     let ratio = video.size.x() / video.size.y();
     let x = (windowWidth / 2) / num;
     let y = x * ratio;
-    return createVector(x, y);
+    return new Vec(x, y);
   }
 }
 

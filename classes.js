@@ -20,19 +20,19 @@ class ReceiveMessage {
 }
 
 class Vec {
-  #x;
-  #y;
+  #v;
   constructor(x, y) {
     this.set(x, y);
   }
   set(x,y){
-    this.#x = x;
-    this.#y = y;
+console.log(x,y);
+    this.#v = [x,y];
+console.log(this.#v[0],this.#v[1]);
   }
-  x() { return this.#x; }
-  y() { return this.#y; }
+  x() { return this.#v[0]; }
+  y() { return this.#v[1]; }
   copy() {
-    return new Vec(this.#x, this.#y);
+    return new Vec(this.#v[0], this.#v[1]);
   }
 }
 Vec.prototype.toString = function () {
