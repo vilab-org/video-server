@@ -220,11 +220,11 @@ class Timer {
 class Ball extends Obj {
   constructor(pos, size, target) {
     super(pos, size);
-    this.isCatch = false;
-    this.from;
-    this.target = target;
-    this.amt = 0;
-    this.dist;
+    this.isCatch = false;//目標にいるかどうか
+    this.from;//出発
+    this.target = target;//目標
+    this.amt = 0;//線形補間の割合
+    this.dist;//距離
   }
   update() {
     this.pos = p5.Vector.lerp(this.from.pos, this.target.pos, this.amt);
@@ -233,13 +233,11 @@ class Ball extends Obj {
     fill(255);
     ellipse(this.pos.x, this.pos.y, this.size, this.size);
 
-
     if (this.amt >= 1) {
       this.isCatch = false;
     } else {
       this.amt += 100 / this.dist / getFrameRate();
     }
-
   }
   setTarget(target) {
     this.isCatch = true;
@@ -252,9 +250,9 @@ class Ball extends Obj {
 
 class BallManager {
   constructor(endFunc) {
-    this.member;
-    this.ball;
-    this.endFunc = endFunc;
+    this.member;//参加者
+    this.ball;//動くの
+    this.endFunc = endFunc;//終了時の処理
   }
   start() {
     //配列の早いコピーらしい
@@ -265,18 +263,21 @@ class BallManager {
   }
   update() {
     this.ball.update();
+    //ボールが到達
     if (!this.ball.isCatch) {
       this.selectTarget();
     }
   }
+  //次の目標地点設定
   selectTarget() {
     let next;
+    //もう渡ってない人がいない
     if (this.member.length === 0) {
-      if(this.ball.target === localVideo){
+      if(this.ball.target === localVideo){ //ラストの目標が自分なら1周
         this.endFunc();
         return;//キャッチボール終了
       } 
-      next = localVideo;
+      next = localVideo;//ラスト自分
     } else {
       let index = randomInt(this.member.length);
       next = this.member[index];

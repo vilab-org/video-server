@@ -1,7 +1,6 @@
 let isCatched = false;
 let ballManager;
 
-
 function catchBallInit(){
     ballManager = new BallManager(()=>{
         isCatched = false;
@@ -15,7 +14,6 @@ function catchStart(){
 
 function catchBallUpdate(){
     if(isCatched){
-
       ballManager.update();
     }
 
