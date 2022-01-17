@@ -205,5 +205,5 @@ function ChangeIsHighFive(){
 function AddDummy(){
   let pos = localVideo.pos.copy().add(createVector(localVideo.size.x,localVideo.size.y));
 
-  dummy.push(new Video(pos,localVideo.ID,localVideo.capture));
+  dummy.push(new Video(pos,new Vec(320, 240),localVideo.ID,localVideo.capture));
 }

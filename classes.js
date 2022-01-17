@@ -58,9 +58,8 @@ class Color {
 }
 
 class Video extends Obj {
-  constructor(pos, ID, capture) {
-    super(pos, null);
-console.log(this.size);
+  constructor(pos, size,ID, capture) {
+    super(pos, size);
     this.ID = ID;
     this.capture = capture;
     this.videoEnable = true;

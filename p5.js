@@ -31,7 +31,7 @@ console.log(VideoSize);
     capture.elt.videoheight = VideoSize.y;
     capture.elt.autoplay = true;
     let pos = createVector(width / 2, width / 2);
-    localVideo = new Video(pos, stream.peerId, capture);
+    localVideo = new Video(pos,VideoSize, stream.peerId, capture);
 console.log(localVideo);
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
@@ -87,7 +87,7 @@ function addOtherVideo(otherStream) {
   for (let i = 0; i < others.length; i++) {
     pos.x + others[i].size.x;
   }
-  let video = new Video(pos, otherStream.peerId, capture);
+  let video = new Video(pos, new Vec(320,240), otherStream.peerId, capture);
   video.capture.elt.srcObject = otherStream;
   others.push(video);
   ResizeAllVideos();
