@@ -94,6 +94,9 @@ class Video extends Obj {
         });
         */
   }
+  copy(){
+    
+  }
 }
 
 Video.prototype.toString = function () {
@@ -219,6 +222,8 @@ class Ball extends Obj{
   }
   update(){
     //ボールの表示
+    noStroke();
+    fill(255);
     ellipse(this.pos.x,this.pos.y,this.size,this.size);
 
 

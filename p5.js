@@ -1,6 +1,7 @@
 //https://qiita.com/yusuke84/items/54dce88f9e896903e64f
 let localVideo = null;
 let others = [];
+let dummy = [];
 let draggingVideo = null;
 let hideCapture = null;
 let checkbox;
@@ -194,6 +195,12 @@ function mousePressed() {
       }
       Send(RESIZE, resize);
     }
+  } else { //マウスの位置は自分のビデオじゃない
+    for (let i = 0; i < dummy.length; i++) { //ダミーをクリックしてる説
+      if (collide(mouseX, mouseY, dummy[i])) {
+        draggingVideo = dummy[i];
+      }
+    }
   }
 
   function collide(x, y, video) {
@@ -214,7 +221,7 @@ function mouseReleased() {
 
 function ResizeAllVideos() {
   let i = 0;
-  for (; i * i <= others.length; i++);
+  for (; i * i <= others.length + dummy.length; i++);
   let size = getSize(localVideo.capture, i);
   ResizeVideo(localVideo, size);
   for (i = 0; i < others.length; i++) {
@@ -266,11 +273,13 @@ function ReceivedMessage(peerID, msg) {
 }
 
 function ResizeVideo(cap, size) {
-  //cap.size.x = size.x;
-  //cap.size.y = size.y;
+  cap.size.x = size.x;
+  cap.size.y = size.y;
+  cap.capture.videowidth = size.x;
+  cap.capture.videoheight = size.y;
+  //cap.size.x = cap.capture.width * 2;
+  //cap.size.y = cap.capture.height * 2;
   console.log("cap.capture:", cap.capture);
-  cap.size.x = cap.capture.width * 2;
-  cap.size.y = cap.capture.height * 2;
 }
 
 function SearchOthers(peerId) {

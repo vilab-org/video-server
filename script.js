@@ -201,3 +201,9 @@ function ChangeIsHighFive(){
   isHighFive = $('#ChangeIsHighFive').prop('checked');
   Send(ISHIGH,isHighFive);
 }
+
+function AddDummy(){
+  let pos = localVideo.pos.copy().add(createVector(localVideo.size.x,localVideo.size.y));
+
+  dummy.push(new Video(pos,localVideo.ID,localVideo.capture));
+}
