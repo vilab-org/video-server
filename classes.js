@@ -237,7 +237,7 @@ class Ball extends Obj {
     if (this.amt >= 1) {
       this.isCatch = false;
     } else {
-      this.amt += dist / getFrameRate();
+      this.amt += 100 / this.dist / getFrameRate();
     }
 
   }
