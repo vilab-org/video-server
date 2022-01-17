@@ -27,8 +27,8 @@ function setupVideo(stream) {
     capture.hide();
     let VideoSize = new Vec(320, 240);
 console.log(VideoSize);
-    capture.elt.videowidth = VideoSize.x;
-    capture.elt.videoheight = VideoSize.y;
+    capture.elt.videowidth = VideoSize.x();
+    capture.elt.videoheight = VideoSize.y();
     capture.elt.autoplay = true;
     let pos = createVector(width / 2, width / 2);
     localVideo = new Video(pos,VideoSize, stream.peerId, capture);
@@ -39,15 +39,15 @@ console.log(localVideo);
           image: capture.elt
         });
       },
-      width: VideoSize.x,
-      height: VideoSize.y
+      width: VideoSize.x(),
+      height: VideoSize.y()
     });
     camera.start();
     console.log("camera", camera);
 console.log(VideoSize);
 console.log(localVideo.size);
 console.log(VideoSize.copy());
-    localVideo.size = {x:VideoSize.x,y:VideoSize.y};
+    localVideo.size = {x:VideoSize.x(),y:VideoSize.y()};
     console.log(localVideo.size);
 localVideo.size = VideoSize;
 console.log(localVideo.size);	
@@ -85,7 +85,7 @@ function addOtherVideo(otherStream) {
   capture.hide();
   let pos = createVector(windowWidth / 2, windowHeight / 2);
   for (let i = 0; i < others.length; i++) {
-    pos.x + others[i].size.x;
+    pos.x + others[i].size.x();
   }
   let video = new Video(pos, new Vec(320,240), otherStream.peerId, capture);
   video.capture.elt.srcObject = otherStream;
@@ -111,7 +111,7 @@ function draw() {
     Send(REGULAR, new ReceiveMessage(Date.now()));
   }
   if (localVideo === null) return;
-  rect(localVideo.pos.x, localVideo.pos.y, localVideo.size.x, localVideo.size.y);
+  rect(localVideo.pos.x, localVideo.pos.y, localVideo.size.x(), localVideo.size.y());
   if (!dragTimer.isWait) {
     dragTimer.startTimer();
 
@@ -152,7 +152,7 @@ function img(cap) {
     scale(-1,1);
     image(cap.capture, 0, 0, cap.size.x, cap.size.y);//鏡チャレンジ
     pop();*/
-    image(cap.capture, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);//鏡なし 通常
+    image(cap.capture, cap.pos.x, cap.pos.y, cap.size.x(), cap.size.y());//鏡なし 通常
     //image(cap.capture,cap.pos.x,cap.pos.y,cap.capture.width,cap.capture.height);
   } else {
     image(blackimg, cap.pos.x, cap.pos.y, blackimg.width, blackimg.height);
@@ -175,7 +175,7 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
       stroke(255);
       strokeWeight(1);
       let cap = outVideo;
-      text(inVideo.results.multiHandedness[i].label, (cap.pos.x - cap.size.x / 2) + (cap.size.x * minMaxPos[0]), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos[3]) + 10);
+      text(inVideo.results.multiHandedness[i].label, (cap.pos.x - cap.size.x() / 2) + (cap.size.x() * minMaxPos[0]), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos[3]) + 10);
     }
   }
 }
@@ -192,11 +192,13 @@ function mousePressed() {
       draggingVideo = localVideo;
     } else { //RIGHT
       let resize = localVideo.size;
-      resize.x *= 0.75;
-      resize.y *= 0.75;
-      if (resize.x < windowWidth / 20) {
-        resize.x = localVideo.capture.width;
-        resize.y = localVideo.capture.height;
+      //resize.x *= 0.75;
+      //resize.y *= 0.75;
+      resize.set(resize.x() * 0.75,resize.y() * 0.75);
+      if (resize.x() < windowWidth / 20) {
+        resize.set(localVideo.capture.width,localVideo.capture.height);
+        //resize.x = localVideo.capture.width;
+        //resize.y = localVideo.capture.height;
       }
       Send(RESIZE, resize);
     }
@@ -209,7 +211,7 @@ function mousePressed() {
   }
 
   function collide(x, y, video) {
-    return (abs(video.pos.x - x) < video.size.x / 2) && ((abs(video.pos.y - y) < video.size.y / 2));
+    return (abs(video.pos.x - x) < video.size.x() / 2) && ((abs(video.pos.y - y) < video.size.y() / 2));
   }
 }
 
@@ -235,7 +237,7 @@ function ResizeAllVideos() {
   }
 
   function getSize(video, num) {
-    let ratio = video.size.x / video.size.y;
+    let ratio = video.size.x() / video.size.y();
     let x = (windowWidth / 2) / num;
     let y = x * ratio;
     return createVector(x, y);
@@ -279,10 +281,11 @@ function ReceivedMessage(peerID, msg) {
 }
 
 function ResizeVideo(cap, size) {
-  cap.size.x = size.x;
-  cap.size.y = size.y;
-  cap.capture.elt.videowidth = size.x;
-  cap.capture.elt.videoheight = size.y;
+  //cap.size.x = size.x;
+  //cap.size.y = size.y;
+  cap.size.set(size.x(),size.y());
+  cap.capture.elt.videowidth = size.x();
+  cap.capture.elt.videoheight = size.y();
   //cap.size.x = cap.capture.width * 2;
   //cap.size.y = cap.capture.height * 2;
   console.log("cap.capture:", cap.capture);
@@ -338,7 +341,7 @@ function text(text, cap) {
   noFill();
   stroke(0);
   strokeWeight(1);
-  text(text, cap.pos.x - cap.size.x / 2, cap.pos.y - cap.size.y / 2 - 10);
+  text(text, cap.pos.x - cap.size.x() / 2, cap.pos.y - cap.size.y() / 2 - 10);
 }
 
 
@@ -393,10 +396,10 @@ function getIndexLR(handedness) {
 
 //映像の左上を取得
 function getLeftUpPos(video) {
-  return createVector(video.pos.x - video.size.x / 2, video.pos.y - video.size.y / 2);
+  return createVector(video.pos.x - video.size.x() / 2, video.pos.y - video.size.y() / 2);
 }
 function getRightUpPos(video) {
-  return createVector(video.pos.x + video.size.x / 2, video.pos.y - video.size.y / 2);
+  return createVector(video.pos.x + video.size.x() / 2, video.pos.y - video.size.y() / 2);
 }
 
 function tranScale(video, scaleX, scaleY) {
@@ -409,7 +412,7 @@ function tra(video) {
 }
 
 function Line(video, pax, pay, pbx, pby) {
-  line(pax * video.size.x, pay * video.size.y, pbx * video.size.x, pby * video.size.y);
+  line(pax * video.size.x(), pay * video.size.y, pbx * video.size.x(), pby * video.size.y);
 }
 
 function DrawRect(video, pos, weight) {
@@ -434,13 +437,13 @@ function DrawCenterMark(video, pos, weight) {
 function DrawCenterMarkC(video, pos, weight, color) {
   push();
   //tra(video);
-  //let size = min(pos[1] - pos[0], pos[3] - pos[2]) * 0.3 * video.size.x;
-  //translate((pos[0] + pos[1]) * 0.5 * video.size.x, (pos[2] + pos[3]) * 0.5 * video.size.y);
+  //let size = min(pos[1] - pos[0], pos[3] - pos[2]) * 0.3 * video.size.x();
+  //translate((pos[0] + pos[1]) * 0.5 * video.size.x(), (pos[2] + pos[3]) * 0.5 * video.size.y());
   let center = getCenterMark(video, pos);
   stroke(color);
   strokeWeight(weight);
   noFill();
-  ellipse(center.pos.x, center.pos.y, center.size.x, center.size.y);
+  ellipse(center.pos.x, center.pos.y, center.size.x(), center.size.y());
   pop();
   return center;
 }
@@ -453,9 +456,9 @@ function getCenterMarks(video, minMaxPoses) {
   return marks;
 }
 function getCenterMark(video, minMaxPos) {
-  let size = min(minMaxPos[1] - minMaxPos[0], minMaxPos[3] - minMaxPos[2]) * 0.3 * max(video.size.x, video.size.y);
+  let size = min(minMaxPos[1] - minMaxPos[0], minMaxPos[3] - minMaxPos[2]) * 0.3 * max(video.size.x(), video.size.y());
   let lu = getLeftUpPos(video);
-  let pos = createVector(lu.x + ((minMaxPos[0] + minMaxPos[1]) * 0.5) * video.size.x, lu.y + ((minMaxPos[2] + minMaxPos[3]) * 0.5) * video.size.y);
+  let pos = createVector(lu.x + ((minMaxPos[0] + minMaxPos[1]) * 0.5) * video.size.x(), lu.y + ((minMaxPos[2] + minMaxPos[3]) * 0.5) * video.size.y());
 
   return new Obj(pos, createVector(size, size));
 }

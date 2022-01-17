@@ -20,12 +20,19 @@ class ReceiveMessage {
 }
 
 class Vec {
+  #x;
+  #y;
   constructor(x, y) {
-    this.x = x;
-    this.y = y;
+    this.set(x, y);
   }
-  copy(){
-    return new Vec(this.x,this.y);
+  set(x,y){
+    this.#x = x;
+    this.#y = y;
+  }
+  x() { return this.#x; }
+  y() { return this.#y; }
+  copy() {
+    return new Vec(this.#x, this.#y);
   }
 }
 Vec.prototype.toString = function () {
@@ -58,7 +65,7 @@ class Color {
 }
 
 class Video extends Obj {
-  constructor(pos, size,ID, capture) {
+  constructor(pos, size, ID, capture) {
     super(pos, size);
     this.ID = ID;
     this.capture = capture;
@@ -177,26 +184,26 @@ class EffectsManager {
     let disableRangeBoolean = true;//連続でenableがfalse
     while (i < this.effects.length) {
       let effect = this.effects[i];
-      if(!effect.enbale) {
-        if(disableRangeBoolean){
+      if (!effect.enbale) {
+        if (disableRangeBoolean) {
           disableRange++;
         }
-	i++;
+        i++;
         continue;
       } else disableRangeBoolean = false;
       effect.dire.add(this.force);//自由落下
       //effect.color.a -= this.speed * 2;//フェードアウト
       effect.pos.add(effect.dire);
-      if(this.out(effect)){
+      if (this.out(effect)) {
         effect.enbale = false;
       } else {
         fill(effect.color.getColor());
-	rect(effect.pos.x,effect.pos.y,this.size,this.size);
+        rect(effect.pos.x, effect.pos.y, this.size, this.size);
       }
       i++;
     }//while end }
-    if(min(this.effects.length,10) <= disableRange){
-      this.effects.splice(0,disableRange);
+    if (min(this.effects.length, 10) <= disableRange) {
+      this.effects.splice(0, disableRange);
     }
   }
 }
@@ -214,17 +221,17 @@ class Timer {
   }
 }
 
-class Ball extends Obj{
-  constructor(pos,size){
+class Ball extends Obj {
+  constructor(pos, size) {
     super(pos, size);
     this.isMoving = false;
     this.target;
   }
-  update(){
+  update() {
     //ボールの表示
     noStroke();
     fill(255);
-    ellipse(this.pos.x,this.pos.y,this.size,this.size);
+    ellipse(this.pos.x, this.pos.y, this.size, this.size);
 
 
   }
