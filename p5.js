@@ -19,6 +19,7 @@ const HIGTOC = 'HIGTOC';
 const HNDRES = 'HNDRES';
 const REGULAR = 'REGULAR';//定期送信
 const ISHIGH = 'ISHIGH';
+const STARTCATCH = 'STARTCATCH';
 
 function setupVideo(stream) {
   let first = localVideo === null;
@@ -128,14 +129,8 @@ function draw() {
       DrawHands(localVideo, localVideo, 1, 1);
     }
   }
-  if (others.length > 0) {
+  if (others.length + dummys.length > 0) {
     aveOthersHands = DrawAndCalcOthers();//他参加者のdrawと手の位置の平均値計算して返す
-  }
-  for(let i=0;i<dummys.length;i++){
-    img(dummys[i]);
-    if(isDrawRect){
-      DrawHands(dummys[i],dummys[i],0.5,0.5);
-    }
   }
   if (isHighFive) {
     HighFive();
@@ -231,7 +226,6 @@ function ResizeAllVideos() {
   let i = 1;//自身の1
   for (; i * i <= others.length + dummys.length; i++);
   let size = getSize(localVideo, i);
-  console.log(size);
   ResizeVideo(localVideo, size);
   for (i = 0; i < others.length; i++) {
     ResizeVideo(others[i], size);
@@ -276,6 +270,9 @@ function ReceivedMessage(peerID, msg) {
     case ISHIGH:
       ReceiveIsHighFive(index, msg.data);
       break;
+      case STARTCATCH:
+        ReceiveIsCatch(index, msg.data);
+        break;
     default:
       console.warn('not format message:');
       console.warn(msg);
@@ -340,6 +337,10 @@ function ReceiveIsHighFive(index, isHigh) {
   document.getElementById("ChangeIsHighFive").checked = isHighFive;
 }
 
+function ReceiveIsCatch(index, isCatch) {
+  
+}
+
 function text(text, cap) {
   noFill();
   stroke(0);
@@ -359,22 +360,8 @@ function DrawAndCalcOthers() {
     [0, 0, 0, 0]
   ];
   let valueChanged = [false, false];
-  for (let i = 0; i < others.length; i++) {//他参加者を網羅するfor
-    img(others[i]);
-    if (isDrawRect) DrawHands(others[i], others[i], 1, 1);
-
-    if (!others[i].results) continue;
-    let handedness = others[i].results.multiHandedness;
-    for (let j = 0; j < handedness.length; j++) { //右手左手用のfor
-      let minMaxPos = minMax(others[i].results.multiHandLandmarks[j]);
-      let index = getIndexLR(handedness[j]);
-      if (index == -1) continue;
-      for (let k = 0; k < minMaxPos.length; k++) { //検出した手の四隅用のfor
-        aveMinMaxPos[index][k] += minMaxPos[k];
-      }
-      valueChanged[index] = true;
-    }
-  }
+  groupAverage(others);
+  groupAverage(dummys);
 
   for (let i = 0; i < aveMinMaxPos.length; i++) {
     if (valueChanged[i]) {
@@ -389,6 +376,25 @@ function DrawAndCalcOthers() {
     }
   }
   return aveMinMaxPos;
+
+  function groupAverage(group){
+    for (let i = 0; i < group.length; i++) {//他参加者を網羅するfor
+      img(group[i]);
+      if (isDrawRect) DrawHands(group[i], group[i], 0.7, 0.7);
+  
+      if (!group[i].results) continue;
+      let handedness = group[i].results.multiHandedness;
+      for (let j = 0; j < handedness.length; j++) { //右手左手用のfor
+        let minMaxPos = minMax(group[i].results.multiHandLandmarks[j]);
+        let index = getIndexLR(handedness[j]);
+        if (index == -1) continue;
+        for (let k = 0; k < minMaxPos.length; k++) { //検出した手の四隅用のfor
+          aveMinMaxPos[index][k] += minMaxPos[k];
+        }
+        valueChanged[index] = true;
+      }
+    }
+  }
 }
 //左手は0右手は1　その他がありえたら-1を返す
 function getIndexLR(handedness) {
@@ -531,4 +537,8 @@ function DrawConnectors(video, marks, weight) {
   LineMarks(18, 19);
   LineMarks(19, 20);
   pop();
+}
+
+function randomInt(max){
+  return Math.floor(Math.random() * max);
 }

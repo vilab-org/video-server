@@ -1,14 +1,20 @@
-let ball;
-let target;
+let isCatched = false;
+let ballManager;
 
 
 function catchBallInit(){
-    ball = new Ball(createVector(),50);
-    target = localVideo;
+    ballManager = new BallManager(()=>{
+        isCatched = false;
+    });
+}
+
+function catchStart(){
+    isCatch = true;
+    ballManager.start();
 }
 
 function catchBallUpdate(){
-    ball.update()
+    ballManager.update();
 
 
 }

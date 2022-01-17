@@ -197,15 +197,21 @@ function ChangeDrawRect() {
   isDrawRect = $('#changeDrawRect').prop('checked');
 }
 
-function ChangeIsHighFive(){
+function ChangeIsHighFive() {
   isHighFive = $('#ChangeIsHighFive').prop('checked');
-  Send(ISHIGH,isHighFive);
+  Send(ISHIGH, isHighFive);
 }
 
-function AddDummy(){
-  let pos = localVideo.pos.copy().add(createVector(localVideo.size.x/2,localVideo.size.y/2));
-  dummys.push(new Video(pos,new Vec(320, 240),localVideo.ID,localVideo.capture));
+function ChangeIsCatch() {
+  if (isCatch) return;
+  //メモ$('#ChangeIsCatch').prop('checked');
+  catchStart();
+}
+
+function AddDummy() {
+  let pos = localVideo.pos.copy().add(createVector(localVideo.size.x / 2, localVideo.size.y / 2));
+  dummys.push(new Video(pos, new Vec(320, 240), localVideo.ID, localVideo.capture));
   //dummys.push(localVideo);//位置が同じになるから没
-  
+
   ResizeAllVideos();
 }
