@@ -403,7 +403,8 @@ function tranScale(video, scaleX, scaleY) {
 }
 
 function tra(video) {
-  translate(video.pos.x, video.pos.y);
+  let pos = getLeftUpPos(video);
+  translate(pos.x, pos.y);
 }
 
 function Line(video, pax, pay, pbx, pby) {
