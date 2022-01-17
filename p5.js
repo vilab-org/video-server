@@ -25,7 +25,7 @@ function setupVideo(stream) {
   if (first) {
     let capture = createVideo();
     capture.hide();
-    let VideoSize = new Vec(320, 240);
+    let VideoSize = {xx:320, yy:240};
 console.log(VideoSize);
     capture.elt.videowidth = VideoSize.x;
     capture.elt.videoheight = VideoSize.y;
@@ -39,17 +39,14 @@ console.log(localVideo);
           image: capture.elt
         });
       },
-      width: VideoSize.x,
-      height: VideoSize.y
+      width: VideoSize.xx,
+      height: VideoSize.yy
     });
     camera.start();
     console.log("camera", camera);
 console.log(VideoSize);
 console.log(localVideo.size);
-console.log(VideoSize.copy());
-    localVideo.size = {x:VideoSize.x,y:VideoSize.y};
-    console.log(localVideo.size);
-localVideo.size = VideoSize;
+    localVideo.size =new Vec(VideoSize.xx,VideoSize.yy);
 console.log(localVideo.size);	
   HighFiveInit();
     catchBallInit();
