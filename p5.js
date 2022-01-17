@@ -125,11 +125,17 @@ function draw() {
     img(localVideo);
     checkbox.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
     if (isDrawRect) {
-      DrawHands(localVideo, localVideo, 0.5, 0.5);
+      DrawHands(localVideo, localVideo, 1, 1);
     }
   }
   if (others.length > 0) {
     aveOthersHands = DrawAndCalcOthers();//他参加者のdrawと手の位置の平均値計算して返す
+  }
+  for(let i=0;i<dummys.length;i++){
+    img(dummys[i]);
+    if(isDrawRect){
+      DrawHands(dummys[i],dummys[i],0.5,0.5);
+    }
   }
   if (isHighFive) {
     HighFive();
@@ -230,10 +236,13 @@ function ResizeAllVideos() {
   for (i = 0; i < others.length; i++) {
     ResizeVideo(others[i], size);
   }
+  for(i = 0; i < dummys.length; i++){
+    ResizeVideo(dummys[i],size);
+  }
 
   function getSize(video, num) {
     let ratio = video.size.x / video.size.y;
-    let x = (windowWidth / 2) / num;
+    let x = (windowWidth * 0.5) / num;
     let y = x / ratio;
     return new Vec(x, y);
   }
@@ -283,7 +292,6 @@ function ResizeVideo(cap, size) {
   cap.capture.elt.videoheight = size.y;
   //cap.size.x = cap.capture.width * 2;
   //cap.size.y = cap.capture.height * 2;
-  console.log("cap.capture:", cap.capture);
 }
 
 function SearchOthers(peerId) {

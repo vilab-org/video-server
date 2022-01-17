@@ -15,7 +15,10 @@ hands.setOptions({
 function onResults(results) {
   if (!checkGoodResults(results)) return;
   localVideo.results = results;
-
+  for(let i=0; i < dummys.length; i++){
+    dummys[i].results = results;
+  }
+  
   function checkGoodResults(results) {
     //console.log("hands on results");
     //console.log(results);
