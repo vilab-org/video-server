@@ -59,6 +59,7 @@ function setupVideo(stream) {
 
 
 function setup() {
+  frameRate(30);
   imageMode(CENTER);
   rectMode(CENTER);
   mathf = new Mathf();
@@ -105,10 +106,10 @@ function draw() {
   background(100);
   if (!regularTime.isWait) {
     regularTime.startTimer();
-    Send(REGULAR, new ReceiveMessage(Date.now()));
+    //Send(REGULAR, new ReceiveMessage(Date.now()));
   }
   if (localVideo === null) return;
-  rect(localVideo.pos.x, localVideo.pos.y, localVideo.size.x, localVideo.size.y);
+
   if (!dragTimer.isWait) {
     dragTimer.startTimer();
 
