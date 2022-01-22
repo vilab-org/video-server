@@ -218,8 +218,8 @@ class Timer {
 }
 
 class Ball extends Obj {
-  constructor(pos, size, target) {
-    super(pos, size);
+  constructor(pos, target) {
+    super(pos, 20);
     this.isCatch = false;//目標にいるかどうか
     this.from;//出発
     this.target = target;//目標
@@ -258,7 +258,7 @@ class BallManager {
     //配列の早いコピーらしい
     //https://qiita.com/takahiro_itazuri/items/882d019f1d8215d1cb67#:~:text=let%20arr2%20%3D%20%5B...arr1%5D%3B
     this.member = [...others].concat(dummys);
-    this.ball = new Ball(localVideo.pos.copy(), 20, localVideo);
+    this.ball = new Ball(localVideo.pos.copy(), localVideo);
     this.selectTarget();
   }
   update() {
@@ -273,7 +273,7 @@ class BallManager {
     let next;
     //もう渡ってない人がいない
     if (this.member.length === 0) {
-      if (this.ball.target === localVideo) { //ラストの目標が自分なら1周
+      if (this.ball.target === localVideo) { //ラストの目標が自分なら1周巡ったことになる
         this.endFunc();
         Send(CATBAL, END);
         return;//キャッチボール終了
@@ -286,6 +286,6 @@ class BallManager {
     }
 
     this.ball.setTarget(next);
-    Send(CATBAL, this.ball);
+    Send(CATBAL, {from:this.ball.from.ID,target:this.ball.target.ID});
   }
 }

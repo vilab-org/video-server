@@ -244,8 +244,7 @@ function ResizeAllVideos() {
 }
 
 function ReceivedMessage(peerID, msg) {
-  console.log('receive:' + peerID + ':');
-  console.log(msg);
+  console.log('receive:' + peerID + ':',msg);
   let index = SearchOthers(peerID);
   if (index === -1) {
     console.warn("not found peerID");
@@ -296,7 +295,7 @@ function SearchOthers(peerId) {
   for (let i = 0; i < others.length; i++) {
     if (others[i].ID === peerId) return i;
   }
-  console.log('not found:' + peerId);
+  console.error('not found:' + peerId);
   return -1;
 }
 
@@ -338,9 +337,26 @@ function ReceiveIsHighFive(index, isHigh) {
   document.getElementById("ChangeIsHighFive").checked = isHighFive;
 }
 
-function ReceiveStartCatch(index, ball) {
+function ReceiveStartCatch(index, fromAndTo) {
   if (ball === END) selfBall = undefined;
-  selfBall = ball;
+  let targetI = SearchOthers(fromAndTo.target);
+  if(targetI === -1){
+    return;
+  }
+  let from = others[fromI];
+  let target = others[targetI];
+  if(selfBall){
+    selfBall.setTarget(target);
+  }
+  else{
+    let fromI = SearchOthers(fromAndTo.from);
+    if(fromI === -1) {
+      return;
+    }
+    selfBall = new Ball(from.pos,from);
+    selfBall.setTarget(target);
+  }
+  
 }
 
 function text(text, cap) {
