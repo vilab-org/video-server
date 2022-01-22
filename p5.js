@@ -22,7 +22,7 @@ const ISHIGH = 'ISHIGH';
 const CATBAL = 'CATBAL';
 const END = 'END';
 
-function setupVideo(stream) {
+function setupVideo(stream,peer) {
   let first = localVideo === null;
   if (first) {
     let capture = createVideo();
@@ -35,7 +35,7 @@ function setupVideo(stream) {
 
     let pos = createVector(width / 2, width / 2);
 
-    localVideo = new Video(pos, videoSize, stream.peerId, capture);
+    localVideo = new Video(pos, videoSize, peer.id, capture);
 
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
@@ -62,6 +62,7 @@ function setup() {
   frameRate(30);
   imageMode(CENTER);
   rectMode(CENTER);
+  ellipseMode(CENTER);
   mathf = new Mathf();
   //canvas作成
   createCanvas(windowWidth, windowHeight);
@@ -339,23 +340,33 @@ function ReceiveIsHighFive(index, isHigh) {
 }
 
 function ReceiveStartCatch(index, fromAndTo) {
-  if (ball === END) selfBall = undefined;
-  let targetI = SearchOthers(fromAndTo.target);
-  if(targetI === -1){
-    return;
-  }
-  let from = others[fromI];
-  let target = others[targetI];
-  if(selfBall){
-    selfBall.setTarget(target);
-  }
-  else{
-    let fromI = SearchOthers(fromAndTo.from);
-    if(fromI === -1) {
+  if (fromAndTo === END) selfBall = undefined;
+  let target;
+  if(fromAndTo.target === localVideo.ID){
+    target = localVideo;
+  } else {
+    let targetI = SearchOthers(fromAndTo.target);
+    if(targetI === -1){
       return;
     }
-    selfBall = new Ball(from.pos,from);
+    target = others[targetI];
+  }
+  
+  if(selfBall){
     selfBall.setTarget(target);
+  } else{
+    let from;
+    if(fromAndTo.from === localVideo.ID){
+      from = localVideo;
+    } else {
+      let fromI = SearchOthers(fromAndTo.from);
+      if(fromI === -1) {
+        return;
+      }
+      from = others[fromI]; 
+      selfBall = new Ball(from.pos,from);
+      selfBall.setTarget(target);
+    }
   }
   
 }

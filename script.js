@@ -98,7 +98,7 @@ $(function () {
         // $('#myStream').get(0).srcObject = stream;
         localStream = stream;
         console.log("getUserMedia stream:", stream);
-        setupVideo(stream);
+        setupVideo(stream,peer);
 
         if (existingroom) {
           existingroom.replaceStream(stream);

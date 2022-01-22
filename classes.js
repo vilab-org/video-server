@@ -286,6 +286,8 @@ class BallManager {
     }
 
     this.ball.setTarget(next);
-    Send(CATBAL, {from:this.ball.from.ID,target:this.ball.target.ID});
+    let msg = {from:this.ball.from.ID,target:this.ball.target.ID};
+console.log(msg);
+    Send(CATBAL, msg);
   }
 }
