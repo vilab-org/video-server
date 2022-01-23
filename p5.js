@@ -340,7 +340,10 @@ function ReceiveIsHighFive(index, isHigh) {
 }
 
 function ReceiveStartCatch(index, fromAndTo) {
-  if (fromAndTo === END) selfBall = undefined;
+  if (fromAndTo === END) {
+    selfBall = undefined;
+    return;
+  }
   let target;
   if(fromAndTo.target === localVideo.ID){
     target = localVideo;
