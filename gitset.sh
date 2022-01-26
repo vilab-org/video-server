@@ -9,13 +9,13 @@ fi
 comments=""
 for comment; do
 	comments+="$comment "
-	echo "$comments"
+
 done
 
 max=${#comments}
 max=$((max-1))
 comments=${comments:0:$max}
-echo "$comments"
+
 
 #Git処理
 git add *
