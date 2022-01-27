@@ -21,12 +21,12 @@ function HighFive() {
 
 //お互いの手の位置でハイタッチできるやつ
 function SamePosHandsHighFive() {
-  let localHandsMinMax = getHandsMinMax(localVideo);
+  let localHandsMinMaxes = localVideo.minMaxes;
 
   for (let i = 0; i < 2; i++) {
-    if (localHandsMinMax[i]) {
-      DrawRectC(localVideo, localHandsMinMax[i], 1, color(50, 200, 50));
-      DrawCenterMarkC(localVideo, localHandsMinMax[i], 2, color(50, 200, 50));
+    if (localHandsMinMaxes[i]) {
+      DrawRectC(localVideo, localHandsMinMaxes[i], 1, color(50, 200, 50));
+      DrawCenterMarkC(localVideo, localHandsMinMaxes[i], 2, color(50, 200, 50));
     }
     if (aveOthersHands[i]) {
       DrawRectC(localVideo, aveOthersHands[i], 1, color(200, 50, 50));
@@ -34,13 +34,13 @@ function SamePosHandsHighFive() {
     }
   }
 
-  let localMarks = getCenterMarks(localVideo, localHandsMinMax);
+  let localMarks = getCenterMarks(localVideo, localHandsMinMaxes);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
   if (CollisionHands(localMarks, otherMarks)) {
     for (let i = 0; i < 2; i++) {
-      if (localHandsMinMax[i]) {
-        effectsMana.addEffect(localHandsMinMax[i]);
-        effectsMana.addEffect(localHandsMinMax[i]);
+      if (localHandsMinMaxes[i]) {
+        effectsMana.addEffect(localHandsMinMaxes[i]);
+        effectsMana.addEffect(localHandsMinMaxes[i]);
       }
     }
   }

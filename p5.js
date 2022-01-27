@@ -161,7 +161,7 @@ function img(cap) {
 
 function DrawHands(inVideo, outVideo, recStroke, connStroke) {
 
-  if (inVideo.handsEnable && inVideo.results && inVideo.results.multiHandLandmarks) {
+  if (inVideo.results && inVideo.results.multiHandLandmarks) {
     for (let i = 0; i < inVideo.results.multiHandLandmarks.length; i++) {
       let landmarks = inVideo.results.multiHandLandmarks[i];
       let obj = new Obj(outVideo.pos, outVideo.size);
@@ -174,7 +174,7 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
       stroke(255);
       strokeWeight(1);
       let cap = outVideo;
-      text(inVideo.results.multiHandedness[i].label, (cap.pos.x - cap.size.x / 2) + (cap.size.x * minMaxPos[0]), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos[3]) + 10);
+      text(inVideo.results.multiHandedness[i].label+":"+Math.round(inVideo.results.multiHandedness[i].score*1000)/10+"%", (cap.pos.x - cap.size.x / 2) + (cap.size.x * minMaxPos[0]), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos[3]) + 10);
     }
   }
 }
@@ -429,12 +429,6 @@ function DrawAndCalcOthers() {
     }
   }
 }
-//左手は0右手は1　その他がありえたら-1を返す
-function getIndexLR(handedness) {
-  if (handedness.label === "Left") return 0;
-  else if (handedness.label === "Right") return 1;
-  else return -1;
-}
 
 //映像の左上を取得
 function getLeftUpPos(video) {
@@ -506,32 +500,6 @@ function getCenterMark(video, minMaxPos) {
   return new Obj(pos, createVector(size, size));
 }
 
-function minMax(marks) {
-  let minX = 1,
-    maxX = 0,
-    minY = 1,
-    maxY = 0;
-  for (let i = 0; i < marks.length; i++) {
-    minX = (minX < marks[i].x ? minX : marks[i].x);
-    maxX = (maxX > marks[i].x ? maxX : marks[i].x);
-    minY = (minY < marks[i].y ? minY : marks[i].y);
-    maxY = (maxY > marks[i].y ? maxY : marks[i].y);
-  }
-  return [minX, maxX, minY, maxY];
-}
-
-function getHandsMinMax(video) {
-  let handsMinMax = [undefined, undefined];
-  if (video.results) {
-    for (let i = 0; i < video.results.multiHandLandmarks.length; i++) {
-      let index = getIndexLR(video.results.multiHandedness[i]);
-      if (index == -1) continue;
-      //[minX, maxX, minY, maxY];
-      handsMinMax[index] = minMax(video.results.multiHandLandmarks[i]);
-    }
-  }
-  return handsMinMax;
-}
 
 //https://google.github.io/mediapipe/solutions/hands#javascript-solution-api
 function DrawConnectors(video, marks, weight) {

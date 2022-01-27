@@ -14,17 +14,16 @@ hands.setOptions({
 
 function onResults(results) {
   if (!checkGoodResults(results)) return;
-  localVideo.results = results;
-  for(let i=0; i < dummys.length; i++){
+  localVideo.setResults(results);
+
+  let dummysLength = dummys.length;
+  for (let i = 0; i < dummysLength; i++) {
     dummys[i].results = results;
   }
-  
+
   function checkGoodResults(results) {
-    //console.log("hands on results");
-    //console.log(results);
-    if (results.multiHandedness) return true;
-    //video.results.multiHandedness[i].label "left" or "right"
-    for (let i = 0; i < results.multiHandedness.length; i++) {
+    let handsLength = results.multiHandedness.length
+    for (let i = 0; i < handsLength; i++) {
       if (results.multiHandedness[i].score < 0.6) return false;
     }
     return true;

@@ -66,8 +66,8 @@ class Video extends Obj {
     this.ID = ID;
     this.capture = capture;
     this.videoEnable = true;
+    this.minMaxes;
     this.results = undefined;
-    this.handsEnable = true;
     this.highFive = [false, false];
     this.ping = 1;
     /*
@@ -100,6 +100,45 @@ class Video extends Obj {
         });
         */
   }
+  setResults(results) {
+    this.results = results;
+    this.minMaxes = getHandsMinMax();
+
+    function minMax(marks) {
+      let min, max;
+      min.x = 1;
+      min.y = 1;
+      max.x = 0;
+      max.y = 0;
+      for (let i = 0; i < marks.length; i++) {
+        min.x = (min.x < marks[i].x ? min.x : marks[i].x);
+        max.x = (max.x > marks[i].x ? max.x : marks[i].x);
+        min.y = (min.y < marks[i].y ? min.y : marks[i].y);
+        max.y = (max.y > marks[i].y ? max.y : marks[i].y);
+      }
+      return { min: min, max: max };
+    }
+
+    function getHandsMinMax() {
+      let handsMinMaxes = [undefined, undefined];
+      if (results) {
+        for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+          let index = getIndexLR(results.multiHandedness[i]);
+          if (index == -1) continue;
+          //[minX, maxX, minY, maxY];
+          handsMinMaxes[index] = minMax(results.multiHandLandmarks[i]);
+        }
+      }
+      return handsMinMaxes;
+
+      //左手は0右手は1　その他がありえたら-1を返す
+      function getIndexLR(handedness) {
+        if (handedness.label === "Left") return 0;
+        else if (handedness.label === "Right") return 1;
+        else return -1;
+      }
+    } //end getHandsMinMax }
+  }// end setResults
 }
 
 Video.prototype.toString = function () {
@@ -221,23 +260,17 @@ class Ball extends Obj {
   constructor(pos, target) {
     super(pos, 20);
     this.isCatch = false;//目標にいるかどうか
+    this.isMove = false;//投げられてる最中
     this.from;//出発
     this.target = target;//目標
     this.amt = 0;//線形補間の割合
     this.dist;//距離
   }
   update() {
-    this.pos = p5.Vector.lerp(this.from.pos, this.target.pos, this.amt);
     //ボールの表示
     noStroke();
     fill(255);
     ellipse(this.pos.x, this.pos.y, this.size, this.size);
-
-    if (this.amt >= 1) {
-      this.isCatch = false;
-    } else {
-      this.amt += 100 / this.dist / getFrameRate();
-    }
   }
   setTarget(target) {
     this.isCatch = true;
@@ -245,13 +278,15 @@ class Ball extends Obj {
     this.from = this.target;
     this.target = target;
     this.dist = dist(this.from.pos.x, this.from.pos.y, this.target.pos.x, this.target.pos.y);
+    this.isMove = true;
+    this.isCatch = false;
   }
 }
 
 class BallManager {
   constructor(endFunc) {
     this.member;//参加者
-    this.ball;//動くの
+    this.ball;//動かすの
     this.endFunc = endFunc;//終了時の処理
   }
   start() {
@@ -263,9 +298,25 @@ class BallManager {
   }
   update() {
     this.ball.update();
-    //ボールが到達
-    if (!this.ball.isCatch) {
-      this.selectTarget();
+
+    if (this.ball.isMove) {
+      this.ball.pos = p5.Vector.lerp(this.ball.from.pos, this.ball.target.pos, this.ball.amt);
+      if (this.ball.amt >= 1) {
+        this.ball.isMove = false;
+      } else {
+        this.ball.amt += 100 / this.ball.dist / getFrameRate();
+      }
+    } else { // if (isMove) のelse
+
+      if (hasThrowBall()) {
+
+      } else {
+        this.selectTarget();
+      }
+
+    }
+    function hasThrowBall() {
+      return false;
     }
   }
   //次の目標地点設定
@@ -286,8 +337,8 @@ class BallManager {
     }
 
     this.ball.setTarget(next);
-    let msg = {from:this.ball.from.ID,target:this.ball.target.ID};
-console.log(msg);
+    let msg = { from: this.ball.from.ID, target: this.ball.target.ID };
+    console.log(msg);
     Send(CATBAL, msg);
   }
 }
