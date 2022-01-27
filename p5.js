@@ -26,7 +26,8 @@ function setupVideo(stream, peer) {
   let first = localVideo === null;
   if (first) {
     let capture = createVideo();
-    capture.hide();
+    //Canvas API https://developer.mozilla.org/ja/docs/Web/API/Canvas_API
+    capture.hide();//canvas を使用した動画の操作 (en-US) https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas 
     let videoSize = new Vec(321, 242);
 
     //capture.elt.videowidth = videoSize.x;
