@@ -22,15 +22,15 @@ const ISHIGH = 'ISHIGH';
 const CATBAL = 'CATBAL';
 const END = 'END';
 
-function setupVideo(stream,peer) {
+function setupVideo(stream, peer) {
   let first = localVideo === null;
   if (first) {
     let capture = createVideo();
     capture.hide();
     let videoSize = new Vec(321, 242);
 
-    capture.elt.videowidth = videoSize.x;
-    capture.elt.videoheight = videoSize.y;
+    //capture.elt.videowidth = videoSize.x;
+    //capture.elt.videoheight = videoSize.y;
     capture.elt.autoplay = true;
 
     let pos = createVector(width / 2, width / 2);
@@ -162,10 +162,13 @@ function img(cap) {
 function DrawHands(inVideo, outVideo, recStroke, connStroke) {
 
   if (inVideo.results && inVideo.results.multiHandLandmarks) {
-    for (let i = 0; i < inVideo.results.multiHandLandmarks.length; i++) {
+    let len = inVideo.results.multiHandLandmarks.length;
+    for (let i = 0; i < len; i++) {
       let landmarks = inVideo.results.multiHandLandmarks[i];
+      if (!landmarks) continue;
       let obj = new Obj(outVideo.pos, outVideo.size);
-      let minMaxPos = minMax(landmarks);
+      let leftRight = getIndexLR(inVideo.results.multiHandedness[i]);
+      let minMaxPos = inVideo.minMaxes[leftRight];
       DrawRect(obj, minMaxPos, recStroke);
       DrawConnectors(obj, landmarks, connStroke);
       DrawCenterMark(outVideo, minMaxPos, 2);
@@ -174,7 +177,7 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
       stroke(255);
       strokeWeight(1);
       let cap = outVideo;
-      text(inVideo.results.multiHandedness[i].label+":"+Math.round(inVideo.results.multiHandedness[i].score*1000)/10+"%", (cap.pos.x - cap.size.x / 2) + (cap.size.x * minMaxPos[0]), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos[3]) + 10);
+      text(inVideo.results.multiHandedness[i].label + ":" + Math.round(inVideo.results.multiHandedness[i].score * 1000) / 10 + "%", (cap.pos.x - cap.size.x / 2) + (cap.size.x * minMaxPos[0]), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos[3]) + 10);
     }
   }
 }
@@ -246,7 +249,7 @@ function ResizeAllVideos() {
 }
 
 function ReceivedMessage(peerID, msg) {
-  console.log('receive:' + peerID + ':',msg);
+  console.log('receive:' + peerID + ':', msg);
   let index = SearchOthers(peerID);
   if (index === -1) {
     console.warn("not found peerID");
@@ -287,8 +290,8 @@ function ResizeVideo(cap, size) {
   //cap.size.x = size.x;
   //cap.size.y = size.y;
   cap.size.set(size.x, size.y);
-  cap.capture.elt.videowidth = size.x;
-  cap.capture.elt.videoheight = size.y;
+  //cap.capture.elt.videoWidth = size.x;
+  //cap.capture.elt.videoHeight = size.y;
   //cap.size.x = cap.capture.width * 2;
   //cap.size.y = cap.capture.height * 2;
 }
@@ -314,7 +317,7 @@ function EnableOtherVideo(index, enable) {
 }
 
 function HandsOthersResults(index, results) {
-  others[index].results = results;
+  others[index].setResults(results);
 
 }
 
@@ -345,33 +348,33 @@ function ReceiveStartCatch(index, fromAndTo) {
     return;
   }
   let target;
-  if(fromAndTo.target === localVideo.ID){
+  if (fromAndTo.target === localVideo.ID) {
     target = localVideo;
   } else {
     let targetI = SearchOthers(fromAndTo.target);
-    if(targetI === -1){
+    if (targetI === -1) {
       return;
     }
     target = others[targetI];
   }
-  
-  if(selfBall){
+
+  if (selfBall) {
     selfBall.setTarget(target);
-  } else{
+  } else {
     let from;
-    if(fromAndTo.from === localVideo.ID){
+    if (fromAndTo.from === localVideo.ID) {
       from = localVideo;
     } else {
       let fromI = SearchOthers(fromAndTo.from);
-      if(fromI === -1) {
+      if (fromI === -1) {
         return;
       }
-      from = others[fromI]; 
-      selfBall = new Ball(from.pos,from);
+      from = others[fromI];
+      selfBall = new Ball(from.pos, from);
       selfBall.setTarget(target);
     }
   }
-  
+
 }
 
 function text(text, cap) {
@@ -389,47 +392,54 @@ function text(text, cap) {
 //他参加者のdrawと手の位置の平均値計算して返す
 function DrawAndCalcOthers() {
   let aveMinMaxPos = [//四隅の平均値
-    [0, 0, 0, 0],
-    [0, 0, 0, 0]
+    { minX: 0, minY: 0, maxX: 0, maxY: 0 },
+    { minX: 0, minY: 0, maxX: 0, maxY: 0 }
   ];
   let valueChanged = [false, false];
-  groupAverage(others);
-  groupAverage(dummys);
+  let othersLen = others.length;
+  for (let i = 0; i < othersLen; i++) {//他参加者を網羅するfor
+    img(others[i]);
+    if (isDrawRect) DrawHands(others[i], others[i], 0.7, 0.7);
+    if (!others[i].results) continue;
+    for (let j = 0; j < 2; j++) { //右手左手用のfor
+      let minMax = others[i].minMaxes[i]
+      if (!minMax) continue;
+      aveMinMaxPos[j].minX += minMax.minX;
+      aveMinMaxPos[j].minY += minMax.minY;
+      aveMinMaxPos[j].maxX += minMax.maxX;
+      aveMinMaxPos[j].maxY += minMax.maxY;
+      valueChanged[j] = true;
+    }
+  }
 
-  for (let i = 0; i < aveMinMaxPos.length; i++) {
+  let aveLength = aveMinMaxPos.length;
+  for (let i = 0; i < aveLength; i++) {
     if (valueChanged[i]) {
-      for (let j = 0; j < aveMinMaxPos[i].length; j++) aveMinMaxPos[i][j] /= others.length;
+      aveMinMaxPos[i].minX /= othersLen;
+      aveMinMaxPos[i].minY /= othersLen;
+      aveMinMaxPos[i].maxX /= othersLen;
+      aveMinMaxPos[i].maxY /= othersLen;
       if (isDrawRect) {
         DrawRect(localVideo, aveMinMaxPos[i], 1);
         DrawCenterMark(localVideo, aveMinMaxPos[i], 2);
       }
-    }
-    else {
+    } else {
       aveMinMaxPos[i] = undefined;
     }
   }
   return aveMinMaxPos;
 
-  function groupAverage(group) {
-    for (let i = 0; i < group.length; i++) {//他参加者を網羅するfor
-      img(group[i]);
-      if (isDrawRect) DrawHands(group[i], group[i], 0.7, 0.7);
+  function groupAverage(others) {
 
-      if (!group[i].results) continue;
-      let handedness = group[i].results.multiHandedness;
-      for (let j = 0; j < handedness.length; j++) { //右手左手用のfor
-        let minMaxPos = minMax(group[i].results.multiHandLandmarks[j]);
-        let index = getIndexLR(handedness[j]);
-        if (index == -1) continue;
-        for (let k = 0; k < minMaxPos.length; k++) { //検出した手の四隅用のfor
-          aveMinMaxPos[index][k] += minMaxPos[k];
-        }
-        valueChanged[index] = true;
-      }
-    }
   }
 }
 
+//左手は0右手は1　その他がありえたら-1を返す
+function getIndexLR(handedness) {
+  if (handedness.label === "Left") return 0;
+  else if (handedness.label === "Right") return 1;
+  else return -1;
+}
 //映像の左上を取得
 function getLeftUpPos(video) {
   return createVector(video.pos.x - video.size.x / 2, video.pos.y - video.size.y / 2);
@@ -460,11 +470,11 @@ function DrawRectC(video, pos, weight, color) {
   stroke(color);
   push();
   tra(video);
-  //pos[minX, maxX, minY, maxY]
-  Line(video, pos[0], pos[2], pos[0], pos[3]);
-  Line(video, pos[0], pos[3], pos[1], pos[3]);
-  Line(video, pos[1], pos[3], pos[1], pos[2]);
-  Line(video, pos[1], pos[2], pos[0], pos[2]);
+  //pos{minX, maxX, minY, maxY}
+  Line(video, pos.minX, pos.minY, pos.minX, pos.maxY);
+  Line(video, pos.minX, pos.maxY, pos.maxX, pos.maxY);
+  Line(video, pos.maxX, pos.maxY, pos.maxX, pos.minY);
+  Line(video, pos.maxX, pos.minY, pos.minX, pos.minY);
   pop();
 }
 
@@ -472,16 +482,11 @@ function DrawCenterMark(video, pos, weight) {
   return DrawCenterMarkC(video, pos, weight, color(255, 0, 0));
 }
 function DrawCenterMarkC(video, pos, weight, color) {
-  push();
-  //tra(video);
-  //let size = min(pos[1] - pos[0], pos[3] - pos[2]) * 0.3 * video.size.x;
-  //translate((pos[0] + pos[1]) * 0.5 * video.size.x, (pos[2] + pos[3]) * 0.5 * video.size.y);
   let center = getCenterMark(video, pos);
   stroke(color);
   strokeWeight(weight);
   noFill();
   ellipse(center.pos.x, center.pos.y, center.size.x, center.size.y);
-  pop();
   return center;
 }
 function getCenterMarks(video, minMaxPoses) {
@@ -493,9 +498,10 @@ function getCenterMarks(video, minMaxPoses) {
   return marks;
 }
 function getCenterMark(video, minMaxPos) {
-  let size = min(minMaxPos[1] - minMaxPos[0], minMaxPos[3] - minMaxPos[2]) * 0.3 * max(video.size.x, video.size.y);
+  //minMaxPos{minX, maxX, minY, maxY}
+  let size = min(minMaxPos.maxX - minMaxPos.minX, minMaxPos.maxY - minMaxPos.minY) * 0.3 * max(video.size.x, video.size.y);
   let lu = getLeftUpPos(video);
-  let pos = createVector(lu.x + ((minMaxPos[0] + minMaxPos[1]) * 0.5) * video.size.x, lu.y + ((minMaxPos[2] + minMaxPos[3]) * 0.5) * video.size.y);
+  let pos = createVector(lu.x + ((minMaxPos.minX + minMaxPos.maxX) * 0.5) * video.size.x, lu.y + ((minMaxPos.minY + minMaxPos.maxY) * 0.5) * video.size.y);
 
   return new Obj(pos, createVector(size, size));
 }

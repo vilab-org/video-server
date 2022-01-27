@@ -105,38 +105,29 @@ class Video extends Obj {
     this.minMaxes = getHandsMinMax();
 
     function minMax(marks) {
-      let min, max;
-      min.x = 1;
-      min.y = 1;
-      max.x = 0;
-      max.y = 0;
+      let minX = 1,minY = 1;
+      let maxX = 0,maxY = 0;
       for (let i = 0; i < marks.length; i++) {
-        min.x = (min.x < marks[i].x ? min.x : marks[i].x);
-        max.x = (max.x > marks[i].x ? max.x : marks[i].x);
-        min.y = (min.y < marks[i].y ? min.y : marks[i].y);
-        max.y = (max.y > marks[i].y ? max.y : marks[i].y);
+        minX = (minX < marks[i].x ? minX : marks[i].x);
+        maxX = (maxX > marks[i].x ? maxX : marks[i].x);
+        minY = (minY < marks[i].y ? minY : marks[i].y);
+        maxY = (maxY > marks[i].y ? maxY : marks[i].y);
       }
-      return { min: min, max: max };
+      return { minX: minX, minY: minY, maxX: maxX, maxY: maxY};
     }
 
     function getHandsMinMax() {
       let handsMinMaxes = [undefined, undefined];
       if (results) {
-        for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+        let len = results.multiHandLandmarks.length;
+        for (let i = 0; i < len; i++) {
           let index = getIndexLR(results.multiHandedness[i]);
           if (index == -1) continue;
-          //[minX, maxX, minY, maxY];
+          //{minX, maxX, minY, maxY};
           handsMinMaxes[index] = minMax(results.multiHandLandmarks[i]);
         }
       }
       return handsMinMaxes;
-
-      //左手は0右手は1　その他がありえたら-1を返す
-      function getIndexLR(handedness) {
-        if (handedness.label === "Left") return 0;
-        else if (handedness.label === "Right") return 1;
-        else return -1;
-      }
     } //end getHandsMinMax }
   }// end setResults
 }
@@ -173,7 +164,6 @@ class EffectsManager {
     this.size = 5;
   }
   addEffect(circle) {
-
     let theta = int(random(360));
     let effect;
     let dire = createVector(mathf.cos[theta], mathf.sin[theta]);

@@ -19,6 +19,7 @@ function onResults(results) {
   let dummysLength = dummys.length;
   for (let i = 0; i < dummysLength; i++) {
     dummys[i].results = results;
+    dummys[i].minMaxes = localVideo.minMaxes;
   }
 
   function checkGoodResults(results) {

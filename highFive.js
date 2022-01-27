@@ -74,7 +74,7 @@ function SamePosHandsHighFive() {
 }
 /***************************************************************************************************/
 function UpPosHighFive(video) {
-  let handsMinMax = getHandsMinMax(video);//[minX, maxX, minY, maxY];
+  let handsMinMax = video.minMaxes;
   let size = video.size.y / 2;
 
   let leftUp = getLeftUpPos(video);
