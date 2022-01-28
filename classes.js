@@ -275,7 +275,6 @@ class Ball extends Obj {
     this.from = this.target;
     this.target = target;
     this.dist = dist(this.from.pos.x, this.from.pos.y, this.target.pos.x, this.target.pos.y);
-    this.isMove = true;
     this.isCatch = false;
   }
 }
@@ -300,20 +299,16 @@ class BallManager {
       this.ball.pos = p5.Vector.lerp(this.ball.from.pos, this.ball.target.pos, this.ball.amt);
       if (this.ball.amt >= 1) {
         this.ball.isMove = false;
+        this.selectTarget();
       } else {
         this.ball.amt += 100 / this.ball.dist / getFrameRate();
       }
     } else { // if (isMove) のelse
 
-      if (hasThrowBall()) {
-
-      } else {
-        this.selectTarget();
+      if ((minmax.maxY - minMax.minY) > 0.5) {//投げた判定
+        thsi.Ball.isMove = true;
       }
 
-    }
-    function hasThrowBall() {
-      return false;
     }
   }
   //次の目標地点設定
