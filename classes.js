@@ -257,6 +257,13 @@ class Ball extends Obj {
     this.dist;//距離
   }
   update() {
+    //目標の人を枠取り
+    stroke(0,255,0,255);
+    strokeWeight(5);
+    push();
+    tra(this.target);
+    rect(-this.target.size.x/2,-this.target.size.y/2,this.target.size.x/2,this.target.size.y/2);
+    pop();
     //ボールの表示
     noStroke();
     fill(255);
