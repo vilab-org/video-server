@@ -105,15 +105,15 @@ class Video extends Obj {
     this.minMaxes = getHandsMinMax();
 
     function minMax(marks) {
-      let minX = 1,minY = 1;
-      let maxX = 0,maxY = 0;
+      let minX = 1, minY = 1;
+      let maxX = 0, maxY = 0;
       for (let i = 0; i < marks.length; i++) {
         minX = (minX < marks[i].x ? minX : marks[i].x);
         maxX = (maxX > marks[i].x ? maxX : marks[i].x);
         minY = (minY < marks[i].y ? minY : marks[i].y);
         maxY = (maxY > marks[i].y ? maxY : marks[i].y);
       }
-      return { minX: minX, minY: minY, maxX: maxX, maxY: maxY};
+      return { minX: minX, minY: minY, maxX: maxX, maxY: maxY };
     }
 
     function getHandsMinMax() {
@@ -252,18 +252,17 @@ class Ball extends Obj {
     this.isCatch = false;//目標にいるかどうか
     this.isMove = false;//投げられてる最中
     this.from;//出発
+    this.fromPos;
     this.target = target;//目標
     this.amt = 0;//線形補間の割合
-    this.dist;//距離
   }
   update() {
     //目標の人を枠取り
-    stroke(0,255,0,255);
+    stroke(0, 255, 0, 255);
     strokeWeight(5);
-    push();
-    tra(this.target);
-    rect(-this.target.size.x/2,-this.target.size.y/2,this.target.size.x/2,this.target.size.y/2);
-    pop();
+    noFill();
+    rect(this.target.pos.x,this.target.pos.y, this.target.size.x, this.target.size.y);
+    
     //ボールの表示
     noStroke();
     fill(255);
@@ -274,7 +273,6 @@ class Ball extends Obj {
     this.amt = 0;
     this.from = this.target;
     this.target = target;
-    this.dist = dist(this.from.pos.x, this.from.pos.y, this.target.pos.x, this.target.pos.y);
     this.isCatch = false;
   }
 }
@@ -293,20 +291,36 @@ class BallManager {
     this.selectTarget();
   }
   update() {
-    this.ball.update();
+    let ball = this.ball;
+    ball.update();
+    let from = ball.from;
 
-    if (this.ball.isMove) {
-      this.ball.pos = p5.Vector.lerp(this.ball.from.pos, this.ball.target.pos, this.ball.amt);
-      if (this.ball.amt >= 1) {
-        this.ball.isMove = false;
+    if (ball.isMove) {
+      ball.pos = p5.Vector.lerp(ball.fromPos, ball.target.pos, ball.amt);
+      if (ball.amt >= 1) {
+        ball.isMove = false;
         this.selectTarget();
       } else {
-        this.ball.amt += 100 / this.ball.dist / getFrameRate();
+        ball.amt += 3 / getFrameRate();//3秒で到達
       }
     } else { // if (isMove) のelse
-
-      if ((minmax.maxY - minMax.minY) > 0.5) {//投げた判定
-        thsi.Ball.isMove = true;
+      let minMaxes = from.minMaxes;
+      let handsPos = undefined;
+      for (let i = 0; i < 2; i++) {
+        if (minMaxes[i]) {
+          handsPos = new Vec((minMaxes[i].maxX + minMaxes[i].minX)/2, (minMaxes[i].maxY + minMaxes[i].minY)/2);
+          break;
+        }
+      }
+      if (handsPos) {
+        if (handsPos.y < 0.3) {//投げた判定
+          ball.isMove = true;
+          ball.fromPos = ball.pos.copy();
+        } else {
+          let leftUp = getLeftUpPos(from);
+          ball.pos.x = leftUp.x + handsPos.x * from.size.x;
+          ball.pos.y = leftUp.y + handsPos.y * from.size.y;
+        }
       }
 
     }
