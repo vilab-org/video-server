@@ -257,16 +257,49 @@ class Ball extends Obj {
     this.amt = 0;//線形補間の割合
   }
   update() {
+    let from = this.from;
     //目標の人を枠取り
     stroke(0, 255, 0, 255);
     strokeWeight(5);
     noFill();
-    rect(this.target.pos.x,this.target.pos.y, this.target.size.x, this.target.size.y);
-    
+    rect(this.target.pos.x, this.target.pos.y, this.target.size.x, this.target.size.y);
+
     //ボールの表示
     noStroke();
     fill(255);
     ellipse(this.pos.x, this.pos.y, this.size, this.size);
+
+    if (ball.isMove) {
+      ball.pos = p5.Vector.lerp(ball.fromPos, ball.target.pos, ball.amt);
+      if (ball.amt >= 1) {
+        ball.isMove = false;
+        this.selectTarget();
+      } else {
+        ball.amt += 3 / getFrameRate();//3秒で到達
+      }
+    } else {
+      let minMaxes = from.minMaxes;
+      let handsPos = undefined;
+      for (let i = 0; i < 2; i++) {
+        if (minMaxes[i]) {
+          handsPos = new Vec((minMaxes[i].maxX + minMaxes[i].minX) / 2, (minMaxes[i].maxY + minMaxes[i].minY) / 2);
+          break;
+        }
+      }
+      if (handsPos) {
+        if (handsPos.y < 0.3) {//投げた判定
+          this.isMove = true;
+          this.fromPos = this.pos.copy();
+        } else {
+          let leftUp = getLeftUpPos(from);
+          this.pos.x = leftUp.x + handsPos.x * from.size.x;
+          this.pos.y = leftUp.y + handsPos.y * from.size.y;
+        }
+      }
+    }
+
+
+
   }
   setTarget(target) {
     this.isCatch = true;
@@ -293,37 +326,8 @@ class BallManager {
   update() {
     let ball = this.ball;
     ball.update();
-    let from = ball.from;
 
-    if (ball.isMove) {
-      ball.pos = p5.Vector.lerp(ball.fromPos, ball.target.pos, ball.amt);
-      if (ball.amt >= 1) {
-        ball.isMove = false;
-        this.selectTarget();
-      } else {
-        ball.amt += 3 / getFrameRate();//3秒で到達
-      }
-    } else { // if (isMove) のelse
-      let minMaxes = from.minMaxes;
-      let handsPos = undefined;
-      for (let i = 0; i < 2; i++) {
-        if (minMaxes[i]) {
-          handsPos = new Vec((minMaxes[i].maxX + minMaxes[i].minX)/2, (minMaxes[i].maxY + minMaxes[i].minY)/2);
-          break;
-        }
-      }
-      if (handsPos) {
-        if (handsPos.y < 0.3) {//投げた判定
-          ball.isMove = true;
-          ball.fromPos = ball.pos.copy();
-        } else {
-          let leftUp = getLeftUpPos(from);
-          ball.pos.x = leftUp.x + handsPos.x * from.size.x;
-          ball.pos.y = leftUp.y + handsPos.y * from.size.y;
-        }
-      }
 
-    }
   }
   //次の目標地点設定
   selectTarget() {
