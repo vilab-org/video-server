@@ -269,15 +269,7 @@ class Ball extends Obj {
     fill(255);
     ellipse(this.pos.x, this.pos.y, this.size, this.size);
 
-    if (ball.isMove) {
-      ball.pos = p5.Vector.lerp(ball.fromPos, ball.target.pos, ball.amt);
-      if (ball.amt >= 1) {
-        ball.isMove = false;
-        this.selectTarget();
-      } else {
-        ball.amt += 3 / getFrameRate();//3秒で到達
-      }
-    } else {
+    if(!this.isMove) {
       let minMaxes = from.minMaxes;
       let handsPos = undefined;
       for (let i = 0; i < 2; i++) {
@@ -327,7 +319,15 @@ class BallManager {
     let ball = this.ball;
     ball.update();
 
-
+    if (ball.isMove) {
+      ball.pos = p5.Vector.lerp(ball.fromPos, ball.target.pos, ball.amt);
+      if (ball.amt >= 1) {
+        ball.isMove = false;
+        this.selectTarget();
+      } else {
+        ball.amt += 3 / getFrameRate();//3秒で到達
+      }
+    }
   }
   //次の目標地点設定
   selectTarget() {

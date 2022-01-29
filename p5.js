@@ -301,7 +301,7 @@ function SearchOthers(peerId) {
   for (let i = 0; i < others.length; i++) {
     if (others[i].ID === peerId) return i;
   }
-  console.error('not found:' + peerId);
+  console.warn('not found:' + peerId);
   return -1;
 }
 
