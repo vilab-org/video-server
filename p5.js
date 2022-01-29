@@ -344,38 +344,7 @@ function ReceiveIsHighFive(index, isHigh) {
 }
 
 function ReceiveStartCatch(index, fromAndTo) {
-  if (fromAndTo === END) {
-    selfBall = undefined;
-    return;
-  }
-  let target;
-  if (fromAndTo.target === localVideo.ID) {
-    target = localVideo;
-  } else {
-    let targetI = SearchOthers(fromAndTo.target);
-    if (targetI === -1) {
-      return;
-    }
-    target = others[targetI];
-  }
-
-  if (selfBall) {
-    selfBall.setTarget(target);
-  } else {
-    let from;
-    if (fromAndTo.from === localVideo.ID) {
-      from = localVideo;
-    } else {
-      let fromI = SearchOthers(fromAndTo.from);
-      if (fromI === -1) {
-        return;
-      }
-      from = others[fromI];
-      selfBall = new Ball(from.pos, from);
-      selfBall.setTarget(target);
-    }
-  }
-
+  receiveBallStatus(fromAndTo);//→ catchBall.js
 }
 
 function text(text, cap) {
