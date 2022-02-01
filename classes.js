@@ -66,7 +66,7 @@ class Video extends Obj {
     this.ID = ID;
     this.capture = capture;
     this.videoEnable = true;
-    this.minMaxes;
+    this.minMaxes = [undefined,undefined];
     this.results = undefined;
     this.highFive = [false, false];
     this.ping = 1;
@@ -307,6 +307,7 @@ class BallManager {
     this.member;//参加者
     this.ball;//動かすの
     this.endFunc = endFunc;//終了時の処理
+    this.host = false;
   }
   start() {
     //配列の早いコピーらしい
@@ -314,6 +315,7 @@ class BallManager {
     this.member = [...others].concat(dummys);
     this.ball = new Ball(localVideo.pos.copy(), localVideo);
     this.selectTarget();
+    this.host = true;
   }
   update() {
     let ball = this.ball;
@@ -323,9 +325,11 @@ class BallManager {
       ball.pos = p5.Vector.lerp(ball.fromPos, ball.target.pos, ball.amt);
       if (ball.amt >= 1) {
         ball.isMove = false;
-        this.selectTarget();
+        if(this.host){
+          this.selectTarget();
+        }
       } else {
-        ball.amt += 3 / getFrameRate();//3秒で到達
+        ball.amt += 1 / getFrameRate() / 3;//3秒で到達
       }
     }
   }
@@ -337,6 +341,7 @@ class BallManager {
       if (this.ball.target === localVideo) { //ラストの目標が自分なら1周巡ったことになる
         this.endFunc();
         Send(CATBAL, END);
+        this.host = false;
         return;//キャッチボール終了
       }
       next = localVideo;//ラスト自分

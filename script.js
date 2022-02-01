@@ -203,7 +203,7 @@ function ChangeIsHighFive() {
 }
 
 function ChangeIsCatch() {
-  if (isCatched) return;
+  if (isCatchBall) return;
   //メモ$('#ChangeIsCatch').prop('checked');
   catchStart();
 }

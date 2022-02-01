@@ -37,7 +37,10 @@ function setupVideo(stream, peer) {
     let pos = createVector(width / 2, width / 2);
 
     localVideo = new Video(pos, videoSize, peer.id, capture);
-
+    if(!localVideo.ID){
+      console.error("not set ID");
+      console.log(peer.id);
+    }
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
         await hands.send({//手の映像を送信

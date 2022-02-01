@@ -20,7 +20,7 @@ function catchBallUpdate() {
 
 function receiveBallStatus(fromAndTo){
     if (fromAndTo === END) {
-        selfBall = undefined;
+        isCatchBall = false;
         return;
       }
       let target;
@@ -37,6 +37,8 @@ function receiveBallStatus(fromAndTo){
       if (isCatchBall) {//2回目以降
         ballManager.ball.setTarget(target);
       } else {//初回はfromの設定が必要
+        isCatchBall = true;
+        ballManager.host = false;
         let from;
         if (fromAndTo.from === localVideo.ID) {
           from = localVideo;
