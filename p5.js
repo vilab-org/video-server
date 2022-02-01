@@ -1,5 +1,6 @@
 //https://qiita.com/yusuke84/items/54dce88f9e896903e64f
 let localVideo = null;
+let localID;
 let others = [];
 let dummys = [];
 let draggingVideo = null;
@@ -37,9 +38,10 @@ function setupVideo(stream, peer) {
     let pos = createVector(width / 2, width / 2);
 
     localVideo = new Video(pos, videoSize, peer.id, capture);
-    if(!localVideo.ID){
-      console.error("not set ID");
+    if (!localVideo.ID) {
+      console.error("not set ID", peer.id);
       console.log(peer.id);
+      localVideo.ID = localID;
     }
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
@@ -96,6 +98,7 @@ function addOtherVideo(otherStream) {
   ResizeAllVideos();
   console.log("addOtherVideo");
   console.log(video);
+  Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
 }
 
 function removeOtherVideo(peerId) {

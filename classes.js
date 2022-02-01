@@ -66,7 +66,7 @@ class Video extends Obj {
     this.ID = ID;
     this.capture = capture;
     this.videoEnable = true;
-    this.minMaxes = [undefined,undefined];
+    this.minMaxes = [undefined, undefined];
     this.results = undefined;
     this.highFive = [false, false];
     this.ping = 1;
@@ -207,7 +207,8 @@ class EffectsManager {
     let i = 0;
     let disableRange = 0;
     let disableRangeBoolean = true;//連続でenableがfalse
-    while (i < this.effects.length) {
+    let effectsLen = this.effects.length;
+    while (i < effectsLen) {
       let effect = this.effects[i];
       if (!effect.enbale) {
         if (disableRangeBoolean) {
@@ -249,7 +250,6 @@ class Timer {
 class Ball extends Obj {
   constructor(pos, target) {
     super(pos, 20);
-    this.isCatch = false;//目標にいるかどうか
     this.isMove = false;//投げられてる最中
     this.from;//出発
     this.fromPos;
@@ -269,7 +269,7 @@ class Ball extends Obj {
     fill(255);
     ellipse(this.pos.x, this.pos.y, this.size, this.size);
 
-    if(!this.isMove) {
+    if (!this.isMove) {
       let minMaxes = from.minMaxes;
       let handsPos = undefined;
       for (let i = 0; i < 2; i++) {
@@ -291,14 +291,12 @@ class Ball extends Obj {
     }
 
 
-
   }
   setTarget(target) {
-    this.isCatch = true;
     this.amt = 0;
     this.from = this.target;
     this.target = target;
-    this.isCatch = false;
+    this.isMove = false;
   }
 }
 
@@ -325,7 +323,7 @@ class BallManager {
       ball.pos = p5.Vector.lerp(ball.fromPos, ball.target.pos, ball.amt);
       if (ball.amt >= 1) {
         ball.isMove = false;
-        if(this.host){
+        if (this.host) {
           this.selectTarget();
         }
       } else {

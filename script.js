@@ -39,7 +39,9 @@ $(function () {
   });
 
   peer.on('open', function () {
-    $('#my-id').text(peer.id);
+    let id = peer.id;
+    $('#my-id').text(id);
+    localID = id;
   });
 
   peer.on('error', function (err) {
@@ -51,7 +53,7 @@ $(function () {
     let roomName = $('#join-room').val();
 
     if (!roomName) {
-      return;
+      roomName = "samproom";
     }
 
     room = peer.joinRoom(roomName, {
@@ -98,7 +100,7 @@ $(function () {
         // $('#myStream').get(0).srcObject = stream;
         localStream = stream;
         console.log("getUserMedia stream:", stream);
-        setupVideo(stream,peer);
+        setupVideo(stream, peer);
 
         if (existingroom) {
           existingroom.replaceStream(stream);
@@ -203,7 +205,12 @@ function ChangeIsHighFive() {
 }
 
 function ChangeIsCatch() {
-  if (isCatchBall) return;
+  if (isCatchBall){
+    if(ballManager.host){
+
+    }
+    return ;
+  }
   //メモ$('#ChangeIsCatch').prop('checked');
   catchStart();
 }
