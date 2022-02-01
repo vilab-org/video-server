@@ -207,7 +207,7 @@ function ChangeIsHighFive() {
 function ChangeIsCatch() {
   if (isCatchBall){
     if(ballManager.host){
-
+      catchEnd();
     }
     return ;
   }

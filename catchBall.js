@@ -3,7 +3,7 @@ let ballManager;
 
 function catchBallInit() {
   ballManager = new BallManager(() => {
-    isCatchBall = false;
+    catchEnd();
   });
 }
 
@@ -18,9 +18,13 @@ function catchBallUpdate() {
   }
 }
 
+function catchEnd(){
+  isCatchBall = false;
+}
+
 function receiveBallStatus(fromAndTo) {
   if (fromAndTo === END) {
-    isCatchBall = false;
+    catchEnd();
     return;
   }
   let target;

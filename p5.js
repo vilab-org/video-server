@@ -40,7 +40,6 @@ function setupVideo(stream, peer) {
     localVideo = new Video(pos, videoSize, peer.id, capture);
     if (!localVideo.ID) {
       console.error("not set ID", peer.id);
-      console.log(peer.id);
       localVideo.ID = localID;
     }
     let camera = new Camera(capture.elt, {
