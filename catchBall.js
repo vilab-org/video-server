@@ -48,7 +48,7 @@ function receiveBallStatus(fromAndTo){
             return;
           }
           from = others[fromI];
-          ballManager.ball = new Ball(from.pos, from);
+          ballManager.ball = new Ball(from.pos.copy(), from);
           ballManager.ball.setTarget(target);
         }
       }
