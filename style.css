@@ -91,6 +91,9 @@ button:hover {
 video {
   background: black;
   float: left;
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 .videosContainer video {

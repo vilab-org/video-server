@@ -65,6 +65,7 @@ class Video extends Obj {
     super(pos, size);
     this.ID = ID;
     this.capture = capture;
+    this.capture.elt.muted = true;
     this.videoEnable = true;
     this.minMaxes = [undefined, undefined];
     this.results = undefined;

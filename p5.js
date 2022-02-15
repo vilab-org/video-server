@@ -296,10 +296,16 @@ function ResizeVideo(cap, size) {
   //cap.size.x = size.x;
   //cap.size.y = size.y;
   cap.size.set(size.x, size.y);
+  cap.capture.elt.width = size.x;
+  cap.capture.elt.height = size.y;
   //cap.capture.elt.videoWidth = size.x;
   //cap.capture.elt.videoHeight = size.y;
   //cap.size.x = cap.capture.width * 2;
   //cap.size.y = cap.capture.height * 2;
+}
+
+function SetMike(video,is){
+  video.capture.elt.muted = is;
 }
 
 function SearchOthers(peerId) {
@@ -312,6 +318,9 @@ function SearchOthers(peerId) {
 
 function moveVideo(index, pos) {
   others[index].pos = createVector(pos.x * windowWidth, pos.y * windowHeight);
+  others[index].capture.elt.left = pos.x;
+  others[index].capture.elt.top = pos.y;
+
 }
 
 function ResizeOtherVideo(index, size) {
