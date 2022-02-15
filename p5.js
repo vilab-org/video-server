@@ -1,4 +1,5 @@
 //https://qiita.com/yusuke84/items/54dce88f9e896903e64f
+//アイコン https://icooon-mono.com/
 let localVideo = null;
 let localID;
 let others = [];
@@ -28,7 +29,7 @@ function setupVideo(stream, peer) {
   if (first) {
     let capture = createVideo();
     //Canvas API https://developer.mozilla.org/ja/docs/Web/API/Canvas_API
-    capture.hide();//canvas を使用した動画の操作 (en-US) https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas 
+    //capture.hide();//canvas を使用した動画の操作 (en-US) https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas 
     let videoSize = new Vec(321, 242);
 
     //capture.elt.videowidth = videoSize.x;
@@ -225,7 +226,7 @@ function mousePressed() {
 
 function mouseDragged() {
   if (draggingVideo !== null) {
-    draggingVideo.pos = createVector(mouseX, mouseY);
+    moveVideo(localVideo,mouseX,mouseY);
   }
 }
 
@@ -261,28 +262,28 @@ function ReceivedMessage(peerID, msg) {
     console.warn("not found peerID");
     return;
   }
-
+  let video = others[index];
   switch (msg.type) {
     case MOVING:
-      moveVideo(index, msg.data);
+      moveVideo(video, msg.data);
       break;
     case RESIZE:
-      ResizeOtherVideo(index, msg.data);
+      ResizeVideo(video, msg.data);
       break;
     case ENAVID:
-      EnableOtherVideo(index, msg.data);
+      EnableOtherVideo(video, msg.data);
       break;
     case HNDRES:
-      HandsOthersResults(index, msg.data);
+      HandsOthersResults(video, msg.data);
       break;
     case REGULAR:
-      ReceiveRegular(index, msg.data);
+      ReceiveRegular(video, msg.data);
       break;
     case ISHIGH:
-      ReceiveIsHighFive(index, msg.data);
+      ReceiveIsHighFive(video, msg.data);
       break;
     case CATBAL:
-      ReceiveStartCatch(index, msg.data);
+      ReceiveStartCatch(video, msg.data);
       break;
     default:
       console.warn('not format message:');
@@ -316,34 +317,29 @@ function SearchOthers(peerId) {
   return -1;
 }
 
-function moveVideo(index, pos) {
-  others[index].pos = createVector(pos.x * windowWidth, pos.y * windowHeight);
-  others[index].capture.elt.left = pos.x;
-  others[index].capture.elt.top = pos.y;
+function moveVideo(video, pos) {
+  video.pos = createVector(pos.x * windowWidth, pos.y * windowHeight);
+  video.capture.elt.left = pos.x;
+  video.capture.elt.top = pos.y;
+}
+
+function EnableOtherVideo(video, enable) {
+  video.videoEnable = enable;
+}
+
+function HandsOthersResults(video, results) {
+  video.setResults(results);
 
 }
 
-function ResizeOtherVideo(index, size) {
-  ResizeVideo(others[index], size);
-}
-
-function EnableOtherVideo(index, enable) {
-  others[index].videoEnable = enable;
-}
-
-function HandsOthersResults(index, results) {
-  others[index].setResults(results);
-
-}
-
-function ReceiveRegular(index, receiveMessage) {
+function ReceiveRegular(video, receiveMessage) {
   if (receiveMessage.isGo) {
     receiveMessage.isGo = false;
     receiveMessage.remsg = Date.now();
     Send(REGULAR, receiveMessage);
   }
   else {
-    others[index].ping = receiveMessage.remsg - receiveMessage.msg;
+    video.ping = receiveMessage.remsg - receiveMessage.msg;
     let ave = localVideo.ping;
     for (let i = 0; i < others.length; i++)ave += others[i].ping;
     averagePing = ave / (others.length + 1);
@@ -352,12 +348,12 @@ function ReceiveRegular(index, receiveMessage) {
 
 }
 
-function ReceiveIsHighFive(index, isHigh) {
+function ReceiveIsHighFive(video, isHigh) {
   isHighFive = isHigh;
   document.getElementById("ChangeIsHighFive").checked = isHighFive;
 }
 
-function ReceiveStartCatch(index, fromAndTo) {
+function ReceiveStartCatch(video, fromAndTo) {
   receiveBallStatus(fromAndTo);//→ catchBall.js
 }
 
