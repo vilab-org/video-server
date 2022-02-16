@@ -17,6 +17,7 @@ let dragTimer = new Timer(0.5);
 const MOVING = 'MOVING';
 const RESIZE = 'RESIZE';
 const ENAVID = 'ENAVID';
+const ENAMIK = 'ENAMIK';
 const HIGTOC = 'HIGTOC';
 const HNDRES = 'HNDRES';
 const REGULAR = 'REGULAR';//定期送信
@@ -32,8 +33,6 @@ function setupVideo(stream, peer) {
     capture.hide();//canvas を使用した動画の操作 (en-US) https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas 
     let videoSize = new Vec(321, 242);
 
-    //capture.elt.videowidth = videoSize.x;
-    //capture.elt.videoheight = videoSize.y;
     capture.elt.autoplay = true;
 
     let pos = createVector(width / 2, width / 2);
@@ -74,6 +73,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   window.onresize = function () {
     resizeCanvas(windowWidth, windowHeight);
+    ResizeAllVideos();
   };
   checkbox = createCheckbox('', true);
   checkbox.changed(SwitchVideo);
@@ -226,7 +226,7 @@ function mousePressed() {
 
 function mouseDragged() {
   if (draggingVideo !== null) {
-    moveVideo(localVideo,new Vec(mouseX,mouseY));
+    moveVideo(localVideo, new Vec(mouseX, mouseY));
   }
 }
 
@@ -273,6 +273,9 @@ function ReceivedMessage(peerID, msg) {
     case ENAVID:
       EnableOtherVideo(video, msg.data);
       break;
+    case ENAVID:
+      SetMike(video, msg.data);
+      break;
     case HNDRES:
       HandsOthersResults(video, msg.data);
       break;
@@ -306,8 +309,8 @@ function ResizeVideo(cap, size) {
   //cap.size.y = cap.capture.height * 2;
 }
 
-function SetMike(video,is){
-  video.capture.elt.muted = is;
+function SetMike(video, is) {
+  video.capture.elt.muted = !is;
 }
 
 function SearchOthers(peerId) {
@@ -320,15 +323,15 @@ function SearchOthers(peerId) {
 
 function moveVideo(video, pos) {
   video.pos = createVector(pos.x, pos.y);
-  video.capture.position(pos.x - video.size.x/2, pos.y - video.size.y/2);
+  video.capture.position(pos.x - video.size.x / 2, pos.y - video.size.y / 2);
 }
-function moveOtherVideo(video,pos){
-  moveVideo(new Vec(pos.x * windowWidth, pos.y * windowHeight))
+function moveOtherVideo(video, pos) {
+  moveVideo(new Vec(pos.x * windowWidth, pos.y * windowHeight));
 }
 
 function EnableOtherVideo(video, enable) {
   video.videoEnable = enable;
-  
+
 }
 
 function HandsOthersResults(video, results) {

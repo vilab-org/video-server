@@ -4,7 +4,8 @@ let localStream = null;
 let room;
 let existingroom = null;
 let isDrawRect = false;
-let isHighFive
+let isHighFive;
+let isVideo = true;
 $(function () {
 
   let peer = null;
@@ -213,6 +214,17 @@ function ChangeIsCatch() {
   }
   //メモ$('#ChangeIsCatch').prop('checked');
   catchStart();
+}
+
+function OnVideoEnabled(){
+  isVideo = !isVideo;
+  if(isVideo){
+    $('#VideON').src = 'image/VideON.png';
+  }else{
+    $('#VideON').src = 'image/VideOFF.png';
+  }
+  localVideo.videoEnable = isVideo;
+  Send(ENAVID, isVideo);
 }
 
 function AddDummy() {
