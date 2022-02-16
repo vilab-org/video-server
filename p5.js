@@ -29,7 +29,7 @@ function setupVideo(stream, peer) {
   if (first) {
     let capture = createVideo();
     //Canvas API https://developer.mozilla.org/ja/docs/Web/API/Canvas_API
-    //capture.hide();//canvas を使用した動画の操作 (en-US) https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas 
+    capture.hide();//canvas を使用した動画の操作 (en-US) https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas 
     let videoSize = new Vec(321, 242);
 
     //capture.elt.videowidth = videoSize.x;
@@ -226,7 +226,7 @@ function mousePressed() {
 
 function mouseDragged() {
   if (draggingVideo !== null) {
-    moveVideo(localVideo,mouseX,mouseY);
+    moveVideo(localVideo,new Vec(mouseX,mouseY));
   }
 }
 
@@ -265,7 +265,7 @@ function ReceivedMessage(peerID, msg) {
   let video = others[index];
   switch (msg.type) {
     case MOVING:
-      moveVideo(video, msg.data);
+      moveOtherVideo(video, msg.data);
       break;
     case RESIZE:
       ResizeVideo(video, msg.data);
@@ -297,8 +297,9 @@ function ResizeVideo(cap, size) {
   //cap.size.x = size.x;
   //cap.size.y = size.y;
   cap.size.set(size.x, size.y);
-  cap.capture.elt.width = size.x;
-  cap.capture.elt.height = size.y;
+  let element = cap.capture.elt;
+  element.style.width = size.x;
+  element.style.height = size.y;
   //cap.capture.elt.videoWidth = size.x;
   //cap.capture.elt.videoHeight = size.y;
   //cap.size.x = cap.capture.width * 2;
@@ -318,13 +319,16 @@ function SearchOthers(peerId) {
 }
 
 function moveVideo(video, pos) {
-  video.pos = createVector(pos.x * windowWidth, pos.y * windowHeight);
-  video.capture.elt.left = pos.x;
-  video.capture.elt.top = pos.y;
+  video.pos = createVector(pos.x, pos.y);
+  video.capture.position(pos.x - video.size.x/2, pos.y - video.size.y/2);
+}
+function moveOtherVideo(video,pos){
+  moveVideo(new Vec(pos.x * windowWidth, pos.y * windowHeight))
 }
 
 function EnableOtherVideo(video, enable) {
   video.videoEnable = enable;
+  
 }
 
 function HandsOthersResults(video, results) {

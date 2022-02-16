@@ -72,6 +72,19 @@ class Video extends Obj {
     this.highFive = [false, false];
     this.ping = 1;
     /*
+    let sketch = function(p){
+      p.setup = function(){
+        p.createCanvas(size.x,size.y);
+      }
+      p.draw = function(){
+        p.background(200);
+        p.ellipse(100,100,mouseX,mouseY);
+        console.log("a");
+      }
+    }
+    new p5(sketch,this.capture.elt);
+    */
+    /*
        let hands = new Hands({
           locateFile: (file) => {
             return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
