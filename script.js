@@ -4,7 +4,6 @@ let localStream = null;
 let room;
 let existingroom = null;
 let isDrawRect = false;
-let isHighFive;
 let highFive1 = 'high five 1';
 let highFive2 = 'high five 2';
 let highFiveSelected;
@@ -14,6 +13,7 @@ $(function () {
   let audioSelect = $('#audioSource');
   let videoSelect = $('#videoSource');
 
+  //high five
   let highSelect = $('#highSelect');
   let noneOption = $('<option>');
   noneOption.text('none');
@@ -26,6 +26,7 @@ $(function () {
   highSelect.append(highOption2);
   highSelect.on('change',() =>{
     highFiveSelected = highSelect.val();
+    Send(HIGHSELECT,highFiveSelected);
   });
 
   navigator.mediaDevices.enumerateDevices()
@@ -228,11 +229,6 @@ function ChangeUI() {
 
 function ChangeDrawRect() {
   isDrawRect = $('#changeDrawRect').prop('checked');
-}
-
-function ChangeIsHighFive() {
-  isHighFive = $('#ChangeIsHighFive').prop('checked');
-  Send(ISHIGH, isHighFive);
 }
 
 function ChangeIsCatch() {

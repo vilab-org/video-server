@@ -25,7 +25,7 @@ const ENABLEMIKE = 'Enable Mike';
 const HIGHTOUCH = 'High Touch';
 const HANDRESULT = 'Hand Result';
 const REGULAR = 'Regular';//定期送信
-const ISHIGH = 'ISHIGH';
+const HIGHSELECT = 'HIGHSELECT';
 const CATCHBALL = 'Catch Ball';
 const END = 'END';
 
@@ -298,8 +298,8 @@ function ReceivedMessage(peerID, msg) {
     case REGULAR:
       ReceiveRegular(video, msg.data);
       break;
-    case ISHIGH:
-      ReceiveIsHighFive(video, msg.data);
+    case HIGHSELECT:
+      ReceiveHighFiveSelect(video, msg.data);
       break;
     case CATCHBALL:
       ReceiveStartCatch(video, msg.data);
@@ -372,9 +372,11 @@ function ReceiveRegular(video, receiveMessage) {
 
 }
 
-function ReceiveIsHighFive(video, isHigh) {
-  isHighFive = isHigh;
-  document.getElementById("ChangeIsHighFive").checked = isHighFive;
+function ReceiveHighFiveSelect(video, select) {
+  //$("#highSelect option[value='"+select+"']").prop('selected', true);
+  //$("#highSelect").find("option[value='"+select+"']").prop('selected', true);
+  highFiveSelected = select;
+  $("#highSelect").val(select);
 }
 
 function ReceiveStartCatch(video, fromAndTo) {

@@ -68,14 +68,14 @@ class Video extends Obj {
     //this.capture.elt.muted = true;//ここでミュートにするとなぜかvideoDOMを表示しないと映像が更新されなくなるからしない
     //this.capture.elt.volume = 0;//同じく
     this.videoEnabled = true;
-    this.mikeEnabled = false;
+    this.mikeEnabled = true;
     this.minMaxes = [undefined, undefined];
     this.results = undefined;
     this.highFive = [false, false];
     this.ping = 1;
 
     this.videoButton = createImg(VideONImg);
-    this.mikeButton = createImg(MikeOFFImg);
+    this.mikeButton = createImg(MikeONImg);
     /*
     let sketch = function(p){
       p.setup = function(){
