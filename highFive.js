@@ -5,11 +5,13 @@ let aveOthersHands = [
 let effectsMana;
 let otherEffectsMana;
 let effectInterval;
+let effectImg;
 
 function HighFiveInit() {
   effectsMana = new EffectsManager(new Color(255, 255, 0));//init effect manager
   otherEffectsMana = new EffectsManager(new Color(255, 0, 255));
   effectInterval = new Timer(0.1);
+  effectImg = loadImage('/image/effect.png');
 }
 //ハイタッチのメイン関数
 function HighFive() {

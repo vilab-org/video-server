@@ -162,14 +162,14 @@ class Video extends Obj {
     this.videoEnabled = isVideo;
   }
 
-  changeMikeImg(enable){
+  changeMikeImg(enable) {
     this.mikeEnabled = enable;
     let img;
     //let volume = 0.00000001;
-    if(enable){
+    if (enable) {
       img = MikeONImg;
       //volume = 1;
-    }else{
+    } else {
       img = MikeOFFImg;
     }
     this.mikeButton.elt.src = img;
@@ -178,9 +178,9 @@ class Video extends Obj {
 }
 
 Video.prototype.toString = function () {
-    return 'video ' + this.ID + '\n{ pos:' + this.pos + ' size:' + this.size + ' enable:' +
-      this.videoEnable + ' stream:' + this.capture.elt.stream + ' }';
-  }
+  return 'video ' + this.ID + '\n{ pos:' + this.pos + ' size:' + this.size + ' enable:' +
+    this.videoEnable + ' stream:' + this.capture.elt.stream + ' }';
+}
 
 class Message {
   constructor(type, data) {
@@ -197,6 +197,7 @@ class Effect extends Obj {
     this.dire = dire;
     this.color = color;
     this.enbale = true;
+    this.rotate = 0;
   }
 }
 
@@ -235,9 +236,13 @@ class EffectsManager {
         this.effects.splice(i, 1);//i番目1個取り出す
         continue;
       }
-      fill(effect.color.getColor());
+      //fill(effect.color.getColor());
       //ellipse(effect.pos.x, effect.pos.y, this.size, this.size);
-      rect(effect.pos.x, effect.pos.y, this.size, this.size);
+      //rect(effect.pos.x, effect.pos.y, this.size, this.size);
+      push();
+      rotate(effect.rotate += 0.1);
+      image(effectImg, effect.pos.x, effect.pos.y, 10, 10);
+      pop();
       i++;
     }// while end }
 
@@ -268,8 +273,13 @@ class EffectsManager {
       if (this.out(effect)) {
         effect.enbale = false;
       } else {
-        fill(effect.color.getColor());
-        rect(effect.pos.x, effect.pos.y, this.size, this.size);
+        //fill(effect.color.getColor());
+        //rect(effect.pos.x, effect.pos.y, this.size, this.size);
+        push();
+        translate(effect.pos.x,effect.pos.y);
+        rotate(effect.rotate += 0.1);
+        image(effectImg, 0, 0, 10, 10);
+        pop();
       }
       i++;
     }//while end }

@@ -5,11 +5,28 @@ let room;
 let existingroom = null;
 let isDrawRect = false;
 let isHighFive;
+let highFive1 = 'high five 1';
+let highFive2 = 'high five 2';
+let highFiveSelected;
 $(function () {
 
   let peer = null;
   let audioSelect = $('#audioSource');
   let videoSelect = $('#videoSource');
+
+  let highSelect = $('#highSelect');
+  let noneOption = $('<option>');
+  noneOption.text('none');
+  highSelect.append(noneOption);
+  let highOption1 = $('<option>');
+  highOption1.text(highFive1);
+  highSelect.append(highOption1);
+  let highOption2 = $('<option>');
+  highOption2.text(highFive2);
+  highSelect.append(highOption2);
+  highSelect.on('change',() =>{
+    highFiveSelected = highSelect.val();
+  });
 
   navigator.mediaDevices.enumerateDevices()
     .then(function (deviceInfos) {

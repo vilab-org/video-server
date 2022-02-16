@@ -16,6 +16,7 @@ let mathf;
 let averagePing = 0;
 let regularTime = new Timer(10);
 let dragTimer = new Timer(0.5);
+let mirror = true;
 
 const MOVING = 'Moving';
 const RESIZE = 'Resize';
@@ -58,11 +59,11 @@ function setupVideo(stream, peer) {
     camera.start();
 
     localVideo.videoButton.mousePressed(OnVideoEnabled);
-    localVideo.mikeButton.mousePressed(()=>{
+    localVideo.mikeButton.mousePressed(() => {
       localVideo.changeMikeImg(!localVideo.mikeEnabled);
-      Send(ENABLEMIKE,localVideo.mikeEnabled);
+      Send(ENABLEMIKE, localVideo.mikeEnabled);
     });
-    
+
     console.log("camera", camera);
     HighFiveInit();
     catchBallInit();
@@ -141,7 +142,7 @@ function draw() {
   }
   if (localVideo) {
     img(localVideo);
-    
+
     if (isDrawRect) {
       DrawHands(localVideo, localVideo, 1, 1);
     }
@@ -158,21 +159,26 @@ function draw() {
 }
 
 function img(cap) {
+  let pos = cap.pos;
+  let size = cap.size;
   if (cap.videoEnabled) {
-    /*
-    push()
-    tra(cap);
-    scale(-1,1);
-    image(cap.capture, 0, 0, cap.size.x, cap.size.y);//鏡チャレンジ
-    pop();*/
-    image(cap.capture, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);//鏡なし 通常
-    //image(cap.capture,cap.pos.x,cap.pos.y,cap.capture.width,cap.capture.height);
+    if (mirror) {//鏡チャレンジ
+      push()
+      translate(pos.x,pos.y);
+      scale(-1, 1);
+      image(cap.capture, 0, 0, size.x, size.y);
+      pop();
+    }
+    else {
+      image(cap.capture, pos.x, pos.y, size.x, size.y);//鏡なし 通常
+    }
+
   } else {
     fill(50);
-    rect(cap.pos.x,cap.pos.y,cap.size.x,cap.size.y);
+    rect(pos.x, pos.y, size.x, size.y);
   }
-  cap.videoButton.position(cap.pos.x - cap.videoButton.size().width, cap.pos.y + cap.size.y/2 + cap.videoButton.size().height/2);
-  cap.mikeButton.position(cap.pos.x + cap.mikeButton.size().width, cap.pos.y + cap.size.y/2 + cap.mikeButton.size().height/2);
+  cap.videoButton.position(pos.x - cap.videoButton.size().width, pos.y + size.y / 2 + cap.videoButton.size().height / 2);
+  cap.mikeButton.position(pos.x + cap.mikeButton.size().width, pos.y + size.y / 2 + cap.mikeButton.size().height / 2);
   text(cap.ID, cap);
 }
 
@@ -199,7 +205,7 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
   }
 }
 
-function OnVideoEnabled(){
+function OnVideoEnabled() {
   localVideo.changeVideoImg();
   Send(ENABLEVIDEO, localVideo.videoEnabled);
 }
@@ -337,7 +343,7 @@ function moveVideo(video, pos) {
   video.capture.position(pos.x - video.size.x / 2, pos.y - video.size.y / 2);
 }
 function moveOtherVideo(video, pos) {
-  moveVideo(video,new Vec(pos.x * windowWidth, pos.y * windowHeight));
+  moveVideo(video, new Vec(pos.x * windowWidth, pos.y * windowHeight));
 }
 
 function EnableOtherVideo(video, enable) {
@@ -457,7 +463,12 @@ function tra(video) {
 }
 
 function Line(video, pax, pay, pbx, pby) {
-  line(pax * video.size.x, pay * video.size.y, pbx * video.size.x, pby * video.size.y);
+  let size = video.size;
+  if (mirror) {
+    line(size.x - pax * size.x, pay * size.y, size.x - pbx * size.x, pby * size.y);
+  }
+  else
+    line(pax * size.x, pay * size.y, pbx * size.x, pby * size.y);
 }
 
 function DrawRect(video, pos, weight) {
@@ -484,7 +495,10 @@ function DrawCenterMarkC(video, pos, weight, color) {
   stroke(color);
   strokeWeight(weight);
   noFill();
-  ellipse(center.pos.x, center.pos.y, center.size.x, center.size.y);
+  if(mirror) 
+    ellipse(video.pos.x * 2 - center.pos.x, center.pos.y, center.size.x, center.size.y);
+  else 
+    ellipse(center.pos.x, center.pos.y, center.size.x, center.size.y);
   return center;
 }
 function getCenterMarks(video, minMaxPoses) {
