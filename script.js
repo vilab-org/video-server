@@ -5,7 +5,6 @@ let room;
 let existingroom = null;
 let isDrawRect = false;
 let isHighFive;
-let isVideo = true;
 $(function () {
 
   let peer = null;

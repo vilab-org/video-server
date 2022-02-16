@@ -6,11 +6,12 @@ let others = [];
 let dummys = [];
 let draggingVideo = null;
 let hideCapture = null;
-let videoButton;
 let handResults;
 let blackimg;
 let VideONImg = '/image/VideON.png';
 let VideOFFImg = '/image/VideOFF.png';
+let MikeONImg = '/image/MikeON.png';
+let MikeOFFImg = '/image/MikeOFF.png';
 let mathf;
 let averagePing = 0;
 let regularTime = new Timer(10);
@@ -54,6 +55,14 @@ function setupVideo(stream, peer) {
       height: videoSize.y
     });
     camera.start();
+
+    localVideo.videoButton.mousePressed(OnVideoEnabled);
+    localVideo.mikeButton.mousePressed(()=>{
+      let enable = !localVideo.mikeEnabled;
+      Send(ENAMIK,enable);
+      localVideo.mikeEnabled = enable;
+    });
+    
     console.log("camera", camera);
     HighFiveInit();
     catchBallInit();
@@ -78,8 +87,6 @@ function setup() {
     ResizeAllVideos();
   };
   blackimg = loadImage('/image/nekocan.png');
-  videoButton = createImg(VideONImg);
-  videoButton.mousePressed(OnVideoEnabled);
   console.log('setup');
 }
 
@@ -136,7 +143,7 @@ function draw() {
   }
   if (localVideo) {
     img(localVideo);
-    videoButton.position(localVideo.pos.x - videoButton.size().width/2, videoButton.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
+    
     if (isDrawRect) {
       DrawHands(localVideo, localVideo, 1, 1);
     }
@@ -153,7 +160,7 @@ function draw() {
 }
 
 function img(cap) {
-  if (cap.videoEnable) {
+  if (cap.videoEnabled) {
     /*
     push()
     tra(cap);
@@ -165,6 +172,8 @@ function img(cap) {
   } else {
     image(blackimg, cap.pos.x, cap.pos.y, blackimg.width, blackimg.height);
   }
+  cap.videoButton.position(cap.pos.x - cap.videoButton.size().width, cap.pos.y + cap.size.y/2 + cap.videoButton.size().height/2);
+  cap.mikeButton.position(cap.pos.x + cap.mikeButton.size().width, cap.pos.y + cap.size.y/2 + cap.mikeButton.size().height/2);
   text(cap.ID, cap);
 }
 
@@ -192,15 +201,15 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
 }
 
 function OnVideoEnabled(){
-  isVideo = !isVideo;
+  let isVideo = !localVideo.videoEnabled;
   let img;
   if(isVideo){
     img = VideONImg;
   }else{
     img = VideOFFImg;
   }
-  videoButton.elt.src = img;
-  localVideo.videoEnable = isVideo;
+  localVideo.videoButton.elt.src = img;
+  localVideo.videoEnabled = isVideo;
   Send(ENAVID, isVideo);
 }
 
@@ -283,7 +292,7 @@ function ReceivedMessage(peerID, msg) {
     case ENAVID:
       EnableOtherVideo(video, msg.data);
       break;
-    case ENAVID:
+    case ENAMIK:
       SetMike(video, msg.data);
       break;
     case HNDRES:
@@ -321,6 +330,7 @@ function ResizeVideo(cap, size) {
 
 function SetMike(video, is) {
   video.capture.elt.muted = !is;
+  video.mikeEnabled = is;
 }
 
 function SearchOthers(peerId) {
@@ -336,11 +346,11 @@ function moveVideo(video, pos) {
   video.capture.position(pos.x - video.size.x / 2, pos.y - video.size.y / 2);
 }
 function moveOtherVideo(video, pos) {
-  moveVideo(new Vec(pos.x * windowWidth, pos.y * windowHeight));
+  moveVideo(video,new Vec(pos.x * windowWidth, pos.y * windowHeight));
 }
 
 function EnableOtherVideo(video, enable) {
-  video.videoEnable = enable;
+  video.videoEnabled = enable;
 
 }
 

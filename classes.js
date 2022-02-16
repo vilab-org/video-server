@@ -66,11 +66,15 @@ class Video extends Obj {
     this.ID = ID;
     this.capture = capture;
     this.capture.elt.muted = true;
-    this.videoEnable = true;
+    this.videoEnabled = true;
+    this.mikeEnabled = true;
     this.minMaxes = [undefined, undefined];
     this.results = undefined;
     this.highFive = [false, false];
     this.ping = 1;
+
+    this.videoButton = createImg(VideONImg);
+    this.mikeButton = createImg(MikeOFFImg);
     /*
     let sketch = function(p){
       p.setup = function(){
