@@ -6,10 +6,11 @@ let others = [];
 let dummys = [];
 let draggingVideo = null;
 let hideCapture = null;
-let checkbox;
 let videoButton;
 let handResults;
 let blackimg;
+let VideONImg = '/image/VideON.png';
+let VideOFFImg = '/image/VideOFF.png';
 let mathf;
 let averagePing = 0;
 let regularTime = new Timer(10);
@@ -76,10 +77,8 @@ function setup() {
     resizeCanvas(windowWidth, windowHeight);
     ResizeAllVideos();
   };
-  checkbox = createCheckbox('', true);
-  checkbox.changed(SwitchVideo);
   blackimg = loadImage('/image/nekocan.png');
-  videoButton = createImage('/image/VideON.png');
+  videoButton = createImg(VideONImg);
   videoButton.mousePressed(OnVideoEnabled);
   console.log('setup');
 }
@@ -137,8 +136,7 @@ function draw() {
   }
   if (localVideo) {
     img(localVideo);
-    checkbox.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
-    videoButton.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
+    videoButton.position(localVideo.pos.x - videoButton.size().width/2, videoButton.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
     if (isDrawRect) {
       DrawHands(localVideo, localVideo, 1, 1);
     }
@@ -193,18 +191,15 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
   }
 }
 
-function SwitchVideo() {
-  localVideo.videoEnable = checkbox.checked();
-  Send(ENAVID, checkbox.checked());
-}
-
 function OnVideoEnabled(){
   isVideo = !isVideo;
+  let img;
   if(isVideo){
-    $('#VideON').src = 'image/VideON.png';
+    img = VideONImg;
   }else{
-    $('#VideON').src = 'image/VideOFF.png';
+    img = VideOFFImg;
   }
+  videoButton.elt.src = img;
   localVideo.videoEnable = isVideo;
   Send(ENAVID, isVideo);
 }
