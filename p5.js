@@ -58,9 +58,8 @@ function setupVideo(stream, peer) {
 
     localVideo.videoButton.mousePressed(OnVideoEnabled);
     localVideo.mikeButton.mousePressed(()=>{
-      let enable = !localVideo.mikeEnabled;
-      Send(ENAMIK,enable);
-      localVideo.mikeEnabled = enable;
+      localVideo.changeMikeImg(!localVideo.mikeEnabled);
+      Send(ENAMIK,localVideo.mikeEnabled);
     });
     
     console.log("camera", camera);
@@ -201,16 +200,8 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
 }
 
 function OnVideoEnabled(){
-  let isVideo = !localVideo.videoEnabled;
-  let img;
-  if(isVideo){
-    img = VideONImg;
-  }else{
-    img = VideOFFImg;
-  }
-  localVideo.videoButton.elt.src = img;
-  localVideo.videoEnabled = isVideo;
-  Send(ENAVID, isVideo);
+  localVideo.changeVideoImg();
+  Send(ENAVID, localVideo.videoEnabled);
 }
 
 function mousePressed() {
@@ -330,7 +321,7 @@ function ResizeVideo(cap, size) {
 
 function SetMike(video, is) {
   video.capture.elt.muted = !is;
-  video.mikeEnabled = is;
+  video.changeMikeImg(is);
 }
 
 function SearchOthers(peerId) {

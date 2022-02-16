@@ -148,12 +148,35 @@ class Video extends Obj {
       return handsMinMaxes;
     } //end getHandsMinMax }
   }// end setResults
+
+  changeVideoImg() {
+    let isVideo = !this.videoEnabled;
+    let img;
+    if (isVideo) {
+      img = VideONImg;
+    } else {
+      img = VideOFFImg;
+    }
+    this.videoButton.elt.src = img;
+    this.videoEnabled = isVideo;
+  }
+
+  changeMikeImg(enable){
+    this.mikeEnabled = enable;
+    let img;
+    if(enable){
+      img = MikeONImg;
+    }else{
+      img = MikeOFFImg;
+    }
+    this.mikeButton.elt.src = img;
+  }
 }
 
 Video.prototype.toString = function () {
-  return 'video ' + this.ID + '\n{ pos:' + this.pos + ' size:' + this.size + ' enable:' +
-    this.videoEnable + ' stream:' + this.capture.elt.stream + ' }';
-}
+    return 'video ' + this.ID + '\n{ pos:' + this.pos + ' size:' + this.size + ' enable:' +
+      this.videoEnable + ' stream:' + this.capture.elt.stream + ' }';
+  }
 
 class Message {
   constructor(type, data) {
