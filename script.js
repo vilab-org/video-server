@@ -161,12 +161,19 @@ $(function () {
 
   function removeVideo(peerId) {
     $('#' + peerId).remove();
-    removeOtherVideo(peerId);
+
+    let index = SearchOthers(peerId);
+    if (index === -1) {
+      return;
+    }
+    removeOtherVideo(others[index]);
   }
 
   function removeAllRemoteVideos() {
     $('.videosContainer').empty();
+    removeAllOthers();
   }
+
 
   function setupMakeCallUI() {
     $('#make-call').show();
@@ -180,8 +187,15 @@ $(function () {
 
 });
 
+function removeAllOthers(){
+
+  while(others.length > 0) {
+    removeOtherVideo(others[0]);
+  }
+}
 function LeaveRoom() {
   existingroom.close();
+  removeAllOthers();
 }
 
 function Send(type, msg) {
@@ -205,11 +219,11 @@ function ChangeIsHighFive() {
 }
 
 function ChangeIsCatch() {
-  if (isCatchBall){
-    if(ballManager.host){
+  if (isCatchBall) {
+    if (ballManager.host) {
       catchEnd();
     }
-    return ;
+    return;
   }
   //メモ$('#ChangeIsCatch').prop('checked');
   catchStart();

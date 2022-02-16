@@ -17,15 +17,15 @@ let averagePing = 0;
 let regularTime = new Timer(10);
 let dragTimer = new Timer(0.5);
 
-const MOVING = 'MOVING';
-const RESIZE = 'RESIZE';
-const ENAVID = 'ENAVID';
-const ENAMIK = 'ENAMIK';
-const HIGTOC = 'HIGTOC';
-const HNDRES = 'HNDRES';
-const REGULAR = 'REGULAR';//定期送信
+const MOVING = 'Moving';
+const RESIZE = 'Resize';
+const ENABLEVIDEO = 'Enable Video';
+const ENABLEMIKE = 'Enable Mike';
+const HIGHTOUCH = 'High Touch';
+const HANDRESULT = 'Hand Result';
+const REGULAR = 'Regular';//定期送信
 const ISHIGH = 'ISHIGH';
-const CATBAL = 'CATBAL';
+const CATCHBALL = 'Catch Ball';
 const END = 'END';
 
 function setupVideo(stream, peer) {
@@ -37,6 +37,7 @@ function setupVideo(stream, peer) {
     let videoSize = new Vec(321, 242);
 
     capture.elt.autoplay = true;
+    capture.elt.muted = true;
 
     let pos = createVector(width / 2, width / 2);
 
@@ -59,7 +60,7 @@ function setupVideo(stream, peer) {
     localVideo.videoButton.mousePressed(OnVideoEnabled);
     localVideo.mikeButton.mousePressed(()=>{
       localVideo.changeMikeImg(!localVideo.mikeEnabled);
-      Send(ENAMIK,localVideo.mikeEnabled);
+      Send(ENABLEMIKE,localVideo.mikeEnabled);
     });
     
     console.log("camera", camera);
@@ -109,12 +110,10 @@ function addOtherVideo(otherStream) {
   Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
 }
 
-function removeOtherVideo(peerId) {
-  let index = SearchOthers(peerId);
-  if (index === -1) {
-    return;
-  }
-  others.splice(index, 1);
+function removeOtherVideo(video) {
+  video.videoButton.elt.remove();
+  video.mikeButton.elt.remove();
+  others.splice(video);
   ResizeAllVideos();
 }
 
@@ -135,7 +134,7 @@ function draw() {
     if (localVideo.results) {
       //(今回手を認識している || 前回手を認識している)
       if (localVideo.results.multiHandLandmarks.length > 0 || (handResults && handResults.multiHandLandmarks.length > 0)) {
-        Send(HNDRES, localVideo.results);
+        Send(HANDRESULT, localVideo.results);
         handResults = localVideo.results;
       }
     }
@@ -201,7 +200,7 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
 
 function OnVideoEnabled(){
   localVideo.changeVideoImg();
-  Send(ENAVID, localVideo.videoEnabled);
+  Send(ENABLEVIDEO, localVideo.videoEnabled);
 }
 
 function mousePressed() {
@@ -280,13 +279,13 @@ function ReceivedMessage(peerID, msg) {
     case RESIZE:
       ResizeVideo(video, msg.data);
       break;
-    case ENAVID:
+    case ENABLEVIDEO:
       EnableOtherVideo(video, msg.data);
       break;
-    case ENAMIK:
+    case ENABLEMIKE:
       SetMike(video, msg.data);
       break;
-    case HNDRES:
+    case HANDRESULT:
       HandsOthersResults(video, msg.data);
       break;
     case REGULAR:
@@ -295,7 +294,7 @@ function ReceivedMessage(peerID, msg) {
     case ISHIGH:
       ReceiveIsHighFive(video, msg.data);
       break;
-    case CATBAL:
+    case CATCHBALL:
       ReceiveStartCatch(video, msg.data);
       break;
     default:
@@ -320,7 +319,7 @@ function ResizeVideo(cap, size) {
 }
 
 function SetMike(video, is) {
-  video.capture.elt.muted = !is;
+  video.capture.elt.muted = !is;//othersだけを対象にミュート変更したいのでここで記述
   video.changeMikeImg(is);
 }
 

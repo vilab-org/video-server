@@ -65,7 +65,8 @@ class Video extends Obj {
     super(pos, size);
     this.ID = ID;
     this.capture = capture;
-    this.capture.elt.muted = true;
+    //this.capture.elt.muted = true;//ここでミュートにするとなぜかvideoDOMを表示しないと映像が更新されなくなるからしない
+    //this.capture.elt.volume = 0;//同じく
     this.videoEnabled = true;
     this.mikeEnabled = false;
     this.minMaxes = [undefined, undefined];
@@ -164,12 +165,15 @@ class Video extends Obj {
   changeMikeImg(enable){
     this.mikeEnabled = enable;
     let img;
+    //let volume = 0.00000001;
     if(enable){
       img = MikeONImg;
+      //volume = 1;
     }else{
       img = MikeOFFImg;
     }
     this.mikeButton.elt.src = img;
+    //this.capture.elt.volume = volume;
   }
 }
 
@@ -379,7 +383,7 @@ class BallManager {
     if (this.member.length === 0) {
       if (this.ball.target === localVideo) { //ラストの目標が自分なら1周巡ったことになる
         this.endFunc();
-        Send(CATBAL, END);
+        Send(CATCHBALL, END);
         this.host = false;
         return;//キャッチボール終了
       }
@@ -393,6 +397,6 @@ class BallManager {
     this.ball.setTarget(next);
     let msg = { from: this.ball.from.ID, target: this.ball.target.ID };
     console.log(msg);
-    Send(CATBAL, msg);
+    Send(CATCHBALL, msg);
   }
 }
