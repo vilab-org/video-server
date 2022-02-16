@@ -168,7 +168,8 @@ function img(cap) {
     image(cap.capture, cap.pos.x, cap.pos.y, cap.size.x, cap.size.y);//鏡なし 通常
     //image(cap.capture,cap.pos.x,cap.pos.y,cap.capture.width,cap.capture.height);
   } else {
-    image(blackimg, cap.pos.x, cap.pos.y, blackimg.width, blackimg.height);
+    fill(50);
+    rect(cap.pos.x,cap.pos.y,cap.size.x,cap.size.y);
   }
   cap.videoButton.position(cap.pos.x - cap.videoButton.size().width, cap.pos.y + cap.size.y/2 + cap.videoButton.size().height/2);
   cap.mikeButton.position(cap.pos.x + cap.mikeButton.size().width, cap.pos.y + cap.size.y/2 + cap.mikeButton.size().height/2);
