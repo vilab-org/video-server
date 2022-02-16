@@ -216,17 +216,6 @@ function ChangeIsCatch() {
   catchStart();
 }
 
-function OnVideoEnabled(){
-  isVideo = !isVideo;
-  if(isVideo){
-    $('#VideON').src = 'image/VideON.png';
-  }else{
-    $('#VideON').src = 'image/VideOFF.png';
-  }
-  localVideo.videoEnable = isVideo;
-  Send(ENAVID, isVideo);
-}
-
 function AddDummy() {
   let pos = localVideo.pos.copy().add(createVector(localVideo.size.x / 2, localVideo.size.y / 2));
   dummys.push(new Video(pos, new Vec(320, 240), localVideo.ID, localVideo.capture));

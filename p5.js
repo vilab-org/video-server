@@ -7,6 +7,7 @@ let dummys = [];
 let draggingVideo = null;
 let hideCapture = null;
 let checkbox;
+let videoButton;
 let handResults;
 let blackimg;
 let mathf;
@@ -78,6 +79,8 @@ function setup() {
   checkbox = createCheckbox('', true);
   checkbox.changed(SwitchVideo);
   blackimg = loadImage('/image/nekocan.png');
+  videoButton = createImage('/image/VideON.png');
+  videoButton.mousePressed(OnVideoEnabled);
   console.log('setup');
 }
 
@@ -135,6 +138,7 @@ function draw() {
   if (localVideo) {
     img(localVideo);
     checkbox.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
+    videoButton.position(localVideo.pos.x, checkbox.size().height / 2 + localVideo.pos.y + localVideo.size.y / 2);
     if (isDrawRect) {
       DrawHands(localVideo, localVideo, 1, 1);
     }
@@ -192,6 +196,17 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
 function SwitchVideo() {
   localVideo.videoEnable = checkbox.checked();
   Send(ENAVID, checkbox.checked());
+}
+
+function OnVideoEnabled(){
+  isVideo = !isVideo;
+  if(isVideo){
+    $('#VideON').src = 'image/VideON.png';
+  }else{
+    $('#VideON').src = 'image/VideOFF.png';
+  }
+  localVideo.videoEnable = isVideo;
+  Send(ENAVID, isVideo);
 }
 
 function mousePressed() {
