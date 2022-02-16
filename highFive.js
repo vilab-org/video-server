@@ -15,8 +15,14 @@ function HighFiveInit() {
 }
 //ハイタッチのメイン関数
 function HighFive() {
-  //SamePosHandsHighFive();
-  UpPosHighFive(localVideo);
+  switch(highFiveSelected){
+    case highFive1:
+      SamePosHandsHighFive();
+      break;
+      case highFive2:
+        UpPosHighFive(localVideo);
+      break;
+  }
   effectsMana.update2();
   otherEffectsMana.update2();
 }

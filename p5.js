@@ -150,7 +150,7 @@ function draw() {
   if (others.length + dummys.length > 0) {
     aveOthersHands = DrawAndCalcOthers();//他参加者のdrawと手の位置の平均値計算して返す
   }
-  if (isHighFive) {
+  if (highFiveSelected !== 'none') {
     HighFive();
   }
 
