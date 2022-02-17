@@ -208,6 +208,7 @@ class EffectsManager {
   constructor(color) {
     this.color = color;
     this.effects = [];
+    this.pool = [];
     this.force = createVector(0, 0.5);
     this.speed = 10;
     this.size = 5;
@@ -215,10 +216,18 @@ class EffectsManager {
   addEffect(circle) {
     let theta = int(random(360));
     let effect;
-    let dire = createVector(mathf.cos[theta], mathf.sin[theta]);
-    dire.mult(this.speed);
-    dire.y *= -1;//上向きはマイナス
-    effect = new Effect(circle.pos, this.size, dire, this.color);
+    if(this.pool.length > 0){
+      effect = this.pool.unshift();
+      effect.dire.x = mathf.cos[theta];
+      effect.dire.y = mathf.sin[theta];
+      dire.mult(this.speed);
+    } else {
+      let dire = createVector(mathf.cos[theta], mathf.sin[theta]);
+      dire.mult(this.speed);
+      dire.y *= -1;//上向きはマイナス
+      effect = new Effect(circle.pos, this.size, dire, this.color);
+    }
+    
     effect.pos = circle.pos.add(effect.dire);
     this.effects.push(effect);
   }
@@ -258,23 +267,16 @@ class EffectsManager {
   update2() {
     noStroke();
     let i = 0;
-    let disableRange = 0;
-    let disableRangeBoolean = true;//連続でenableがfalse
     let effectsLen = this.effects.length;
     while (i < effectsLen) {
       let effect = this.effects[i];
-      if (!effect.enbale) {
-        if (disableRangeBoolean) {
-          disableRange++;
-        }
-        i++;
-        continue;
-      } else disableRangeBoolean = false;
       effect.dire.add(this.force);//自由落下
       //effect.color.a -= this.speed * 2;//フェードアウト
       effect.pos.add(effect.dire);
       if (this.out(effect)) {
-        effect.enbale = false;
+        this.pool.push(effect);
+        this.effects.splice(i, 1);
+        continue;
       } else {
         //fill(effect.color.getColor());
         //rect(effect.pos.x, effect.pos.y, this.size, this.size);
@@ -286,9 +288,6 @@ class EffectsManager {
       }
       i++;
     }//while end }
-    if (min(this.effects.length, 10) <= disableRange) {
-      this.effects.splice(0, disableRange);
-    }
   }
 }
 
