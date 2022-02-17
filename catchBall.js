@@ -1,10 +1,12 @@
 let isCatchBall = false;
 let ballManager;
+let ballImg;
 
 function catchBallInit() {
   ballManager = new BallManager(() => {
     catchEnd();
   });
+  ballImg = loadImage('/images/ball.png');
 }
 
 function catchStart() {

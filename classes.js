@@ -237,6 +237,7 @@ class EffectsManager {
   update() {
     noStroke();
     let i = 0;
+    tint(this.color);
     while (i < this.effects.length) {
       let effect = this.effects[i];
       if (!effect) {
@@ -326,9 +327,10 @@ class Ball extends Obj {
     rect(this.target.pos.x, this.target.pos.y, this.target.size.x, this.target.size.y);
 
     //ボールの表示
-    noStroke();
-    fill(255);
-    ellipse(this.pos.x, this.pos.y, this.size, this.size);
+    //noStroke();
+    //fill(255);
+    //ellipse(this.pos.x, this.pos.y, this.size, this.size);
+    image(ballImg,this.pos.x,this.pos.y,this.size,this.size);
 
     if (!this.isMove) {
       let minMaxes = from.minMaxes;
