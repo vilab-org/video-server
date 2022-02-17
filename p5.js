@@ -104,6 +104,8 @@ function addOtherVideo(otherStream) {
   }
   let video = new Video(pos, new Vec(320, 240), otherStream.peerId, capture);
   video.capture.elt.srcObject = otherStream;
+  video.videoButton.size(32, 32);
+  video.mikeButton.size(32, 32);
   others.push(video);
   ResizeAllVideos();
   console.log("addOtherVideo");
@@ -164,7 +166,7 @@ function img(cap) {
   if (cap.videoEnabled) {
     if (mirror) {//鏡チャレンジ
       push()
-      translate(pos.x,pos.y);
+      translate(pos.x, pos.y);
       scale(-1, 1);
       image(cap.capture, 0, 0, size.x, size.y);
       pop();
@@ -408,7 +410,7 @@ function DrawAndCalcOthers() {
     if (isDrawRect) DrawHands(others[i], others[i], 0.7, 0.7);
     if (!others[i].results) continue;
     for (let j = 0; j < 2; j++) { //右手左手用のfor
-      let minMax = others[i].minMaxes[i]
+      let minMax = others[i].minMaxes[j];
       if (!minMax) continue;
       aveMinMaxPos[j].minX += minMax.minX;
       aveMinMaxPos[j].minY += minMax.minY;
@@ -418,8 +420,7 @@ function DrawAndCalcOthers() {
     }
   }
 
-  let aveLength = aveMinMaxPos.length;
-  for (let i = 0; i < aveLength; i++) {
+  for (let i = 0; i < 2; i++) {
     if (valueChanged[i]) {
       aveMinMaxPos[i].minX /= othersLen;
       aveMinMaxPos[i].minY /= othersLen;
@@ -434,10 +435,6 @@ function DrawAndCalcOthers() {
     }
   }
   return aveMinMaxPos;
-
-  function groupAverage(others) {
-
-  }
 }
 
 //左手は0右手は1　その他がありえたら-1を返す
@@ -466,11 +463,7 @@ function tra(video) {
 
 function Line(video, pax, pay, pbx, pby) {
   let size = video.size;
-  if (mirror) {
-    line(size.x - pax * size.x, pay * size.y, size.x - pbx * size.x, pby * size.y);
-  }
-  else
-    line(pax * size.x, pay * size.y, pbx * size.x, pby * size.y);
+  line(pax * size.x, pay * size.y, pbx * size.x, pby * size.y);
 }
 
 function DrawRect(video, pos, weight) {
@@ -497,10 +490,7 @@ function DrawCenterMarkC(video, pos, weight, color) {
   stroke(color);
   strokeWeight(weight);
   noFill();
-  if(mirror) 
-    ellipse(video.pos.x * 2 - center.pos.x, center.pos.y, center.size.x, center.size.y);
-  else 
-    ellipse(center.pos.x, center.pos.y, center.size.x, center.size.y);
+  ellipse(center.pos.x, center.pos.y, center.size.x, center.size.y);
   return center;
 }
 function getCenterMarks(video, minMaxPoses) {
@@ -513,7 +503,11 @@ function getCenterMarks(video, minMaxPoses) {
 }
 function getCenterMark(video, minMaxPos) {
   //minMaxPos{minX, maxX, minY, maxY}
-  let size = min(minMaxPos.maxX - minMaxPos.minX, minMaxPos.maxY - minMaxPos.minY) * 0.3 * max(video.size.x, video.size.y);
+  let size;
+  if(mirror) 
+    size = max(minMaxPos.maxX - minMaxPos.minX, minMaxPos.maxY - minMaxPos.minY) * 0.3 * max(video.size.x, video.size.y);
+  else 
+    size = min(minMaxPos.maxX - minMaxPos.minX, minMaxPos.maxY - minMaxPos.minY) * 0.3 * max(video.size.x, video.size.y);
   let lu = getLeftUpPos(video);
   let pos = createVector(lu.x + ((minMaxPos.minX + minMaxPos.maxX) * 0.5) * video.size.x, lu.y + ((minMaxPos.minY + minMaxPos.maxY) * 0.5) * video.size.y);
 
@@ -524,7 +518,7 @@ function getCenterMark(video, minMaxPos) {
 //https://google.github.io/mediapipe/solutions/hands#javascript-solution-api
 function DrawConnectors(video, marks, weight) {
   function LineMarks(a, b) {
-    Line(video, marks[a].x, marks[a].y, marks[b].x, marks[b].y);
+    Line(video, 1 - marks[a].x, marks[a].y, 1 - marks[b].x, marks[b].y);
   }
   strokeWeight(weight);
   stroke(0, 0, 255);

@@ -132,7 +132,10 @@ class Video extends Obj {
         minY = (minY < marks[i].y ? minY : marks[i].y);
         maxY = (maxY > marks[i].y ? maxY : marks[i].y);
       }
-      return { minX: minX, minY: minY, maxX: maxX, maxY: maxY };
+      if(mirror)
+        return { minX:1 - minX, minY: minY, maxX: 1 - maxX, maxY: maxY };
+      else 
+        return { minX: minX, minY: minY, maxX: maxX, maxY: maxY };
     }
 
     function getHandsMinMax() {
@@ -277,7 +280,7 @@ class EffectsManager {
         //rect(effect.pos.x, effect.pos.y, this.size, this.size);
         push();
         translate(effect.pos.x,effect.pos.y);
-        rotate(effect.rotate += 0.1);
+        rotate(effect.rotate += 0.2);
         image(effectImg, 0, 0, 10, 10);
         pop();
       }

@@ -47,8 +47,8 @@ function SamePosHandsHighFive() {
   if (CollisionHands(localMarks, otherMarks)) {
     for (let i = 0; i < 2; i++) {
       if (localHandsMinMaxes[i]) {
-        effectsMana.addEffect(localHandsMinMaxes[i]);
-        effectsMana.addEffect(localHandsMinMaxes[i]);
+        effectsMana.addEffect(localMarks[i]);
+        effectsMana.addEffect(otherMarks[i]);
       }
     }
   }
