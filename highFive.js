@@ -15,12 +15,12 @@ function HighFiveInit() {
 }
 //ハイタッチのメイン関数
 function HighFive() {
-  switch(highFiveSelected){
+  switch (highFiveSelected) {
     case highFive1:
       SamePosHandsHighFive();
       break;
-      case highFive2:
-        UpPosHighFive(localVideo);
+    case highFive2:
+      UpPosHighFive(localVideo);
       break;
   }
   effectsMana.update2();
@@ -44,12 +44,21 @@ function SamePosHandsHighFive() {
 
   let localMarks = getCenterMarks(localVideo, localHandsMinMaxes);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
+  /*
   if (CollisionHands(localMarks, otherMarks)) {
     for (let i = 0; i < 2; i++) {
       if (localHandsMinMaxes[i]) {
         effectsMana.addEffect(localMarks[i]);
         effectsMana.addEffect(otherMarks[i]);
       }
+    }
+  }
+  */
+  for (let i = 0; i < 2; i++) {
+    if (!localMarks[i] || !otherMarks[i]) continue;//どっちかがundefinedならcontinue
+    if (Collision(localMarks[i], otherMarks[i])) {
+      effectsMana.addEffect(localMarks[i]);
+      effectsMana.addEffect(otherMarks[i]);
     }
   }
 
@@ -95,18 +104,18 @@ function UpPosHighFive(video) {
   DrawArch([handsCollision[0] ? 200 : 50, handsCollision[1] ? 200 : 50]);
 
   //Effect
-  if(!effectInterval.isWait){
+  if (!effectInterval.isWait) {
     effectInterval.startTimer();
-  for (let i = 0; i < 2; i++) {
-    //自分がハイタッチ範囲に手をかざしてたらエフェクト
-    if (localMarks[i] && handsCollision[i]) {
-      effectsMana.addEffect(localMarks[i]);
+    for (let i = 0; i < 2; i++) {
+      //自分がハイタッチ範囲に手をかざしてたらエフェクト
+      if (localMarks[i] && handsCollision[i]) {
+        effectsMana.addEffect(localMarks[i]);
+      }
+      //他の人の平均の手の位置がハイタッチ範囲に手をかざしてたらエフェクト
+      if (othersMark[i] && othersCollision[i] && others.length > 0) {
+        otherEffectsMana.addEffect(othersMark[i]);
+      }
     }
-    //他の人の平均の手の位置がハイタッチ範囲に手をかざしてたらエフェクト
-    if (othersMark[i] && othersCollision[i] && others.length > 0) {
-      otherEffectsMana.addEffect(othersMark[i]);
-    }
-  }
   }
 
   function UpCollision(marks) {

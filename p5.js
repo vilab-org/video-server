@@ -18,6 +18,7 @@ let averagePing = 0;
 let regularTime = new Timer(10);
 let dragTimer = new Timer(0.5);
 let mirror = true;
+let handInterval = 0;
 
 const MOVING = 'Moving';
 const RESIZE = 'Resize';
@@ -36,7 +37,7 @@ function setupVideo(stream, peer) {
     let capture = createVideo();
     //Canvas API https://developer.mozilla.org/ja/docs/Web/API/Canvas_API
     capture.hide();//canvas を使用した動画の操作 (en-US) https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas 
-    let videoSize = new Vec(321, 242);
+    let videoSize = new Vec(320, 240);
 
     capture.elt.autoplay = true;
     capture.elt.muted = true;
@@ -50,9 +51,13 @@ function setupVideo(stream, peer) {
     }
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
-        await hands.send({//手の映像を送信
-          image: capture.elt
-        });
+        if(handInterval++ > 2){
+          handInterval = 0;
+          await hands.send({//手の映像を送信
+            image: capture.elt
+          });
+        }
+        
       },
       width: videoSize.x,
       height: videoSize.y

@@ -212,15 +212,18 @@ class EffectsManager {
     this.force = createVector(0, 0.5);
     this.speed = 10;
     this.size = 5;
+    for(let i = 0; i < 50;i++){
+      this.pool.push(new Effect(createVector(),this.size,createVector(),this.color));
+    }
   }
   addEffect(circle) {
     let theta = int(random(360));
     let effect;
     if(this.pool.length > 0){
-      effect = this.pool.unshift();
+      effect = this.pool.pop();
       effect.dire.x = mathf.cos[theta];
       effect.dire.y = mathf.sin[theta];
-      dire.mult(this.speed);
+      effect.dire.mult(this.speed);
     } else {
       let dire = createVector(mathf.cos[theta], mathf.sin[theta]);
       dire.mult(this.speed);
@@ -276,6 +279,7 @@ class EffectsManager {
       if (this.out(effect)) {
         this.pool.push(effect);
         this.effects.splice(i, 1);
+        effectsLen--;
         continue;
       } else {
         //fill(effect.color.getColor());
