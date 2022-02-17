@@ -24,9 +24,9 @@ $(function () {
   let highOption2 = $('<option>');
   highOption2.text(highFive2);
   highSelect.append(highOption2);
-  highSelect.on('change',() =>{
+  highSelect.on('change', () => {
     highFiveSelected = highSelect.val();
-    Send(HIGHSELECT,highFiveSelected);
+    Send(HIGHSELECT, highFiveSelected);
   });
 
   navigator.mediaDevices.enumerateDevices()
@@ -117,7 +117,7 @@ $(function () {
       .then(function (stream) {
         // $('#myStream').get(0).srcObject = stream;
         localStream = stream;
-        console.log("getUserMedia stream:", stream);
+        if (log) console.log("getUserMedia stream:", stream);
         setupVideo(stream, peer);
 
         if (existingroom) {
@@ -132,7 +132,7 @@ $(function () {
 
   function setupRoomEventHandlers(room) {
     if (existingroom) {
-      console.log('exist');
+      if (log) console.log('exist');
       existingroom.close();
     };
 
@@ -145,12 +145,12 @@ $(function () {
     });
 
     room.on('removeStream', function (stream) {
-      console.log('removeStream:' + stream.peerId);
+      if (log) console.log('removeStream:' + stream.peerId);
       removeVideo(stream.peerId);
     });
 
     room.on('peerLeave', function (peerId) {
-      console.log('peerLeave:' + peerId);
+      if (log) console.log('peerLeave:' + peerId);
       removeVideo(peerId);
     });
 
@@ -205,9 +205,9 @@ $(function () {
 
 });
 
-function removeAllOthers(){
+function removeAllOthers() {
 
-  while(others.length > 0) {
+  while (others.length > 0) {
     removeOtherVideo(others[0]);
   }
 }

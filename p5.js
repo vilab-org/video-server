@@ -1,5 +1,6 @@
 //https://qiita.com/yusuke84/items/54dce88f9e896903e64f
 //アイコン https://icooon-mono.com/
+let log = false;
 let localVideo = null;
 let localID;
 let others = [];
@@ -64,13 +65,13 @@ function setupVideo(stream, peer) {
       Send(ENABLEMIKE, localVideo.mikeEnabled);
     });
 
-    console.log("camera", camera);
+    if (log) console.log("camera", camera);
     HighFiveInit();
     catchBallInit();
   }
   localVideo.capture.elt.srcObject = stream;
   ResizeAllVideos();
-  console.log("localVideo:", localVideo);
+  if (log) console.log("localVideo:", localVideo);
 }
 
 
@@ -88,12 +89,11 @@ function setup() {
     ResizeAllVideos();
   };
   blackimg = loadImage('/image/nekocan.png');
-  console.log('setup');
+  if (log) console.log('setup');
 }
 
 function addOtherVideo(otherStream) {
-  console.log('add videos');
-  console.log(otherStream);
+  if (log) console.log('add videos', otherStream);
   let capture = createVideo();
   capture.elt.autoplay = true;
   //capture.elt.srcObject = otherStream;
@@ -108,8 +108,7 @@ function addOtherVideo(otherStream) {
   video.mikeButton.size(32, 32);
   others.push(video);
   ResizeAllVideos();
-  console.log("addOtherVideo");
-  console.log(video);
+  if (log) console.log("addOtherVideo", video);
   Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
 }
 
@@ -274,7 +273,7 @@ function ResizeAllVideos() {
 }
 
 function ReceivedMessage(peerID, msg) {
-  console.log('receive:' + peerID + ':', msg);
+  if (log) console.log('receive:' + peerID + ':', msg);
   let index = SearchOthers(peerID);
   if (index === -1) {
     console.warn("not found peerID");
@@ -369,7 +368,7 @@ function ReceiveRegular(video, receiveMessage) {
     let ave = localVideo.ping;
     for (let i = 0; i < others.length; i++)ave += others[i].ping;
     averagePing = ave / (others.length + 1);
-    console.log(averagePing);
+    if (log) console.log(averagePing);
   }
 
 }
@@ -504,9 +503,9 @@ function getCenterMarks(video, minMaxPoses) {
 function getCenterMark(video, minMaxPos) {
   //minMaxPos{minX, maxX, minY, maxY}
   let size;
-  if(mirror) 
+  if (mirror)
     size = max(minMaxPos.maxX - minMaxPos.minX, minMaxPos.maxY - minMaxPos.minY) * 0.3 * max(video.size.x, video.size.y);
-  else 
+  else
     size = min(minMaxPos.maxX - minMaxPos.minX, minMaxPos.maxY - minMaxPos.minY) * 0.3 * max(video.size.x, video.size.y);
   let lu = getLeftUpPos(video);
   let pos = createVector(lu.x + ((minMaxPos.minX + minMaxPos.maxX) * 0.5) * video.size.x, lu.y + ((minMaxPos.minY + minMaxPos.maxY) * 0.5) * video.size.y);

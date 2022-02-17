@@ -84,7 +84,7 @@ class Video extends Obj {
       p.draw = function(){
         p.background(200);
         p.ellipse(100,100,mouseX,mouseY);
-        console.log("a");
+        if(log)console.log("a");
       }
     }
     new p5(sketch,this.capture.elt);
@@ -132,9 +132,9 @@ class Video extends Obj {
         minY = (minY < marks[i].y ? minY : marks[i].y);
         maxY = (maxY > marks[i].y ? maxY : marks[i].y);
       }
-      if(mirror)
-        return { minX:1 - minX, minY: minY, maxX: 1 - maxX, maxY: maxY };
-      else 
+      if (mirror)
+        return { minX: 1 - minX, minY: minY, maxX: 1 - maxX, maxY: maxY };
+      else
         return { minX: minX, minY: minY, maxX: maxX, maxY: maxY };
     }
 
@@ -279,7 +279,7 @@ class EffectsManager {
         //fill(effect.color.getColor());
         //rect(effect.pos.x, effect.pos.y, this.size, this.size);
         push();
-        translate(effect.pos.x,effect.pos.y);
+        translate(effect.pos.x, effect.pos.y);
         rotate(effect.rotate += 0.2);
         image(effectImg, 0, 0, 10, 10);
         pop();
@@ -409,7 +409,7 @@ class BallManager {
 
     this.ball.setTarget(next);
     let msg = { from: this.ball.from.ID, target: this.ball.target.ID };
-    console.log(msg);
+    if (log) console.log(msg);
     Send(CATCHBALL, msg);
   }
 }
