@@ -112,7 +112,7 @@ function UpPosHighFive(video) {
         effectsMana.addEffect(localMarks[i]);
       }
       //他の人の平均の手の位置がハイタッチ範囲に手をかざしてたらエフェクト
-      if (othersMark[i] && othersCollision[i] && others.length > 0) {
+      if (othersMark[i] && othersCollision[i]) {
         otherEffectsMana.addEffect(othersMark[i]);
       }
     }
@@ -124,11 +124,11 @@ function UpPosHighFive(video) {
     noFill(); stroke(100, 100, 255);
     if (marks[0]) {
       ellipse(marks[0].pos.x, marks[0].pos.y, r, r);
-      coll[0] = collisionPos(leftUp, marks[0].pos);
+      coll[0] = collisionPos((mirror ? rightUp :leftUp), marks[0].pos);
     }
     if (marks[1]) {
       ellipse(marks[1].pos.x, marks[1].pos.y, r, r);
-      coll[1] = collisionPos(rightUp, marks[1].pos);
+      coll[1] = collisionPos((mirror ? leftUp : rightUp), marks[1].pos);
     }
     return coll;
   }
@@ -144,9 +144,9 @@ function UpPosHighFive(video) {
     stroke(c.r, c.g, c.b, 255);
     //arc(x,y,w,h,start,end,[mode]);x: 中心のx座標,y: 中心のy座標,w: 幅,h: 高さ,start: 描画開始角度,end: 描画終了角度,mode: 描画モード
 
-    fill(c.r, c.g, c.b, colorings[0]);
+    fill(c.r, c.g, c.b, colorings[(mirror ? 1 : 0)]);
     arc(leftUp.x, leftUp.y, size * 2, size * 2, 0, HALF_PI);
-    fill(c.r, c.g, c.b, colorings[1]);
+    fill(c.r, c.g, c.b, colorings[(mirror ? 0 : 1)]);
     arc(rightUp.x, rightUp.y, size * 2, size * 2, HALF_PI, PI);
   }
   function mouseCollision() {
