@@ -67,14 +67,14 @@ class Video extends Obj {
     this.capture = capture;
     //this.capture.elt.muted = true;//ここでミュートにするとなぜかvideoDOMを表示しないと映像が更新されなくなるからしない
     //this.capture.elt.volume = 0;//同じく
-    this.videoEnabled = true;
+    this.videoEnabled = false;
     this.mikeEnabled = true;
     this.minMaxes = [undefined, undefined];
     this.results = undefined;
     this.highFive = [false, false];
     this.ping = 1;
 
-    this.videoButton = createImg(VideONImg);
+    this.videoButton = createImg(VideOFFImg);
     this.mikeButton = createImg(MikeONImg);
     /*
     let sketch = function(p){
@@ -237,7 +237,7 @@ class EffectsManager {
   update() {
     noStroke();
     let i = 0;
-    tint(this.color);
+    tint(this.color.getColor());
     while (i < this.effects.length) {
       let effect = this.effects[i];
       if (!effect) {
@@ -261,6 +261,7 @@ class EffectsManager {
       pop();
       i++;
     }// while end }
+    tint(255);
 
   }
   out(effect) {
@@ -270,6 +271,7 @@ class EffectsManager {
   }
   update2() {
     noStroke();
+    tint(this.color.getColor());
     let i = 0;
     let effectsLen = this.effects.length;
     while (i < effectsLen) {
@@ -293,6 +295,7 @@ class EffectsManager {
       }
       i++;
     }//while end }
+    tint(255);
   }
 }
 
@@ -311,10 +314,11 @@ class Timer {
 
 class Ball extends Obj {
   constructor(pos, target) {
-    super(pos, 20);
+    super(pos, 50);
     this.isMove = false;//投げられてる最中
     this.from;//出発
     this.fromPos;
+    this.rotate = 0;
     this.target = target;//目標
     this.amt = 0;//線形補間の割合
   }
@@ -330,8 +334,11 @@ class Ball extends Obj {
     //noStroke();
     //fill(255);
     //ellipse(this.pos.x, this.pos.y, this.size, this.size);
-    image(ballImg,this.pos.x,this.pos.y,this.size,this.size);
-
+    push();
+    translate(this.pos.x,this.pos.y);
+    rotate(this.rotate);
+    image(ballImg, 0, 0, this.size, this.size);
+    pop();
     if (!this.isMove) {
       let minMaxes = from.minMaxes;
       let handsPos = undefined;
@@ -384,6 +391,7 @@ class BallManager {
 
     if (ball.isMove) {
       ball.pos = p5.Vector.lerp(ball.fromPos, ball.target.pos, ball.amt);
+      ball.rotate += 0.2;
       if (ball.amt >= 1) {
         ball.isMove = false;
         if (this.host) {

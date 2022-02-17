@@ -15,6 +15,7 @@ function HighFiveInit() {
 }
 //ハイタッチのメイン関数
 function HighFive() {
+  strokeWeight(2);
   switch (highFiveSelected) {
     case highFive1:
       SamePosHandsHighFive();
@@ -58,7 +59,7 @@ function SamePosHandsHighFive() {
     if (!localMarks[i] || !otherMarks[i]) continue;//どっちかがundefinedならcontinue
     if (Collision(localMarks[i], otherMarks[i])) {
       effectsMana.addEffect(localMarks[i]);
-      effectsMana.addEffect(otherMarks[i]);
+      otherEffectsMana.addEffect(otherMarks[i]);
     }
   }
 

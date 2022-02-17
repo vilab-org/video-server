@@ -6,7 +6,7 @@ function catchBallInit() {
   ballManager = new BallManager(() => {
     catchEnd();
   });
-  ballImg = loadImage('/images/ball.png');
+  ballImg = loadImage('/image/ball.png');
 }
 
 function catchStart() {

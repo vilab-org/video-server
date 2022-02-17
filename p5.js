@@ -114,7 +114,12 @@ function addOtherVideo(otherStream) {
   others.push(video);
   ResizeAllVideos();
   if (log) console.log("addOtherVideo", video);
-  Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
+
+  setTimeout(() => {
+    Send(ENABLEVIDEO, localVideo.videoEnabled);
+    Send(ENABLEMIKE, localVideo.mikeEnabled);
+    Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
+  }, 2000);
 }
 
 function removeOtherVideo(video) {
