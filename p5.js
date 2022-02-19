@@ -27,7 +27,8 @@ const ENABLEMIKE = 'Enable Mike';
 const HIGHTOUCH = 'High Touch';
 const HANDRESULT = 'Hand Result';
 const REGULAR = 'Regular';//定期送信
-const HIGHSELECT = 'HIGHSELECT';
+const HIGHSELECT = 'High Touch Select';
+const DYNAMICEFFECT = 'Dynamic effect';
 const CATCHBALL = 'Catch Ball';
 const END = 'END';
 
@@ -312,6 +313,9 @@ function ReceivedMessage(peerID, msg) {
     case HIGHSELECT:
       ReceiveHighFiveSelect(video, msg.data);
       break;
+      case DYNAMICEFFECT:
+        ReceiveDynamicEffect(msg.data);
+      break;
     case CATCHBALL:
       ReceiveStartCatch(video, msg.data);
       break;
@@ -390,6 +394,10 @@ function ReceiveHighFiveSelect(video, select) {
   $("#highSelect").val(select);
 }
 
+function ReceiveDynamicEffect(enabled){
+  isDynamicEffect = enabled;
+}
+
 function ReceiveStartCatch(video, fromAndTo) {
   receiveBallStatus(fromAndTo);//→ catchBall.js
 }
@@ -414,6 +422,7 @@ function DrawAndCalcOthers() {
   ];
   let valueChanged = [false, false];
   let othersLen = others.length;
+  let otherHandsNum = [0,0];
   for (let i = 0; i < othersLen; i++) {//他参加者を網羅するfor
     img(others[i]);
     if (isDrawRect) DrawHands(others[i], others[i], 0.7, 0.7);
@@ -421,6 +430,7 @@ function DrawAndCalcOthers() {
     for (let j = 0; j < 2; j++) { //右手左手用のfor
       let minMax = others[i].minMaxes[j];
       if (!minMax) continue;
+      otherHandsNum[j]++;
       aveMinMaxPos[j].minX += minMax.minX;
       aveMinMaxPos[j].minY += minMax.minY;
       aveMinMaxPos[j].maxX += minMax.maxX;
@@ -431,10 +441,10 @@ function DrawAndCalcOthers() {
 
   for (let i = 0; i < 2; i++) {
     if (valueChanged[i]) {
-      aveMinMaxPos[i].minX /= othersLen;
-      aveMinMaxPos[i].minY /= othersLen;
-      aveMinMaxPos[i].maxX /= othersLen;
-      aveMinMaxPos[i].maxY /= othersLen;
+      aveMinMaxPos[i].minX /= otherHandsNum[i];
+      aveMinMaxPos[i].minY /= otherHandsNum[i];
+      aveMinMaxPos[i].maxX /= otherHandsNum[i];
+      aveMinMaxPos[i].maxY /= otherHandsNum[i];
       if (isDrawRect) {
         DrawRect(localVideo, aveMinMaxPos[i], 1);
         DrawCenterMark(localVideo, aveMinMaxPos[i], 2);

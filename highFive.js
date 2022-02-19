@@ -5,7 +5,13 @@ let aveOthersHands = [
 let effectsMana;
 let otherEffectsMana;
 let effectInterval;
+let isDynamicEffect = false;
 let effectImg;
+let clapAudio;
+
+function preload() {
+  clapAudio = loadSound('/audio/Clap01-1.mp3');
+}
 
 function HighFiveInit() {
   effectsMana = new EffectsManager(new Color(255, 255, 0));//init effect manager
@@ -26,6 +32,11 @@ function HighFive() {
   }
   effectsMana.update2();
   otherEffectsMana.update2();
+}
+
+function OnChangeDynamic() {
+  isDynamicEffect = $('#dynamicEffect').prop('checked');
+  Send(DYNAMICEFFECT, isDynamicEffect);
 }
 
 //お互いの手の位置でハイタッチできるやつ
@@ -55,12 +66,20 @@ function SamePosHandsHighFive() {
     }
   }
   */
+  let collision = false;
   for (let i = 0; i < 2; i++) {
     if (!localMarks[i] || !otherMarks[i]) continue;//どっちかがundefinedならcontinue
-    if (Collision(localMarks[i], otherMarks[i])) {
-      effectsMana.addEffect(localMarks[i]);
-      otherEffectsMana.addEffect(otherMarks[i]);
+    let colDist = Collision(localMarks[i], otherMarks[i]);
+    if (colDist.col) {
+      let num = (isDynamicEffect ? max(min(50 / colDist.dist, 5), 1) : 1);
+      for (let j = 0; j < num; j++) {
+        effectsMana.addEffect(localMarks[i]);
+        otherEffectsMana.addEffect(otherMarks[i]);
+      }
     }
+  }
+  if(collision){
+    clapAudio.play();
   }
 
   //両手が当たってる判定ならtrue
@@ -77,17 +96,20 @@ function SamePosHandsHighFive() {
   }
 
   function Collision(center1, center2) {
-    let minSize = Math.min(center1.size.x, center2.size.x);
-    let absolute = Math.abs(center1.size.x - center2.size.x);
+    let colDist = { col: false, dist: undefined };
+    let minSize = Math.min(center1.size.x * 2, center2.size.x * 2);
+    let absolute = Math.abs(center1.size.x * 2 - center2.size.x * 2);
     //中央円の大きさが小さい方の円2個分違ったらfalse
-    if (absolute > minSize) return false;
+    if (absolute > minSize) return colDist;
 
     let distX = center1.pos.x - center2.pos.x;
     let distY = center1.pos.y - center2.pos.y;
     let root = Math.sqrt((distX * distX) + (distY * distY));
     //距離が小さい円よりあったらfalse
-    if (root > minSize) return false;
-    return true;
+    if (root > minSize) return colDist;
+    colDist.col = true;
+    colDist.dist = root;
+    return colDist;
   }
 }
 /***************************************************************************************************/
@@ -125,7 +147,7 @@ function UpPosHighFive(video) {
     noFill(); stroke(100, 100, 255);
     if (marks[0]) {
       ellipse(marks[0].pos.x, marks[0].pos.y, r, r);
-      coll[0] = collisionPos((mirror ? rightUp :leftUp), marks[0].pos);
+      coll[0] = collisionPos((mirror ? rightUp : leftUp), marks[0].pos);
     }
     if (marks[1]) {
       ellipse(marks[1].pos.x, marks[1].pos.y, r, r);
