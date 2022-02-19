@@ -8,19 +8,20 @@ let effectInterval;
 let isDynamicEffect = false;
 let effectImg;
 let clapAudio;
+let collision = false;
 
-function preload() {
-  clapAudio = loadSound('/audio/Clap01-1.mp3');
-}
 
 function HighFiveInit() {
   effectsMana = new EffectsManager(new Color(255, 255, 0));//init effect manager
   otherEffectsMana = new EffectsManager(new Color(255, 0, 255));
   effectInterval = new Timer(0.1);
   effectImg = loadImage('/image/effect.png');
+  clapAudio = loadSound('/audio/Clap01-1.mp3');
 }
 //ハイタッチのメイン関数
 function HighFive() {
+
+  collision = false;
   strokeWeight(2);
   switch (highFiveSelected) {
     case highFive1:
@@ -32,6 +33,9 @@ function HighFive() {
   }
   effectsMana.update2();
   otherEffectsMana.update2();
+  if(collision){
+    clapAudio.play();
+  }
 }
 
 function OnChangeDynamic() {
@@ -66,20 +70,17 @@ function SamePosHandsHighFive() {
     }
   }
   */
-  let collision = false;
   for (let i = 0; i < 2; i++) {
     if (!localMarks[i] || !otherMarks[i]) continue;//どっちかがundefinedならcontinue
     let colDist = Collision(localMarks[i], otherMarks[i]);
     if (colDist.col) {
       let num = (isDynamicEffect ? max(min(50 / colDist.dist, 5), 1) : 1);
+      collision = true;
       for (let j = 0; j < num; j++) {
         effectsMana.addEffect(localMarks[i]);
         otherEffectsMana.addEffect(otherMarks[i]);
       }
     }
-  }
-  if(collision){
-    clapAudio.play();
   }
 
   //両手が当たってる判定ならtrue
@@ -125,7 +126,7 @@ function UpPosHighFive(video) {
   let othersCollision = UpCollision(othersMark);
   //let handsCollision = [collisionPos(leftUp, createVector(mouseX, mouseY)),collisionPos(rightUp, createVector(mouseX, mouseY))];
   DrawArch([handsCollision[0] ? 200 : 50, handsCollision[1] ? 200 : 50]);
-
+  collision = handsCollision[0] || handsCollision[1];
   //Effect
   if (!effectInterval.isWait) {
     effectInterval.startTimer();

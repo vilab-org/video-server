@@ -187,6 +187,7 @@ function img(cap) {
 
   } else {
     fill(50);
+    noStroke();
     rect(pos.x, pos.y, size.x, size.y);
   }
   cap.videoButton.position(pos.x - cap.videoButton.size().width, pos.y + size.y / 2 + cap.videoButton.size().height / 2);
