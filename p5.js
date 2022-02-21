@@ -43,7 +43,7 @@ function setupVideo(stream, peer) {
     capture.elt.autoplay = true;
     capture.elt.muted = true;
 
-    let pos = createVector(width / 2, width / 2);
+    let pos = createVector(width / 3, height / 3);
 
     localVideo = new Video(pos, videoSize, peer.id, capture);
     if (!localVideo.ID) {
