@@ -153,8 +153,7 @@ class Video extends Obj {
     } //end getHandsMinMax }
   }// end setResults
 
-  changeVideoImg() {
-    let isVideo = !this.videoEnabled;
+  changeVideoImg(isVideo = !this.videoEnabled) {
     let img;
     if (isVideo) {
       img = VideONImg;

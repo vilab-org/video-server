@@ -52,7 +52,7 @@ function setupVideo(stream, peer) {
     }
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
-        if(handInterval++ > 1){
+        if(handInterval++ > 0){
           handInterval = 0;
           await hands.send({//手の映像を送信
             image: capture.elt
@@ -363,8 +363,7 @@ function moveOtherVideo(video, pos) {
 }
 
 function EnableOtherVideo(video, enable) {
-  video.videoEnabled = enable;
-
+  video.changeVideoImg(enable);
 }
 
 function HandsOthersResults(video, results) {
