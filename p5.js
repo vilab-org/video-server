@@ -110,8 +110,8 @@ function addOtherVideo(otherStream) {
   }
   let video = new Video(pos, new Vec(320, 240), otherStream.peerId, capture);
   video.capture.elt.srcObject = otherStream;
-  video.videoButton.size(32, 32);
-  video.mikeButton.size(32, 32);
+  video.videoButton.size(24, 24);
+  video.mikeButton.size(24, 24);
   others.push(video);
   ResizeAllVideos();
   if (log) console.log("addOtherVideo", video);
