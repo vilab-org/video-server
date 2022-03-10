@@ -192,7 +192,7 @@ function img(cap) {
   }
   cap.videoButton.position(pos.x - cap.videoButton.size().width, pos.y + size.y / 2 + cap.videoButton.size().height / 2);
   cap.mikeButton.position(pos.x + cap.mikeButton.size().width, pos.y + size.y / 2 + cap.mikeButton.size().height / 2);
-  text(cap.ID, cap);
+  textVideo(cap.ID, cap);
 }
 
 function DrawHands(inVideo, outVideo, recStroke, connStroke) {
@@ -213,7 +213,7 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
       stroke(255);
       strokeWeight(1);
       let cap = outVideo;
-      text(inVideo.results.multiHandedness[i].label + ":" + Math.round(inVideo.results.multiHandedness[i].score * 1000) / 10 + "%", (cap.pos.x - cap.size.x / 2) + (cap.size.x * minMaxPos[0]), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos[3]) + 10);
+      text(inVideo.results.multiHandedness[i].label + ":" + Math.round(inVideo.results.multiHandedness[i].score * 1000) / 10 + "%", (cap.pos.x - cap.size.x / 2) + (cap.size.x * minMaxPos.minX), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos.maxY) + 10);
     }
   }
 }
@@ -402,11 +402,11 @@ function ReceiveStartCatch(video, fromAndTo) {
   receiveBallStatus(fromAndTo);//→ catchBall.js
 }
 
-function text(text, cap) {
+function textVideo(tex, cap) {
   noFill();
   stroke(0);
   strokeWeight(1);
-  text(text, cap.pos.x - cap.size.x / 2, cap.pos.y - cap.size.y / 2 - 10);
+  text(tex, cap.pos.x - cap.size.x / 2, cap.pos.y - cap.size.y / 2 - 10);
 }
 
 
