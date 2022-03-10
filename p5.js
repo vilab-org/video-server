@@ -127,6 +127,7 @@ function removeOtherVideo(video) {
   video.videoButton.elt.remove();
   video.mikeButton.elt.remove();
   others.splice(video);
+  aveOthersHands = [undefined, undefined];
   ResizeAllVideos();
 }
 
@@ -396,6 +397,7 @@ function ReceiveHighFiveSelect(video, select) {
 
 function ReceiveDynamicEffect(enabled){
   isDynamicEffect = enabled;
+  document.getElementById('dynamicEffect').checked = enabled;
 }
 
 function ReceiveStartCatch(video, fromAndTo) {
