@@ -214,7 +214,9 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
       stroke(255);
       strokeWeight(1);
       let cap = outVideo;
-      text(inVideo.results.multiHandedness[i].label + ":" + Math.round(inVideo.results.multiHandedness[i].score * 1000) / 10 + "%", (cap.pos.x - cap.size.x / 2) + (cap.size.x * minMaxPos.minX), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos.maxY) + 10);
+      let lefRigStr = ['Left','Right'];
+      let displayIndex = (mirror ? 1-leftRight:leftRight);
+      text(lefRigStr[displayIndex]+ ":" + Math.round(inVideo.results.multiHandedness[i].score * 100) + "%", (cap.pos.x - cap.size.x / 2) + (cap.size.x * (mirror?minMaxPos.maxX:minMaxPos.minX)), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos.maxY) + 10);
     }
   }
 }
@@ -539,7 +541,10 @@ function getCenterMark(video, minMaxPos) {
 //https://google.github.io/mediapipe/solutions/hands#javascript-solution-api
 function DrawConnectors(video, marks, weight) {
   function LineMarks(a, b) {
-    Line(video, 1 - marks[a].x, marks[a].y, 1 - marks[b].x, marks[b].y);
+    if(mirror)
+      Line(video, 1 - marks[a].x, marks[a].y, 1 - marks[b].x, marks[b].y);
+    else
+      Line(video, marks[a].x, marks[a].y, marks[b].x, marks[b].y);
   }
   strokeWeight(weight);
   stroke(0, 0, 255);
