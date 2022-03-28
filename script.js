@@ -28,7 +28,16 @@ $(function () {
     highFiveSelected = highSelect.val();
     Send(HIGHSELECT, highFiveSelected);
   });
-
+  //初めて利用する人にカメラ許可ダイアログを出すためのgetUsrMedia
+  let permit = false;
+  navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+    .then(function (stream) {
+      permit = true;
+      return;
+    }).catch(function (error) {
+      console.error(error);
+    });
+  
   navigator.mediaDevices.enumerateDevices()
     .then(function (deviceInfos) {
       for (let i = 0; i !== deviceInfos.length; ++i) {
@@ -86,22 +95,15 @@ $(function () {
     });
   */
   function setupGetUserMedia() {
-    //初めて利用する人にカメラ許可ダイアログを出すためのgetUsrMedia
-    navigator.mediaDevices.getUserMedia({audio:true,video:true})
-      .then(function (stream){
-        return;
-      }).catch(function (error){
-        console.error(error);
-      });
     let audioSource = $('#audioSource').val();
     let videoSource = $('#videoSource').val();
     let constraints = {
-      audio:{
+      audio: {
         deviceId: {
           exact: audioSource
         }
       },
-      video:{
+      video: {
         deviceId: {
           exact: videoSource
         }
@@ -131,7 +133,7 @@ $(function () {
           existingroom.replaceStream(stream);
         }
 
-      }).catch(function(error) {
+      }).catch(function (error) {
         console.error('mediaDevice.getUserMedia() error:', error);
         return;
       });
