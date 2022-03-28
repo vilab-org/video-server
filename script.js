@@ -86,15 +86,22 @@ $(function () {
     });
   */
   function setupGetUserMedia() {
+    //初めて利用する人にカメラ許可ダイアログを出すためのgetUsrMedia
+    navigator.mediaDevices.getUserMedia({audio:true,video:true})
+      .then(function (stream){
+        return;
+      }).catch(function (error){
+        console.error(error);
+      });
     let audioSource = $('#audioSource').val();
     let videoSource = $('#videoSource').val();
     let constraints = {
-      audio: {
+      audio:{
         deviceId: {
           exact: audioSource
         }
       },
-      video: {
+      video:{
         deviceId: {
           exact: videoSource
         }
@@ -124,10 +131,10 @@ $(function () {
           existingroom.replaceStream(stream);
         }
 
-      });/*.catch(function(error) {
+      }).catch(function(error) {
         console.error('mediaDevice.getUserMedia() error:', error);
         return;
-      });*/
+      });
   }
 
   function setupRoomEventHandlers(room) {
