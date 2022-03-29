@@ -152,7 +152,7 @@ function HybridHighFive(video) {
   let localMarks = getCenterMarks(localVideo, video.minMaxes);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
   let localUpCollisions = UpCollision(leftUp, rightUp, localMarks, size);
-  DrawArch([handsCollision[0] ? 150 : 25, handsCollision[1] ? 150 : 25]);
+  DrawArch([localUpCollisions[0] ? 150 : 25, localUpCollisions[1] ? 150 : 25]);
   for(let i = 0; i < 2; i++){
     if (!localUpCollisions[i]) continue;//どっちかがundefinedならcontinue
     let colDist = SameCollision(localMarks[i], otherMarks[i]);
