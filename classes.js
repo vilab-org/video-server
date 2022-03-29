@@ -9,6 +9,23 @@ class Mathf {
     this.sin.push(this.sin[0]);
     this.cos.push(this.cos[0]);
   }
+  Sin(rad){
+    rad %= 360;
+    if(rad<0)rad = 360+rad;
+    return this.sin[rad];
+  }
+  Cos(rad){
+    rad %= 360;
+    if(rad<0)rad = 360+rad;
+    return this.cos[rad];
+  }
+  sqrMag(vec) {
+    return vec.x * vec.x + vec.y * vec.y;
+  }
+  sqrDist(vec1,vec2){
+    let vec = new Vec(vec1.x-vec2.x,vec1.y-vec2.y);
+    return sqrMag(vec);
+  }
 }
 
 class ReceiveMessage {
@@ -76,7 +93,8 @@ class Video extends Obj {
 
     this.videoButton = createImg(VideOFFImg);
     this.mikeButton = createImg(MikeONImg);
-    /*
+    /* //ビデオコンテナ上にprocessingのスケッチを置くチャレンジ
+    //原因不明だが不可
     let sketch = function(p){
       p.setup = function(){
         p.createCanvas(size.x,size.y);
@@ -84,12 +102,11 @@ class Video extends Obj {
       p.draw = function(){
         p.background(200);
         p.ellipse(100,100,mouseX,mouseY);
-        if(log)console.log("a");
       }
     }
     new p5(sketch,this.capture.elt);
     */
-    /*
+    /*//ビデオごとに手検出を用意する場合のプログラム（MediaPipeのシステム的に不可能だし、負荷の観点から不可）
        let hands = new Hands({
           locateFile: (file) => {
             return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
@@ -164,7 +181,7 @@ class Video extends Obj {
     this.videoEnabled = isVideo;
   }
 
-  changeMikeImg(enable) {
+  changeMikeImg(enable = !this.mikeEnabled) {
     this.mikeEnabled = enable;
     let img;
     //let volume = 0.00000001;
@@ -211,14 +228,14 @@ class EffectsManager {
     this.force = createVector(0, 0.5);
     this.speed = 10;
     this.size = 5;
-    for(let i = 0; i < 50;i++){
-      this.pool.push(new Effect(createVector(),this.size,createVector(),this.color));
+    for (let i = 0; i < 50; i++) {
+      this.pool.push(new Effect(createVector(), this.size, createVector(), this.color));
     }
   }
   addEffect(circle) {
     let theta = int(random(360));
     let effect;
-    if(this.pool.length > 0){
+    if (this.pool.length > 0) {
       effect = this.pool.pop();
       effect.dire.x = mathf.cos[theta];
       effect.dire.y = mathf.sin[theta];
@@ -229,7 +246,7 @@ class EffectsManager {
       dire.y *= -1;//上向きはマイナス
       effect = new Effect(circle.pos, this.size, dire, this.color);
     }
-    
+
     effect.pos = circle.pos.add(effect.dire);
     this.effects.push(effect);
   }
@@ -334,7 +351,7 @@ class Ball extends Obj {
     //fill(255);
     //ellipse(this.pos.x, this.pos.y, this.size, this.size);
     push();
-    translate(this.pos.x,this.pos.y);
+    translate(this.pos.x, this.pos.y);
     rotate(this.rotate);
     image(ballImg, 0, 0, this.size, this.size);
     pop();

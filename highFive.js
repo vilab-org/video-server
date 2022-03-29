@@ -8,7 +8,7 @@ let effectInterval;
 let isDynamicEffect = false;
 let effectImg;
 let clapAudio;
-let collision = false;
+let high5Collision = false;
 
 
 function HighFiveInit() {
@@ -21,19 +21,22 @@ function HighFiveInit() {
 //ハイタッチのメイン関数
 function HighFive() {
 
-  collision = false;
+  high5Collision = false;
   strokeWeight(2);
   switch (highFiveSelected) {
-    case highFive1:
+    case highFiveTypes[1]:
       SamePosHandsHighFive();
       break;
-    case highFive2:
+    case highFiveTypes[2]:
       UpPosHighFive(localVideo);
+      break;
+    case highFiveTypes[3]:
+      HybridHighFive(localVideo);
       break;
   }
   effectsMana.update2();
   otherEffectsMana.update2();
-  if(collision){
+  if (high5Collision) {
     clapAudio.play();
   }
 }
@@ -43,6 +46,8 @@ function OnChangeDynamic() {
   Send(DYNAMICEFFECT, isDynamicEffect);
 }
 
+
+/*111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111*/
 //お互いの手の位置でハイタッチできるやつ
 function SamePosHandsHighFive() {
   let localHandsMinMaxes = localVideo.minMaxes;
@@ -60,40 +65,17 @@ function SamePosHandsHighFive() {
 
   let localMarks = getCenterMarks(localVideo, localHandsMinMaxes);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
-  /*
-  if (CollisionHands(localMarks, otherMarks)) {
-    for (let i = 0; i < 2; i++) {
-      if (localHandsMinMaxes[i]) {
-        effectsMana.addEffect(localMarks[i]);
-        effectsMana.addEffect(otherMarks[i]);
-      }
-    }
-  }
-  */
   for (let i = 0; i < 2; i++) {
     if (!localMarks[i] || !otherMarks[i]) continue;//どっちかがundefinedならcontinue
     let colDist = Collision(localMarks[i], otherMarks[i]);
     if (colDist.col) {
+      high5Collision = true;
       let num = (isDynamicEffect ? max(min(50 / colDist.dist, 5), 1) : 1);
-      collision = true;
       for (let j = 0; j < num; j++) {
         effectsMana.addEffect(localMarks[i]);
         otherEffectsMana.addEffect(otherMarks[i]);
       }
     }
-  }
-
-  //両手が当たってる判定ならtrue
-  function CollisionHands(localHands, othersHands) {
-    let nondefined = false;
-    if (!localHands || !othersHands) return false;
-    for (let i = 0; i < 2; i++) {
-      if (!localHands[i] || !othersHands[i]) continue;//どっちかがundefinedならcontinue
-      nondefined = true;
-      if (!Collision(localHands[i], othersHands[i])) return false;
-    }
-    if (!nondefined) return false;
-    return true;
   }
 
   function Collision(center1, center2) {
@@ -113,7 +95,7 @@ function SamePosHandsHighFive() {
     return colDist;
   }
 }
-/***************************************************************************************************/
+/*22222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222*/
 function UpPosHighFive(video) {
   let handsMinMax = video.minMaxes;
   let size = video.size.y / 2;
@@ -126,7 +108,7 @@ function UpPosHighFive(video) {
   let othersCollision = UpCollision(othersMark);
   //let handsCollision = [collisionPos(leftUp, createVector(mouseX, mouseY)),collisionPos(rightUp, createVector(mouseX, mouseY))];
   DrawArch([handsCollision[0] ? 200 : 50, handsCollision[1] ? 200 : 50]);
-  collision = handsCollision[0] || handsCollision[1];
+  high5Collision = handsCollision[0] || handsCollision[1];
   //Effect
   if (!effectInterval.isWait) {
     effectInterval.startTimer();
@@ -155,34 +137,12 @@ function UpPosHighFive(video) {
       coll[1] = collisionPos((mirror ? leftUp : rightUp), marks[1].pos);
     }
     return coll;
-  }
-  function collisionPos(targetPos, movePos) {
-    //out of image size
-    //if (movePos.x < leftUp.x || movePos.x > rightUp.x || movePos.y < leftUp.y || movePos.y > leftUp.y + video.size.y)
-    //  return false;
-    return targetPos.dist(movePos) < size;
-  }
-
-  function DrawArch(colorings) {
-    let c = new Color(100, 225, 100);
-    stroke(c.r, c.g, c.b, 255);
-    //arc(x,y,w,h,start,end,[mode]);x: 中心のx座標,y: 中心のy座標,w: 幅,h: 高さ,start: 描画開始角度,end: 描画終了角度,mode: 描画モード
-
-    fill(c.r, c.g, c.b, colorings[(mirror ? 1 : 0)]);
-    arc(leftUp.x, leftUp.y, size * 2, size * 2, 0, HALF_PI);
-    fill(c.r, c.g, c.b, colorings[(mirror ? 0 : 1)]);
-    arc(rightUp.x, rightUp.y, size * 2, size * 2, HALF_PI, PI);
-  }
-  function mouseCollision() {
-    let coll = [false, false];
-    let dist0 = leftUp.dist(createVector(mouseX, mouseY));
-    coll[0] = dist0 < size;
-    if (coll[0])
-      line(leftUp.x, leftUp.y, mouseX, mouseY);
-    let dist1 = rightUp.dist(createVector(mouseX, mouseY));
-    coll[1] = dist1 < size;
-    return coll;
+    function collisionPos(targetPos, movePos) {
+      return targetPos.dist(movePos) < size;
+    }
   }
 }
+/*3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333*/
+function HybridHighFive(video) {
 
-
+}

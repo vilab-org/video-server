@@ -466,17 +466,25 @@ function getIndexLR(handedness) {
   else if (handedness.label === "Right") return 1;
   else return -1;
 }
+
 //映像の左上を取得
 function getLeftUpPos(video) {
   return createVector(video.pos.x - video.size.x / 2, video.pos.y - video.size.y / 2);
 }
+
 function getRightUpPos(video) {
   return createVector(video.pos.x + video.size.x / 2, video.pos.y - video.size.y / 2);
 }
 
-function tranScale(video, scaleX, scaleY) {
-  let pos = getLeftUpPos(video);
-  translate(pos.x * scaleX, pos.y * scaleY);
+function DrawArch(leftUp, rightUp, size, alphaArray) {
+  let c = new Color(100, 225, 100);
+  stroke(c.r, c.g, c.b, 255);
+  //arc(x,y,w,h,start,end,[mode]);x: 中心のx座標,y: 中心のy座標,w: 幅,h: 高さ,start: 描画開始角度,end: 描画終了角度,mode: 描画モード
+
+  fill(c.r, c.g, c.b, alphaArray[(mirror ? 1 : 0)]);
+  arc(leftUp.x, leftUp.y, size * 2, size * 2, 0, HALF_PI);
+  fill(c.r, c.g, c.b, alphaArray[(mirror ? 0 : 1)]);
+  arc(rightUp.x, rightUp.y, size * 2, size * 2, HALF_PI, PI);
 }
 
 function tra(video) {

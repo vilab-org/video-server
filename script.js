@@ -4,8 +4,7 @@ let localStream = null;
 let room;
 let existingroom = null;
 let isDrawRect = false;
-let highFive1 = 'high five 1';
-let highFive2 = 'high five 2';
+let highFiveTypes = ['none', 'high five 1', 'high five 2','high five 3'];
 let highFiveSelected;
 $(function () {
 
@@ -15,19 +14,17 @@ $(function () {
 
   //high five
   let highSelect = $('#highSelect');
-  let noneOption = $('<option>');
-  noneOption.text('none');
-  highSelect.append(noneOption);
-  let highOption1 = $('<option>');
-  highOption1.text(highFive1);
-  highSelect.append(highOption1);
-  let highOption2 = $('<option>');
-  highOption2.text(highFive2);
-  highSelect.append(highOption2);
+  let highFiveTypesLen = highFiveTypes.length;
+  for(let i=0;i< highFiveTypesLen;i++){
+    let option = $('<option>');
+    option.text(highFiveTypes[i]);
+    highSelect.append(option);
+  }
   highSelect.on('change', () => {
     highFiveSelected = highSelect.val();
     Send(HIGHSELECT, highFiveSelected);
   });
+  
   //初めて利用する人にカメラ許可ダイアログを出すためのgetUsrMedia
   let permit = false;
   navigator.mediaDevices.getUserMedia({ audio: true, video: true })
