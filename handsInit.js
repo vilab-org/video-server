@@ -19,7 +19,8 @@ hands.setOptions({
   maxNumHands: 2,
   /*検出するハンドの最大数。デフォルトは2。*/
 
-  modelComplexity: 1,//https://github.com/google/mediapipe/issues/2181#:~:text=model.setOptions(%7B%0A%20%20%20%20%20%20modelComplexity%3A%201%0A%20%20%20%20%7D)%3B
+  modelComplexity: 0,//負荷軽減のために0
+//https://github.com/google/mediapipe/issues/2181#:~:text=model.setOptions(%7B%0A%20%20%20%20%20%20modelComplexity%3A%201%0A%20%20%20%20%7D)%3B
   /*ハンドランドマークモデルの複雑さ。0または1。ランドマーク精度と推論レイテンシは、一般的にモデルの複雑さによって上昇する。デフォルトは1です。 */
 
   minDetectionConfidence: 0.6,

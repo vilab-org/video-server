@@ -24,7 +24,7 @@ class Mathf {
   }
   sqrDist(vec1,vec2){
     let vec = new Vec(vec1.x-vec2.x,vec1.y-vec2.y);
-    return sqrMag(vec);
+    return this.sqrMag(vec);
   }
 }
 

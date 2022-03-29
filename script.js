@@ -34,7 +34,7 @@ $(function () {
     }).catch(function (error) {
       console.error(error);
     });
-  
+
   navigator.mediaDevices.enumerateDevices()
     .then(function (deviceInfos) {
       for (let i = 0; i !== deviceInfos.length; ++i) {

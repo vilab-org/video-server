@@ -1,3 +1,5 @@
+
+
 let aveOthersHands = [
   [0, 0, 0, 0],
   [0, 0, 0, 0]
@@ -16,7 +18,7 @@ function HighFiveInit() {
   otherEffectsMana = new EffectsManager(new Color(255, 0, 255));
   effectInterval = new Timer(0.1);
   effectImg = loadImage('/image/effect.png');
-  clapAudio = loadSound('/audio/Clap01-1.mp3');
+  clapAudio = new Howl({src:'/audio/Clap01-1.mp3'});
 }
 //ハイタッチのメイン関数
 function HighFive() {
@@ -154,7 +156,7 @@ function HybridHighFive(video) {
   let localUpCollisions = UpCollision(leftUp, rightUp, localMarks, size);
   DrawArch(leftUp, rightUp, size, [localUpCollisions[0] ? 150 : 25, localUpCollisions[1] ? 150 : 25]);
   for (let i = 0; i < 2; i++) {
-    if (!localUpCollisions[i]) continue;//どっちかがundefinedならcontinue
+    if (!localUpCollisions[i] || !otherMarks[i]) continue;//どっちかがundefinedならcontinue
     let colDist = SameCollision(localMarks[i], otherMarks[i]);
     if (colDist.col) {
       high5Collision = true;
