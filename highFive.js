@@ -88,7 +88,7 @@ function SameCollision(center1, center2) {
 
   //let distX = center1.pos.x - center2.pos.x;
   //let distY = center1.pos.y - center2.pos.y;
-  let root = mathf.sqrDist(center1.pos,center2.pos);//Math.sqrt((distX * distX) + (distY * distY));
+  let root = mathf.sqrDist(center1.pos, center2.pos);//Math.sqrt((distX * distX) + (distY * distY));
   //距離が小さい円よりあったらfalse
   if (root > minSize * minSize) return colDist;
   colDist.col = true;
@@ -108,7 +108,7 @@ function UpPosHighFive(video) {
   let handsCollision = UpCollision(leftUp, rightUp, localMarks, size);
   let othersCollision = UpCollision(leftUp, rightUp, otherMarks, size);
   //let handsCollision = [collisionPos(leftUp, createVector(mouseX, mouseY)),collisionPos(rightUp, createVector(mouseX, mouseY))];
-  DrawArch([handsCollision[0] ? 200 : 50, handsCollision[1] ? 200 : 50]);
+  DrawArch(leftUp, rightUp, size, [handsCollision[0] ? 200 : 50, handsCollision[1] ? 200 : 50]);
   high5Collision = handsCollision[0] || handsCollision[1];
   //Effect
   if (!effectInterval.isWait) {
@@ -152,8 +152,8 @@ function HybridHighFive(video) {
   let localMarks = getCenterMarks(localVideo, video.minMaxes);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
   let localUpCollisions = UpCollision(leftUp, rightUp, localMarks, size);
-  DrawArch([localUpCollisions[0] ? 150 : 25, localUpCollisions[1] ? 150 : 25]);
-  for(let i = 0; i < 2; i++){
+  DrawArch(leftUp, rightUp, size, [localUpCollisions[0] ? 150 : 25, localUpCollisions[1] ? 150 : 25]);
+  for (let i = 0; i < 2; i++) {
     if (!localUpCollisions[i]) continue;//どっちかがundefinedならcontinue
     let colDist = SameCollision(localMarks[i], otherMarks[i]);
     if (colDist.col) {
