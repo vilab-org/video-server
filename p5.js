@@ -37,7 +37,7 @@ function setupVideo(stream, peer) {
   if (first) {
     let capture = createVideo();
     //Canvas API https://developer.mozilla.org/ja/docs/Web/API/Canvas_API
-    capture.hide();//canvas を使用した動画の操作 (en-US) https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas 
+    //capture.hide();//canvas を使用した動画の操作 (en-US) https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas 
     let videoSize = new Vec(320, 240);
 
     capture.elt.autoplay = true;
@@ -76,8 +76,11 @@ function setupVideo(stream, peer) {
     catchBallInit();
   }
   localVideo.capture.elt.srcObject = stream;
+  localVideo.capture.show();
+  localVideo.capture.hide();
   ResizeAllVideos();
   if (log) console.log("localVideo:", localVideo);
+  console.log(stream.getVideoTracks()[0]);
 }
 
 

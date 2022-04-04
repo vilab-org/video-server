@@ -26,10 +26,10 @@ $(function () {
   });
   
   //初めて利用する人にカメラ許可ダイアログを出すためのgetUsrMedia
-  let permit = false;
+
   navigator.mediaDevices.getUserMedia({ audio: true, video: true })
     .then(function (stream) {
-      permit = true;
+
       return;
     }).catch(function (error) {
       console.error(error);
@@ -124,6 +124,23 @@ $(function () {
         // $('#myStream').get(0).srcObject = stream;
         localStream = stream;
         if (log) console.log("getUserMedia stream:", stream);
+        //取得できたデバイス情報を取得
+        //https://stackoverflow.com/questions/46926479/how-to-get-media-device-ids-that-user-selected-in-request-permission-dialog
+        let tracks = stream.getTracks();
+        let trackLen = tracks.length;
+console.log(stream.getVideoTracks()[0].label);
+        for(let i=0;i<trackLen;i++){
+console.log(tracks[i].kind === 'video');
+          if(tracks[i].kind === 'video'){
+console.log(tracks[i].getSettings().deviceId);
+             $('#videoSource').val(tracks[i].getSettings().deviceId);
+console.log($('#videoSource').val());
+          }
+          if(tracks[i].kind === 'audio') {
+            $('#audioSource').val(tracks[i].getSettings().deviceId);
+          }
+        }
+
         setupVideo(stream, peer);
 
         if (existingroom) {

@@ -157,6 +157,9 @@ function HybridHighFive(video) {
   DrawArch(leftUp, rightUp, size, [localUpCollisions[0] ? 150 : 25, localUpCollisions[1] ? 150 : 25]);
   for (let i = 0; i < 2; i++) {
     if (!localUpCollisions[i] || !otherMarks[i]) continue;//どっちかがundefinedならcontinue
+    //ハイタッチゾーンに手が映っていたら
+    DrawRectC(video, video.minMaxes[i], 1, color(50, 200, 50));
+    DrawRectC(video, aveOthersHands[i], 1, color(200, 50, 50));
     let colDist = SameCollision(localMarks[i], otherMarks[i]);
     if (colDist.col) {
       high5Collision = true;
