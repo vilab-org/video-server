@@ -4,7 +4,7 @@ let localStream = null;
 let room;
 let existingroom = null;
 let isDrawRect = false;
-let highFiveTypes = ['none', 'high five 1', 'high five 2','high five 3'];
+let highFiveTypes = ['機能なし', '自由な位置', '固定の位置','ハイブリッド'];
 let highFiveSelected;
 $(function () {
 
@@ -128,13 +128,9 @@ $(function () {
         //https://stackoverflow.com/questions/46926479/how-to-get-media-device-ids-that-user-selected-in-request-permission-dialog
         let tracks = stream.getTracks();
         let trackLen = tracks.length;
-console.log(stream.getVideoTracks()[0].label);
         for(let i=0;i<trackLen;i++){
-console.log(tracks[i].kind === 'video');
           if(tracks[i].kind === 'video'){
-console.log(tracks[i].getSettings().deviceId);
              $('#videoSource').val(tracks[i].getSettings().deviceId);
-console.log($('#videoSource').val());
           }
           if(tracks[i].kind === 'audio') {
             $('#audioSource').val(tracks[i].getSettings().deviceId);

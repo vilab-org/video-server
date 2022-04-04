@@ -53,13 +53,13 @@ function setupVideo(stream, peer) {
     }
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
-        if(handInterval++ > 0){
+        if (handInterval++ > 0) {
           handInterval = 0;
           await hands.send({//手の映像を送信
             image: capture.elt
           });
         }
-        
+
       },
       width: videoSize.x,
       height: videoSize.y
@@ -99,7 +99,7 @@ function setup() {
     ResizeAllVideos();
   };
   blackimg = loadImage('/image/nekocan.png');
-  handImgs = [loadImage('/image/handLef.png'),loadImage('/image/handRig.png')]
+  handImgs = [loadImage('/image/handLef.png'), loadImage('/image/handRig.png')]
   if (log) console.log('setup');
 }
 
@@ -159,7 +159,7 @@ function draw() {
     }
   }
   if (localVideo) {
-    img(localVideo);
+    img(localVideo, true);
 
     if (isDrawRect) {
       DrawHands(localVideo, localVideo, 1, 1);
@@ -176,7 +176,7 @@ function draw() {
 
 }
 
-function img(cap) {
+function img(cap, isLocalVideo = false) {
   let pos = cap.pos;
   let size = cap.size;
   if (cap.videoEnabled) {
@@ -196,8 +196,8 @@ function img(cap) {
     noStroke();
     rect(pos.x, pos.y, size.x, size.y);
   }
-  cap.videoButton.position(pos.x - cap.videoButton.size().width, pos.y + size.y / 2 - cap.videoButton.size().height);
-  cap.mikeButton.position(pos.x + cap.mikeButton.size().width, pos.y + size.y / 2 - cap.mikeButton.size().height);
+  cap.videoButton.position(pos.x - cap.videoButton.size().width, pos.y + size.y / 2 - (cap.videoButton.size().height * (isLocalVideo?-0.5:1)));
+  cap.mikeButton.position(pos.x + cap.mikeButton.size().width, pos.y + size.y / 2 - (cap.mikeButton.size().height * (isLocalVideo?-0.5:1)));
 }
 
 function DrawHands(inVideo, outVideo, recStroke, connStroke) {
@@ -218,9 +218,9 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
       stroke(255);
       strokeWeight(1);
       let cap = outVideo;
-      let lefRigStr = ['Left','Right'];
-      let displayIndex = (mirror ? 1-leftRight:leftRight);
-      text(lefRigStr[displayIndex]+ ":" + Math.round(inVideo.results.multiHandedness[i].score * 100) + "%", (cap.pos.x - cap.size.x / 2) + (cap.size.x * (mirror?minMaxPos.maxX:minMaxPos.minX)), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos.maxY) + 10);
+      let lefRigStr = ['Left', 'Right'];
+      let displayIndex = (mirror ? 1 - leftRight : leftRight);
+      text(lefRigStr[displayIndex] + ":" + Math.round(inVideo.results.multiHandedness[i].score * 100) + "%", (cap.pos.x - cap.size.x / 2) + (cap.size.x * (mirror ? minMaxPos.maxX : minMaxPos.minX)), (cap.pos.y - cap.size.y / 2) + (cap.size.y * minMaxPos.maxY) + 10);
     }
   }
 }
@@ -322,8 +322,8 @@ function ReceivedMessage(peerID, msg) {
     case HIGHSELECT:
       ReceiveHighFiveSelect(video, msg.data);
       break;
-      case DYNAMICEFFECT:
-        ReceiveDynamicEffect(msg.data);
+    case DYNAMICEFFECT:
+      ReceiveDynamicEffect(msg.data);
       break;
     case CATCHBALL:
       ReceiveStartCatch(video, msg.data);
@@ -402,7 +402,7 @@ function ReceiveHighFiveSelect(video, select) {
   $("#highSelect").val(select);
 }
 
-function ReceiveDynamicEffect(enabled){
+function ReceiveDynamicEffect(enabled) {
   isDynamicEffect = enabled;
   document.getElementById('dynamicEffect').checked = enabled;
 }
@@ -431,7 +431,7 @@ function DrawAndCalcOthers() {
   ];
   let valueChanged = [false, false];
   let othersLen = others.length;
-  let otherHandsNum = [0,0];
+  let otherHandsNum = [0, 0];
   for (let i = 0; i < othersLen; i++) {//他参加者を網羅するfor
     img(others[i]);
     if (isDrawRect) DrawHands(others[i], others[i], 0.7, 0.7);
@@ -477,7 +477,7 @@ function getRightUpPos(video) {
   return createVector(video.pos.x + video.size.x / 2, video.pos.y - video.size.y / 2);
 }
 
-function DrawArch(leftUp, rightUp, size, alphaArray) {
+function DrawArch(leftUp, rightUp, size, alphaArray, isHandEnabled = false) {
   let c = new Color(100, 225, 100);
   stroke(c.r, c.g, c.b, 200);
   //arc(x,y,w,h,start,end,[mode]);x: 中心のx座標,y: 中心のy座標,w: 幅,h: 高さ,start: 描画開始角度,end: 描画終了角度,mode: 描画モード
@@ -486,7 +486,14 @@ function DrawArch(leftUp, rightUp, size, alphaArray) {
   arc(leftUp.x, leftUp.y, size * 2, size * 2, 0, HALF_PI);
   fill(c.r, c.g, c.b, alphaArray[(mirror ? 0 : 1)]);
   arc(rightUp.x, rightUp.y, size * 2, size * 2, HALF_PI, PI);
+  if (isHandEnabled) {
+    tint(c.r, c.g, c.b);
+    image(handImgs[0], leftUp.x + size / 2, leftUp.y + size / 2);
+    image(handImgs[1], rightUp.x - size / 2, rightUp.y + size / 2);
+    tint(255);
+  }
 }
+
 
 function tra(video) {
   let pos = getLeftUpPos(video);
@@ -550,7 +557,7 @@ function getCenterMark(video, minMaxPos) {
 //https://google.github.io/mediapipe/solutions/hands#javascript-solution-api
 function DrawConnectors(video, marks, weight) {
   function LineMarks(a, b) {
-    if(mirror)
+    if (mirror)
       Line(video, 1 - marks[a].x, marks[a].y, 1 - marks[b].x, marks[b].y);
     else
       Line(video, marks[a].x, marks[a].y, marks[b].x, marks[b].y);

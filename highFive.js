@@ -18,7 +18,7 @@ function HighFiveInit() {
   otherEffectsMana = new EffectsManager(new Color(255, 0, 255));
   effectInterval = new Timer(0.1);
   effectImg = loadImage('/image/effect.png');
-  clapAudio = new Howl({src:'/audio/Clap01-1.mp3'});
+  clapAudio = new Howl({ src: '/audio/Clap01-1.mp3' });
 }
 //ハイタッチのメイン関数
 function HighFive() {
@@ -109,9 +109,8 @@ function UpPosHighFive(video) {
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
   let handsCollision = UpCollision(leftUp, rightUp, localMarks, size);
   let othersCollision = UpCollision(leftUp, rightUp, otherMarks, size);
-  //let handsCollision = [collisionPos(leftUp, createVector(mouseX, mouseY)),collisionPos(rightUp, createVector(mouseX, mouseY))];
-  DrawArch(leftUp, rightUp, size, [handsCollision[0] ? 200 : 50, handsCollision[1] ? 200 : 50]);
   high5Collision = handsCollision[0] || handsCollision[1];
+  DrawArch(leftUp, rightUp, size, [handsCollision[0] ? 200 : 50, handsCollision[1] ? 200 : 50], !high5Collision);
   //Effect
   if (!effectInterval.isWait) {
     effectInterval.startTimer();
@@ -154,12 +153,12 @@ function HybridHighFive(video) {
   let localMarks = getCenterMarks(localVideo, video.minMaxes);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
   let localUpCollisions = UpCollision(leftUp, rightUp, localMarks, size);
-  DrawArch(leftUp, rightUp, size, [localUpCollisions[0] ? 150 : 25, localUpCollisions[1] ? 150 : 25]);
+  DrawArch(leftUp, rightUp, size, [localUpCollisions[0] ? 50 : 25, localUpCollisions[1] ? 50 : 25], !(localUpCollisions[0]||localUpCollisions[1]));
   for (let i = 0; i < 2; i++) {
     if (!localUpCollisions[i] || !otherMarks[i]) continue;//どっちかがundefinedならcontinue
     //ハイタッチゾーンに手が映っていたら
-    DrawRectC(video, video.minMaxes[i], 1, color(50, 200, 50));
-    DrawRectC(video, aveOthersHands[i], 1, color(200, 50, 50));
+    DrawRectC(video, video.minMaxes[i], 2, color(50, 200, 50));
+    DrawRectC(video, aveOthersHands[i], 2, color(200, 50, 50));
     let colDist = SameCollision(localMarks[i], otherMarks[i]);
     if (colDist.col) {
       high5Collision = true;
