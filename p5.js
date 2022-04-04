@@ -115,8 +115,8 @@ function addOtherVideo(otherStream) {
   }
   let video = new Video(pos, new Vec(320, 240), otherStream.peerId, capture);
   video.capture.elt.srcObject = otherStream;
-  video.videoButton.size(24, 24);
-  video.mikeButton.size(24, 24);
+  video.videoButton.size(16, 16);
+  video.mikeButton.size(16, 16);
   others.push(video);
   ResizeAllVideos();
   if (log) console.log("addOtherVideo", video);
@@ -196,8 +196,8 @@ function img(cap) {
     noStroke();
     rect(pos.x, pos.y, size.x, size.y);
   }
-  cap.videoButton.position(pos.x - cap.videoButton.size().width, pos.y + size.y / 2 + cap.videoButton.size().height / 2);
-  cap.mikeButton.position(pos.x + cap.mikeButton.size().width, pos.y + size.y / 2 + cap.mikeButton.size().height / 2);
+  cap.videoButton.position(pos.x - cap.videoButton.size().width, pos.y + size.y / 2 - cap.videoButton.size().height);
+  cap.mikeButton.position(pos.x + cap.mikeButton.size().width, pos.y + size.y / 2 - cap.mikeButton.size().height);
 }
 
 function DrawHands(inVideo, outVideo, recStroke, connStroke) {
@@ -268,6 +268,7 @@ function mouseDragged() {
 
 function mouseReleased() {
   mouseDragged();
+  Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
   draggingVideo = null;
 }
 
