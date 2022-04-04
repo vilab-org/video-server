@@ -9,6 +9,7 @@ let draggingVideo = null;
 let hideCapture = null;
 let handResults;
 let blackimg;
+let handImgs;
 let VideONImg = '/image/VideON green.png';
 let VideOFFImg = '/image/VideOFF red.png';
 let MikeONImg = '/image/MikeON green.png';
@@ -98,6 +99,7 @@ function setup() {
     ResizeAllVideos();
   };
   blackimg = loadImage('/image/nekocan.png');
+  handImgs = [loadImage('/image/handLef.png'),loadImage('/image/handRig.png')]
   if (log) console.log('setup');
 }
 
