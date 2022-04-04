@@ -198,7 +198,6 @@ function img(cap) {
   }
   cap.videoButton.position(pos.x - cap.videoButton.size().width, pos.y + size.y / 2 + cap.videoButton.size().height / 2);
   cap.mikeButton.position(pos.x + cap.mikeButton.size().width, pos.y + size.y / 2 + cap.mikeButton.size().height / 2);
-  textVideo(cap.ID, cap);
 }
 
 function DrawHands(inVideo, outVideo, recStroke, connStroke) {
@@ -454,10 +453,6 @@ function DrawAndCalcOthers() {
       aveMinMaxPos[i].minY /= otherHandsNum[i];
       aveMinMaxPos[i].maxX /= otherHandsNum[i];
       aveMinMaxPos[i].maxY /= otherHandsNum[i];
-      if (isDrawRect) {
-        DrawRect(localVideo, aveMinMaxPos[i], 1);
-        DrawCenterMark(localVideo, aveMinMaxPos[i], 2);
-      }
     } else {
       aveMinMaxPos[i] = undefined;
     }
