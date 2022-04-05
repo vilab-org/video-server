@@ -53,22 +53,28 @@ function OnChangeDynamic() {
 //お互いの手の位置でハイタッチできるやつ
 function SamePosHandsHighFive() {
   let localHandsMinMaxes = localVideo.minMaxes;
+  let localHighPoses = [false, false];
+  let aveHighPoses = [false, false];
 
   for (let i = 0; i < 2; i++) {
     if (localHandsMinMaxes[i]) {
-      DrawRectC(localVideo, localHandsMinMaxes[i], 1, color(50, 200, 50));
-      DrawCenterMarkC(localVideo, localHandsMinMaxes[i], 2, color(50, 200, 50));
+      if (localHighPoses[i] = (localHandsMinMaxes[i].minY + localHandsMinMaxes[i].maxY) / 2 <= 0.6ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss) {
+        DrawRectC(localVideo, localHandsMinMaxes[i], 1, color(50, 200, 50));
+        DrawCenterMarkC(localVideo, localHandsMinMaxes[i], 2, color(50, 200, 50));
+      }
     }
     if (aveOthersHands[i]) {
-      DrawRectC(localVideo, aveOthersHands[i], 1, color(200, 50, 50));
-      DrawCenterMarkC(localVideo, aveOthersHands[i], 2, color(255, 0, 0));
+      if (aveHighPoses[i] = (aveOthersHands[i].minY + aveOthersHands[i].maxY) / 2 <= 0.6) {ssssssssssss
+        DrawRectC(localVideo, aveOthersHands[i], 1, color(200, 50, 50));
+        DrawCenterMarkC(localVideo, aveOthersHands[i], 2, color(255, 0, 0));
+      }
     }
   }
 
   let localMarks = getCenterMarks(localVideo, localHandsMinMaxes);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
   for (let i = 0; i < 2; i++) {
-    if (!localMarks[i] || !otherMarks[i]) continue;//どっちかがundefinedならcontinue
+    if (!localMarks[i] || !otherMarks[i] || !localHighPoses[i]) continue;//どっちかがundefinedならcontinue
     let colDist = SameCollision(localMarks[i], otherMarks[i]);
     if (colDist.col) {
       high5Collision = true;
@@ -153,7 +159,7 @@ function HybridHighFive(video) {
   let localMarks = getCenterMarks(localVideo, video.minMaxes);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
   let localUpCollisions = UpCollision(leftUp, rightUp, localMarks, size);
-  DrawArch(leftUp, rightUp, size, [localUpCollisions[0] ? 50 : 25, localUpCollisions[1] ? 50 : 25], !(localUpCollisions[0]||localUpCollisions[1]));
+  DrawArch(leftUp, rightUp, size, [localUpCollisions[0] ? 50 : 25, localUpCollisions[1] ? 50 : 25], !(localUpCollisions[0] || localUpCollisions[1]));
   for (let i = 0; i < 2; i++) {
     if (!localUpCollisions[i] || !otherMarks[i]) continue;//どっちかがundefinedならcontinue
     //ハイタッチゾーンに手が映っていたら
