@@ -268,7 +268,8 @@ function mouseDragged() {
 
 function mouseReleased() {
   mouseDragged();
-  Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
+  if (draggingVideo !== null) 
+    Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
   draggingVideo = null;
 }
 
