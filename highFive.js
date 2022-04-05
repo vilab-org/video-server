@@ -55,16 +55,17 @@ function SamePosHandsHighFive() {
   let localHandsMinMaxes = localVideo.minMaxes;
   let localHighPoses = [false, false];
   let aveHighPoses = [false, false];
+  let lowestLine = 0.6;
 
   for (let i = 0; i < 2; i++) {
     if (localHandsMinMaxes[i]) {
-      if (localHighPoses[i] = (localHandsMinMaxes[i].minY + localHandsMinMaxes[i].maxY) / 2 <= 0.6ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss) {
+      if (localHighPoses[i] = (localHandsMinMaxes[i].minY + localHandsMinMaxes[i].maxY) / 2 <= lowestLine) {
         DrawRectC(localVideo, localHandsMinMaxes[i], 1, color(50, 200, 50));
         DrawCenterMarkC(localVideo, localHandsMinMaxes[i], 2, color(50, 200, 50));
       }
     }
     if (aveOthersHands[i]) {
-      if (aveHighPoses[i] = (aveOthersHands[i].minY + aveOthersHands[i].maxY) / 2 <= 0.6) {ssssssssssss
+      if (aveHighPoses[i] = (aveOthersHands[i].minY + aveOthersHands[i].maxY) / 2 <= lowestLine) {
         DrawRectC(localVideo, aveOthersHands[i], 1, color(200, 50, 50));
         DrawCenterMarkC(localVideo, aveOthersHands[i], 2, color(255, 0, 0));
       }
@@ -74,7 +75,7 @@ function SamePosHandsHighFive() {
   let localMarks = getCenterMarks(localVideo, localHandsMinMaxes);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
   for (let i = 0; i < 2; i++) {
-    if (!localMarks[i] || !otherMarks[i] || !localHighPoses[i]) continue;//どっちかがundefinedならcontinue
+    if (!(localMarks[i] && otherMarks[i] && localHighPoses[i] && aveHighPoses[i])) continue;//どっちかがundefinedならcontinue
     let colDist = SameCollision(localMarks[i], otherMarks[i]);
     if (colDist.col) {
       high5Collision = true;

@@ -417,7 +417,8 @@ function ReceiveStartCatch(video, fromAndTo) {
 }
 
 function ReceiveDrawHands(checked){
-  ChangeDrawRect(checked);
+  isDrawRect = checked;
+  document.getElementById('changeDrawRect').checked = checked;
 }
 
 function textVideo(tex, cap) {
