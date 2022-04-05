@@ -31,6 +31,7 @@ const REGULAR = 'Regular';//定期送信
 const HIGHSELECT = 'High Touch Select';
 const DYNAMICEFFECT = 'Dynamic effect';
 const CATCHBALL = 'Catch Ball';
+const DRAWHANDSDEBUG = 'Draw hands on display';
 const END = 'END';
 
 function setupVideo(stream, peer) {
@@ -196,8 +197,8 @@ function img(cap, isLocalVideo = false) {
     noStroke();
     rect(pos.x, pos.y, size.x, size.y);
   }
-  cap.videoButton.position(pos.x - cap.videoButton.size().width, pos.y + size.y / 2 - (cap.videoButton.size().height * (isLocalVideo?-0.5:1)));
-  cap.mikeButton.position(pos.x + cap.mikeButton.size().width, pos.y + size.y / 2 - (cap.mikeButton.size().height * (isLocalVideo?-0.5:1)));
+  cap.videoButton.position(pos.x - cap.videoButton.size().width, pos.y + size.y / 2 - (cap.videoButton.size().height * (isLocalVideo ? -0.5 : 1)));
+  cap.mikeButton.position(pos.x + cap.mikeButton.size().width, pos.y + size.y / 2 - (cap.mikeButton.size().height * (isLocalVideo ? -0.5 : 1)));
 }
 
 function DrawHands(inVideo, outVideo, recStroke, connStroke) {
@@ -328,6 +329,9 @@ function ReceivedMessage(peerID, msg) {
     case CATCHBALL:
       ReceiveStartCatch(video, msg.data);
       break;
+    case DRAWHANDSDEBUG:
+      ReceiveDrawHands(msg.data);
+      break;
     default:
       console.warn('not format message:');
       console.warn(msg);
@@ -409,6 +413,10 @@ function ReceiveDynamicEffect(enabled) {
 
 function ReceiveStartCatch(video, fromAndTo) {
   receiveBallStatus(fromAndTo);//→ catchBall.js
+}
+
+function ReceiveDrawHands(checked){
+  ChangeDrawRect(checked);
 }
 
 function textVideo(tex, cap) {

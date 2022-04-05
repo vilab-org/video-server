@@ -246,8 +246,9 @@ function ChangeUI() {
   $('#settings').toggle(500, 'swing');
 }
 
-function ChangeDrawRect() {
-  isDrawRect = $('#changeDrawRect').prop('checked');
+function ChangeDrawRect(checked = $('#changeDrawRect').prop('checked')) {
+  isDrawRect = checked;
+  document.getElementById('changeDrawRect').checked = checked;
 }
 
 function ChangeIsCatch() {
