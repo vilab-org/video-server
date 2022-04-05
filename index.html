@@ -3,7 +3,7 @@
 
 <head lang="ja">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>SkyWay Handson skyway videos</title>
+  <title>最っ高にハイなハイタッチ</title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="/image/nekocan.png">
   <!--
@@ -35,21 +35,20 @@
     <input type="checkbox" id="switch1" onchange="ChangeUI()">非/表示</input>
 
     <div id="settings">
-      <p>Your id: <span id="my-id">...</span></p>
       <div class="select">
-        <label for="audioSource">Audio input source: </label><select id="audioSource"></select>
+        <label for="audioSource">マイク: </label><select id="audioSource"></select>
       </div>
       <div class="select">
-        <label for="videoSource">Video source: </label><select id="videoSource"></select>
+        <label for="videoSource">カメラ: </label><select id="videoSource"></select>
       </div>
 
       <form id="make-call">
-        <input type="text" placeholder="Join room..." id="join-room">
-        <button type="submit">Join</button>
+        <input type="text" placeholder="部屋名..." id="join-room">
+        <button type="submit">入室する</button>
       </form>
       <div id="end-call">
-        <p>Currently in room <span id="room-id">...</span></p>
-        <button type="button" onclick="LeaveRoom()">Leave</button>
+        <p>部屋名 <span id="room-id">...</span></p>
+        <button type="button" onclick="LeaveRoom()">退室</button>
       </div>
       <div class="select">
         <label for="for high touch">ハイタッチ</label><select id="highSelect"></select>
@@ -58,6 +57,7 @@
       <input type="checkbox" id="changeDrawRect" onchange="ChangeDrawRect()">手のひら検出表示</input>
       <input type="checkbox" id="dynamicEffect" onchange="OnChangeDynamic()">可変エフェクト量</input>
       <!--<button type="button" onclick="AddDummy()">add dummy</button> -->
+      <p>ID: <span id="my-id">...</span></p>
     </div>
   </div>
 
