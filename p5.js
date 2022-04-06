@@ -232,7 +232,7 @@ function OnVideoEnabled() {
 }
 
 function mousePressed() {
-
+  if(localVideo === null) return;
   if (collide(mouseX, mouseY, localVideo)) {
     if (mouseButton === LEFT) {
       draggingVideo = localVideo;
@@ -275,6 +275,7 @@ function mouseReleased() {
 }
 
 function ResizeAllVideos() {
+  if(localVideo === null) return;
   let i = 1;//自身の1
   for (; i * i <= others.length + dummys.length; i++);
   let size = getSize(localVideo, i);
