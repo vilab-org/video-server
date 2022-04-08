@@ -232,7 +232,7 @@ function OnVideoEnabled() {
 }
 
 function mousePressed() {
-  if(localVideo === null) return;
+  if (localVideo === null) return;
   if (collide(mouseX, mouseY, localVideo)) {
     if (mouseButton === LEFT) {
       draggingVideo = localVideo;
@@ -269,13 +269,13 @@ function mouseDragged() {
 
 function mouseReleased() {
   mouseDragged();
-  if (draggingVideo !== null) 
+  if (draggingVideo !== null)
     Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
   draggingVideo = null;
 }
 
 function ResizeAllVideos() {
-  if(localVideo === null) return;
+  if (localVideo === null) return;
   let i = 1;//自身の1
   for (; i * i <= others.length + dummys.length; i++);
   let size = getSize(localVideo, i);
@@ -288,10 +288,17 @@ function ResizeAllVideos() {
   }
 
   function getSize(video, num) {
-    let ratio = video.size.x / video.size.y;
-    let x = (windowWidth * 0.5) / num;
-    let y = x / ratio;
-    return new Vec(x, y);
+    if (windowWidth > windowHeight) {
+      let ratio = video.size.x / video.size.y;
+      let x = (windowWidth * 0.5) / num;
+      let y = x / ratio;
+      return new Vec(x, y);
+    } else {
+      let ratio = video.size.y / video.size.x;
+      let y = (windowHeight * 0.5) / num;
+      let x = y / ratio;
+      return new Vec(x, y);
+    }
   }
 }
 
@@ -417,7 +424,7 @@ function ReceiveStartCatch(video, fromAndTo) {
   receiveBallStatus(fromAndTo);//→ catchBall.js
 }
 
-function ReceiveDrawHands(checked){
+function ReceiveDrawHands(checked) {
   isDrawRect = checked;
   document.getElementById('changeDrawRect').checked = checked;
 }
