@@ -32,6 +32,7 @@ const HIGHSELECT = 'High Touch Select';
 const DYNAMICEFFECT = 'Dynamic effect';
 const CATCHBALL = 'Catch Ball';
 const DRAWHANDSDEBUG = 'Draw hands on display';
+const START = 'Start';
 const END = 'END';
 
 function setupVideo(stream, peer) {
@@ -365,6 +366,14 @@ function ResizeVideo(cap, size) {
 function SetMike(video, is) {
   video.capture.elt.muted = !is;//othersだけを対象にミュート変更したいのでここで記述
   video.changeMikeImg(is);
+}
+
+function getVideoInst(ID) {
+  if (ID === localVideo.ID) {
+    return localVideo;
+  }
+  let index = SearchOthers(fromAndTo.from);
+  return (index === -1 ? undefined : others[index]);
 }
 
 function SearchOthers(peerId) {
