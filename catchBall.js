@@ -159,7 +159,7 @@ class BallManager {
     }, () => {
       this.mode = TRACKING;
       Send(CATCHBALL, CATCH);
-      ballManager.finish();
+      this.finish();
     });
     this.selectTarget();
     this.host = true;
