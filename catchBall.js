@@ -37,6 +37,7 @@ function receiveBallStatus(fromAndTarget) {
       ballManager.setMode(fromAndTarget);
       return;
     case CATCH:
+      ballManager.setMode(TRACKING);
       if(ballManager.host){
         ballManager.selectTarget();
       }
@@ -115,7 +116,11 @@ class Ball extends Obj {
         this.amt += 1 / getFrameRate() / 3;//3秒で到達
         if (this.amt >= 1) {
           if (this.target.ID === localVideo.ID) {
+            this.mode = TRACKING;
             Send(CATCHBALL, CATCH);
+            if(ballManager.host){
+              ballManager.finish();
+            }
           }
         }
         break;
@@ -164,11 +169,6 @@ class BallManager {
       this.member.splice(index, 1);
     } else if (this.ball.target !== localVideo) {//もう渡ってない人がいない
       next = localVideo;//ラスト自分
-    } else {//ラストの目標が自分なら1周巡ったことになる
-      this.endFunc();
-      Send(CATCHBALL, END);
-      this.host = false;
-      return;//キャッチボール終了
     }
     this.setTarget(next);
     let msg = { from: this.ball.from.ID, target: this.ball.target.ID };
@@ -180,5 +180,10 @@ class BallManager {
   }
   setMode(mode) {
     this.ball.mode = mode;
+  }
+  finish() {
+    this.endFunc();
+    Send(CATCHBALL, END);
+    this.host = false;
   }
 }
