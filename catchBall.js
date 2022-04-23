@@ -78,14 +78,19 @@ function receiveBallStatus(fromAndTarget) {
       return;
     case CATCH:
       ballManager.setMode(TRACKING);
-      if (ballManager.host) {
+      if (ballManager.isHost) {
         ballManager.selectTarget();
       }
       return;
 
   }
   let target = getVideoInst(fromAndTarget.target);
-
+  let count = 0;
+  while(!target){
+    target = getVideoInst(fromAndTarget.target);
+    count++;
+    if(count >= 10) return;
+  }
   if (isCatchBall) {//2回目以降
     ballManager.setTarget(target);
   } else {//初回はfromの設定が必要
