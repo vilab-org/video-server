@@ -372,7 +372,7 @@ function getVideoInst(ID) {
   if (ID === localVideo.ID) {
     return localVideo;
   }
-  let index = SearchOthers(fromAndTo.from);
+  let index = SearchOthers(ID);
   return (index === -1 ? undefined : others[index]);
 }
 
@@ -380,7 +380,7 @@ function SearchOthers(peerId) {
   for (let i = 0; i < others.length; i++) {
     if (others[i].ID === peerId) return i;
   }
-  console.warn('not found:' + peerId);
+  //console.warn('not found:' + peerId);
   return -1;
 }
 

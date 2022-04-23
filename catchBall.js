@@ -32,6 +32,10 @@ function receiveBallStatus(fromAndTarget) {
     catchEnd();
     return;
   }
+  if (fromAndTarget === THROWING) {
+    ballManager.setMode(fromAndTarget);
+    return;
+  }
   let target = getVideoInst(fromAndTarget.target);
 
   if (isCatchBall) {//2回目以降
@@ -39,7 +43,7 @@ function receiveBallStatus(fromAndTarget) {
   } else {//初回はfromの設定が必要
     isCatchBall = true;
     ballManager.host = false;
-    let from = getVideoInst(fromandTarget.from);
+    let from = getVideoInst(fromAndTarget.from);
     
     ballManager.ball = new Ball(from.pos.copy(), from, () => {
       if (ballManager.ball.from.ID === localVideo.ID) {
@@ -55,9 +59,9 @@ class Ball extends Obj {
     super(pos, 50);
     this.target = target;//目標
     this.throwFunc = throwFunc;
-    this.mode = '';//ボールが動くモード
+    this.mode = TRACKING;//ボールが動くモード
     this.from = target;//出発
-    this.fromPos;
+    this.fromPos = createVector();
     this.rotate = 0;
     this.amt = 0;//線形補間の割合
   }
@@ -75,7 +79,7 @@ class Ball extends Obj {
     rotate(this.rotate);
     image(ballImg, 0, 0, this.size, this.size);
     pop();
-    switch (mode) {
+    switch (this.mode) {
       case TRACKING:
         let minMaxes = from.minMaxes;
         let handsPos = undefined;
@@ -86,8 +90,9 @@ class Ball extends Obj {
           }
         }
         if (handsPos) {
+          this.fromPos.x = this.pos.x;
+          this.fromPos.y = this.pos.y;
           if (handsPos.y < 0.3) {//投げた判定
-            this.fromPos = this.pos.copy();
             this.throwFunc();
           } else {
             let leftUp = getLeftUpPos(from);
@@ -98,14 +103,14 @@ class Ball extends Obj {
         break;
       case THROWING:
         this.rotate = (1 / getFrameRate()) % TWO_PI;
-        this.pos = move();
+        this.pos = this.move();
         this.amt += 1 / getFrameRate() / 3;//3秒で到達
         break;
       default: break;
     }
-    function move() {
-      return p5.Vector.lerp(this.fromPos, this.target.pos, this.amt);
-    }
+  }
+  move() {
+    return p5.Vector.lerp(this.fromPos, this.target.pos, this.amt);
   }
   setTarget(target) {
     this.amt = 0;
@@ -127,11 +132,11 @@ class BallManager {
     //https://qiita.com/takahiro_itazuri/items/882d019f1d8215d1cb67#comment-1b338078985aea9f600a
     this.member = [...others];
     this.ball = new Ball(localVideo.pos.copy(), localVideo, () => {
+      Send(CATCHBALL, THROWING);
       this.selectTarget();
     });
     this.selectTarget();
     this.host = true;
-    this.ballHost = true;
   }
   update() {
     let ball = this.ball;
@@ -152,12 +157,15 @@ class BallManager {
       this.host = false;
       return;//キャッチボール終了
     }
-    setTarget(next);
+    this.setTarget(next);
     let msg = { from: this.ball.from.ID, target: this.ball.target.ID };
     if (log) console.log(msg);
     Send(CATCHBALL, msg);
   }
   setTarget(next) {
     this.ball.setTarget(next);
+  }
+  setMode(mode){
+    this.ball.mode = mode;
   }
 }
