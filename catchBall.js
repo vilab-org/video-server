@@ -124,7 +124,7 @@ class Ball extends Obj {
         if (this.amt >= 1) {
           this.amt = 1;
           if (this.target.ID === localVideo.ID) {
-            throwedFunc();
+            this.throwedFunc();
           }
         }
         break;
@@ -170,23 +170,11 @@ class BallManager {
   }
   //次の目標人物設定
   selectTarget() {
-    let next = getNext();
+    let next = this.getNext();
     this.setTarget(next);
     let msg = { from: this.ball.from.ID, target: this.ball.target.ID };
     if (log) console.log(msg);
     Send(CATCHBALL, msg);
-
-    function getNext() {
-      let next;
-      if (this.member.length > 0) {
-        let index = randomInt(this.member.length);
-        next = this.member[index];
-        this.member.splice(index, 1);
-      } else if (this.ball.target !== localVideo) {//もう渡ってない人がいない
-        next = localVideo;//ラスト自分
-      }
-      return next;
-    }
   }
   setTarget(next) {
     this.ball.setTarget(next);
@@ -199,4 +187,16 @@ class BallManager {
     Send(CATCHBALL, END);
     this.host = false;
   }
+  getNext() {
+    let next;
+    if (this.member.length > 0) {
+      let index = randomInt(this.member.length);
+      next = this.member[index];
+      this.member.splice(index, 1);
+    } else {//もう渡ってない人がいない
+      next = localVideo;//ラスト自分
+    }
+    return next;
+  }
 }
+
