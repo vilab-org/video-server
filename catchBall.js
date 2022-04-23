@@ -59,7 +59,7 @@ function receiveBallStatus(fromAndTarget) {
         ballManager.setMode(THROWING);
       }
     }, () => {
-      this.mode = TRACKING;
+      ballManager.setMode(TRACKING);
       Send(CATCHBALL, CATCH);
     });
     ballManager.setTarget(target);
@@ -157,7 +157,7 @@ class BallManager {
       Send(CATCHBALL, THROWING);
       this.setMode(THROWING);
     }, () => {
-      this.mode = TRACKING;
+      this.setMode(TRACKING);
       Send(CATCHBALL, CATCH);
       this.finish();
     });
