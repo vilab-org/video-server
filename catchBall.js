@@ -3,7 +3,7 @@ let ballManager;
 let ballImg;
 const TRACKING = 'tracking';
 const THROWING = 'throwing';
-const BALLHOST = 'has ball host';
+const CATCH = 'catch';
 
 function catchBallInit() {
   ballManager = new BallManager(() => {
@@ -28,13 +28,20 @@ function catchEnd() {
 }
 
 function receiveBallStatus(fromAndTarget) {
-  if (fromAndTarget === END) {
-    catchEnd();
-    return;
-  }
-  if (fromAndTarget === THROWING) {
-    ballManager.setMode(fromAndTarget);
-    return;
+  switch (fromAndTarget) {
+    case END:
+      catchEnd();
+      return;
+
+    case THROWING:
+      ballManager.setMode(fromAndTarget);
+      return;
+    case CATCH:
+      if(ballManager.host){
+        ballManager.selectTarget();
+      }
+      return;
+
   }
   let target = getVideoInst(fromAndTarget.target);
 
@@ -44,10 +51,11 @@ function receiveBallStatus(fromAndTarget) {
     isCatchBall = true;
     ballManager.host = false;
     let from = getVideoInst(fromAndTarget.from);
-    
+
     ballManager.ball = new Ball(from.pos.copy(), from, () => {
       if (ballManager.ball.from.ID === localVideo.ID) {
         Send(CATCHBALL, THROWING);
+        ballManager.setMode(THROWING);
       }
     });
     ballManager.setTarget(target);
@@ -105,6 +113,11 @@ class Ball extends Obj {
         this.rotate = (1 / getFrameRate()) % TWO_PI;
         this.pos = this.move();
         this.amt += 1 / getFrameRate() / 3;//3秒で到達
+        if (this.amt >= 1) {
+          if (this.target.ID === localVideo.ID) {
+            Send(CATCHBALL, CATCH);
+          }
+        }
         break;
       default: break;
     }
@@ -133,7 +146,7 @@ class BallManager {
     this.member = [...others];
     this.ball = new Ball(localVideo.pos.copy(), localVideo, () => {
       Send(CATCHBALL, THROWING);
-      this.selectTarget();
+      this.setMode(THROWING);
     });
     this.selectTarget();
     this.host = true;
@@ -165,7 +178,7 @@ class BallManager {
   setTarget(next) {
     this.ball.setTarget(next);
   }
-  setMode(mode){
+  setMode(mode) {
     this.ball.mode = mode;
   }
 }
