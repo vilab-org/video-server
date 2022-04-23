@@ -110,7 +110,7 @@ class Ball extends Obj {
         }
         break;
       case THROWING:
-        this.rotate = (1 / getFrameRate()) % TWO_PI;
+        this.rotate += (1 / getFrameRate());
         this.pos = this.move();
         this.amt += 1 / getFrameRate() / 3;//3秒で到達
         if (this.amt >= 1) {
