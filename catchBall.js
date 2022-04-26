@@ -36,6 +36,11 @@ function catchBallUpdate() {
     strokeWeight(3);
     line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
   }
+  let hitVideo = getCollVideo(lineP);
+  stroke(0, 255, 0, 255);
+  strokeWeight(5);
+  noFill();
+  rect(hitVideo.pos.x, hitVideo.pos.y, hitVideo.size.x, hitVideo.size.y);
 }
 /**
  * キャッチボール終了
@@ -112,33 +117,47 @@ function getPointingLine(video) {
   return { start: startP, end: createVector(x, y), a: a };
 }
 
-
-function collLineVideo(video, line) {
-
-  //当たり判定の計算
-  ////https://n-trino.hatenadiary.org/entry/20060830/p1
-  function collLineLine(a1, a2, b1, b2) {
-    let base = new Vec(b2.x - b1.x, b2.y - b1.y);
-    let sub1 = new Vec(a1.x - b1.x, a1.y - b1.y);
-    let sub2 = new Vec(a2.x - b1.x, a2.y - b1.y);
-    let bs1 = base.x * sub1.y - base.y * sub1.x;
-    let bs2 = base.x * sub2.y - base.y * sub2.x;
-    if (bs1 * bs2 > 0) {
-      return false;
+function getCollVideo(line){
+  for(let i = 0; i < others.length; i++){
+    if(collLineVideo(others[i], line)) return others[i];
+  }
+  function collLineVideo(video, line) {
+    let leftUp = video.leftUpPos;
+    let rightBottom = new Vec(leftUp.x + video.size.x, leftUp.y + video.size.y);
+    return collLineLine(leftUp, rightBottom, line.start, line.end) ||
+      collLineLine(new Vec(leftUp.x,rightBottom.y), new Vec(rightBottom.x,leftUp.y), line.start, line.end);
+  
+    //当たり判定の計算
+    ////https://n-trino.hatenadiary.org/entry/20060830/p1
+    /**
+     * 
+     * @param {vec} a1 
+     * @param {vec} a2 
+     * @param {vec} b1 
+     * @param {vec} b2 
+     */
+    function collLineLine(a1, a2, b1, b2) {
+      let base = new Vec(b2.x - b1.x, b2.y - b1.y);
+      let sub1 = new Vec(a1.x - b1.x, a1.y - b1.y);
+      let sub2 = new Vec(a2.x - b1.x, a2.y - b1.y);
+      let bs1 = base.x * sub1.y - base.y * sub1.x;
+      let bs2 = base.x * sub2.y - base.y * sub2.x;
+      if (bs1 * bs2 > 0) {
+        return false;
+      }
+  
+      base = new Vec(a2.x - a1.x, a2.y - a1.y);
+      sub1 = new Vec(b1.x - a1.x, b1.y - a1.y);
+      sub2 = new Vec(b2.x - a1.x, b2.y - a1.y);
+      bs1 = base.x * sub1.y - base.y * sub1.x;
+      bs2 = base.x * sub2.y - base.y * sub2.x;
+      if (bs1 * bs2) {
+        return false;
+      }
+      return true;
     }
-
-    base = new Vec(a2.x - a1.x, a2.y - a1.y);
-    sub1 = new Vec(b1.x - a1.x, b1.y - a1.y);
-    sub2 = new Vec(b2.x - a1.x, b2.y - a1.y);
-    bs1 = base.x * sub1.y - base.y * sub1.x;
-    bs2 = base.x * sub2.y - base.y * sub2.x;
-    if (bs1 * bs2) {
-      return false;
-    }
-    return true;
   }
 }
-
 
 /**
  * キャッチボールに関する受信データの振り分け関数
