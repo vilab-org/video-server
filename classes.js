@@ -89,6 +89,7 @@ class Video extends Obj {
     this.minMaxes = [undefined, undefined];
     this.results = undefined;
     this.highFive = [false, false];
+    this.leftUpPos;
     this.ping = 1;
 
     this.videoButton = createImg(VideOFFImg);
@@ -138,6 +139,7 @@ class Video extends Obj {
   }
   setResults(results) {
     this.results = results;
+    this.leftUpPos = createVector(this.pos.x - this.size.x / 2, this.pos.y - this.size.y / 2);
     this.minMaxes = getHandsMinMax();
 
     function minMax(marks) {

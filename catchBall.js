@@ -103,7 +103,7 @@ function getPointingLine(video) {
   }
   startP.x *= video.size.x;
   startP.y *= video.size.y;
-  startP.add(getLeftUpPos(video));
+  startP.add(video.leftUpPos);
   let a = dire.y / dire.x;
   let b = -a * startP.x + startP.y;
   if (a === 0) return;
@@ -253,7 +253,7 @@ class BallManager {
           }
         }
         if (handsPos) {
-          let leftUp = getLeftUpPos(from);
+          let leftUp = from.leftUpPos;
           let x = leftUp.x + handsPos.x * from.size.x;
           let y = leftUp.y + handsPos.y * from.size.y;
           ball.setPos(x, y);

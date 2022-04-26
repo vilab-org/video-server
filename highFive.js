@@ -110,7 +110,7 @@ function UpPosHighFive(video) {
   let handsMinMax = video.minMaxes;
   let size = video.size.y / 2;
 
-  let leftUp = getLeftUpPos(video);
+  let leftUp = video.leftUpPos;
   let rightUp = getRightUpPos(video);
   let localMarks = getCenterMarks(localVideo, handsMinMax);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
@@ -155,7 +155,7 @@ function UpCollision(leftUp, rightUp, marks, dist) {
 /*3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333*/
 function HybridHighFive(video) {
   let size = video.size.y / 2;
-  let leftUp = getLeftUpPos(video);
+  let leftUp = video.leftUpPos;
   let rightUp = getRightUpPos(video);
   let localMarks = getCenterMarks(localVideo, video.minMaxes);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);

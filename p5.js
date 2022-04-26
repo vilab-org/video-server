@@ -498,11 +498,6 @@ function getIndexLR(handedness) {
   else return -1;
 }
 
-//映像の左上を取得
-function getLeftUpPos(video) {
-  return createVector(video.pos.x - video.size.x / 2, video.pos.y - video.size.y / 2);
-}
-
 function getRightUpPos(video) {
   return createVector(video.pos.x + video.size.x / 2, video.pos.y - video.size.y / 2);
 }
@@ -526,7 +521,7 @@ function DrawArch(leftUp, rightUp, size, alphaArray, isHandEnabled = false) {
 
 
 function tra(video) {
-  let pos = getLeftUpPos(video);
+  let pos = video.leftUpPos;
   translate(pos.x, pos.y);
 }
 
@@ -577,8 +572,7 @@ function getCenterMark(video, minMaxPos) {
     size = max(minMaxPos.maxX - minMaxPos.minX, minMaxPos.maxY - minMaxPos.minY) * 0.3 * max(video.size.x, video.size.y);
   else
     size = min(minMaxPos.maxX - minMaxPos.minX, minMaxPos.maxY - minMaxPos.minY) * 0.3 * max(video.size.x, video.size.y);
-  let lu = getLeftUpPos(video);
-  let pos = createVector(lu.x + ((minMaxPos.minX + minMaxPos.maxX) * 0.5) * video.size.x, lu.y + ((minMaxPos.minY + minMaxPos.maxY) * 0.5) * video.size.y);
+  let pos = createVector(video.leftUpPos.x + ((minMaxPos.minX + minMaxPos.maxX) * 0.5) * video.size.x, video.leftUpPos.y + ((minMaxPos.minY + minMaxPos.maxY) * 0.5) * video.size.y);
 
   return new Obj(pos, createVector(size, size));
 }
