@@ -29,6 +29,7 @@ function catchStart() {
 function catchBallUpdate() {
   if (isCatchBall) {
     ballManager.update();
+    handPointing(localVideo);
   }
 }
 /**
@@ -77,6 +78,27 @@ function ballArrived(isHost = false) {
 function ballMovePos(fromPos, targetPos, amt) {
   return p5.Vector.lerp(fromPos, targetPos, amt);
 }
+
+/**
+ * 
+ * @param {video} video 
+ */
+function handPointing(video) {
+  let multiHandLandmarks = video.results.multiHandLandmarks[0];
+  let pointing = createVector(multiHandLandmarks[8].x - multiHandLandmarks[5].x, multiHandLandmarks[8].y - multiHandLandmarks[5].y);
+  pointing.add(getLeftUpPos(video));
+  pointing.x *= video.size.x;
+  pointing.y *= video.size.y;
+  let a = pointing.y / pointing.x;
+  let b = -a * pointing.x + pointing.y;
+  if (a === 0) return;
+  let y = (a > 0 ? height : 0);
+  let x = (y - b) / a;
+  stroke(255);
+  strokeWeight(2);
+  line(pointing.x, pointing.y, x, y);
+}
+
 /**
  * キャッチボールに関する受信データの振り分け関数
  * @param {*} ModeAndFromAndTarget モードかボールの送信,受信相手
