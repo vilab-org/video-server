@@ -29,8 +29,8 @@ function catchStart() {
 function catchBallUpdate() {
   if (isCatchBall) {
     ballManager.update();
-    handPointing(localVideo);
   }
+  handPointing(localVideo);
 }
 /**
  * キャッチボール終了
@@ -84,19 +84,25 @@ function ballMovePos(fromPos, targetPos, amt) {
  * @param {video} video 
  */
 function handPointing(video) {
+  if(video.results.multiHandLandmarks.length === 0) return;
   let multiHandLandmarks = video.results.multiHandLandmarks[0];
-  let pointing = createVector(multiHandLandmarks[8].x - multiHandLandmarks[5].x, multiHandLandmarks[8].y - multiHandLandmarks[5].y);
-  pointing.add(getLeftUpPos(video));
-  pointing.x *= video.size.x;
-  pointing.y *= video.size.y;
-  let a = pointing.y / pointing.x;
-  let b = -a * pointing.x + pointing.y;
+  let startP = createVector(multiHandLandmarks[8].x, multiHandLandmarks[8].y);
+  let dire  = startP.copy().sub(multiHandLandmarks[5].x, multiHandLandmarks[5].y);
+  if(mirror) {
+    startP.x = 1 - startP.x;
+    dire.x *= -1;
+  }
+  startP.x *= video.size.x;
+  startP.y *= video.size.y;
+  startP.add(getLeftUpPos(video));
+  let a = dire.y / dire.x;
+  let b = -a * startP.x + startP.y;
   if (a === 0) return;
-  let y = (a > 0 ? height : 0);
+  let y = (a*dire.x > 0 ? height : 0);
   let x = (y - b) / a;
   stroke(255);
   strokeWeight(2);
-  line(pointing.x, pointing.y, x, y);
+  line(startP.x, startP.y, x, y);
 }
 
 /**

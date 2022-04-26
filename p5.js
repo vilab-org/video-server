@@ -145,7 +145,10 @@ function draw() {
     //Send(REGULAR, new ReceiveMessage(Date.now()));
   }
   if (localVideo === null) return;
-
+  if(!localVideo.results){
+    text(width/2,height/2,'system loading');
+    return;
+  }
   if (!dragTimer.isWait) {
     dragTimer.startTimer();
 
