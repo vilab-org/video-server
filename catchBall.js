@@ -3,111 +3,128 @@ let ballManager;
 let ballImg;
 const TRACKING = 'tracking';
 const THROWING = 'throwing';
+const NEXTUSER = 'nextuser';
 const SELECT = 'select';
 const CATCH = 'catch';
-
+const USERSELECT_RANDOM = 'user select random';
+/**
+ * キャッチボールのsetup
+ */
 function catchBallInit() {
   ballManager = new BallManager(() => {
     catchEnd();
   });
   ballImg = loadImage('/image/ball.png');
 }
-
+/**
+ * キャッチボールスタート
+ */
 function catchStart() {
   isCatchBall = true;
   ballManager.start();
 }
-
+/**
+ * キャッチボール機能の更新
+ */
 function catchBallUpdate() {
   if (isCatchBall) {
     ballManager.update();
   }
 }
-
+/**
+ * キャッチボール終了
+ */
 function catchEnd() {
   isCatchBall = false;
 }
-
+/**
+ * ボールを投げた判定
+ * @param {video} video 
+ * @param {vec} handsPos 
+ * @returns 投げた判定
+ */
 function getThrowJudge(video, handsPos) {
   return handsPos && handsPos.y < 0.3;
 }
-
-function ballThrowed(host = false) {
+/**
+ * ボールを投げたときに呼ばれる関数
+ * @param {boolean} isHost キャッチボールのホスト
+ */
+function ballThrowed(isHost = false) {
   if (ballManager.ball.from.ID === localVideo.ID) {
-    Send(CATCHBALL, THROWING);
+    Send(CATCHBALL, { mode: THROWING });
     ballManager.setMode(THROWING);
   }
-  // if(host){
-  //   Send(CATCHBALL, THROWING);
-  //   ballManager.setMode(THROWING);
-  // }else{
-  //   if (ballManager.ball.from.ID === localVideo.ID) {
-  //     Send(CATCHBALL, THROWING);
-  //     ballManager.setMode(THROWING);
-  //   }
-  // }
 }
-
-function ballArrived(host = false) {
+/**
+ * ボールが届いたときに呼ばれる関数
+ * @param {boolean} isHost キャッチボールのホスト
+ */
+function ballArrived(isHost = false) {
   ballManager.setMode(TRACKING);
-  Send(CATCHBALL, CATCH);
-  if (host) {
+  Send(CATCHBALL, { mode: CATCH });
+  if (isHost) {
     ballManager.finish();
   }
-  // if (host) {
-  //   ballManager.setMode(TRACKING);
-  //   Send(CATCHBALL, CATCH);
-  //   ballManager.finish();
-  // } else {
-  //   ballManager.setMode(TRACKING);
-  //   Send(CATCHBALL, CATCH);
-  // }
 }
+/**
+ * ボールの動き方
+ * @param {PVector} fromPos 
+ * @param {PVector} targetPos 
+ * @param {float} amt 
+ * @returns {PVector}
+ */
 function ballMovePos(fromPos, targetPos, amt) {
   return p5.Vector.lerp(fromPos, targetPos, amt);
 }
-
-function receiveBallStatus(fromAndTarget) {
-  switch (fromAndTarget) {
+/**
+ * キャッチボールに関する受信データの振り分け関数
+ * @param {*} ModeAndFromAndTarget モードかボールの送信,受信相手
+ */
+function receiveBallStatus(ModeAndFromAndTarget) {
+  switch (ModeAndFromAndTarget.mode) {
     case END:
       catchEnd();
       return;
 
     case THROWING:
-      ballManager.setMode(fromAndTarget);
+      ballManager.setMode(ModeAndFromAndTarget.mode);
       return;
+
     case CATCH:
       ballManager.setMode(TRACKING);
-      if (ballManager.isHost) {
+      if (ballManager.isYouserHost) {
         ballManager.selectTarget();
       }
       return;
 
-  }
-  let target = getVideoInst(fromAndTarget.target);
-  let count = 0;
-  while(!target){
-    target = getVideoInst(fromAndTarget.target);
-    count++;
-    if(count >= 10) return;
-  }
-  if (isCatchBall) {//2回目以降
-    ballManager.setTarget(target);
-  } else {//初回はfromの設定が必要
-    isCatchBall = true;
-    ballManager.host = false;
-    let from = getVideoInst(fromAndTarget.from);
+    case NEXTUSER:
+      let target = getVideoInst(ModeAndFromAndTarget.target);
+      let count = 0;
+      while (!target) {
+        target = getVideoInst(ModeAndFromAndTarget.target);
+        count++;
+        if (count >= 10) return;
+      }
+      if (isCatchBall) {//2回目以降
+        ballManager.setTarget(target);
+      } else {//初回はfromの設定が必要
+        isCatchBall = true;
+        ballManager.isYouserHost = false;
+        let from = getVideoInst(ModeAndFromAndTarget.from);
 
-    ballManager.ball = new Ball(from.pos.copy(), from, false);
-    ballManager.setTarget(target);
+        ballManager.ball = new Ball(from.pos.copy(), from, false);
+        ballManager.setTarget(target);
+      }
+      return;
   }
 }
 
 class Ball extends Obj {
-  constructor(pos, target, isHost) {
+  constructor(pos, target, isYouserHost) {
     super(pos, 50);
     this.target = target;//目標
-    this.isHost = isHost;
+    this.isYouserHost = isYouserHost;
     this.from = target;//出発
     this.fromPos = createVector();
     this.rotate = 0;
@@ -147,7 +164,7 @@ class BallManager {
     this.member;//参加者
     this.ball;//動かすの
     this.endFunc = endFunc;//終了時の処理
-    this.isHost = false;
+    this.isYouserHost = false;
     this.mode = TRACKING;//ボールが動くモード
   }
   start() {
@@ -156,7 +173,7 @@ class BallManager {
     this.member = [...others];
     this.ball = new Ball(localVideo.pos.copy(), localVideo, true);
     this.selectTarget();
-    this.isHost = true;
+    this.isYouserHost = true;
   }
   update() {
     let ball = this.ball;
@@ -180,11 +197,11 @@ class BallManager {
           ball.fromPos.x = x;
           ball.fromPos.y = y;
           if (getThrowJudge(from, handsPos)) {//投げた判定
-            ballThrowed(this.isHost);
+            ballThrowed(this.isYouserHost);
           }
         }
-
         break;
+
       case THROWING:
         ball.rotate += (1 / getFrameRate()) * ball.speedR;
         ball.setPosVec(ballMovePos(ball.fromPos, ball.target.pos, ball.amt));
@@ -192,18 +209,20 @@ class BallManager {
         if (ball.amt >= 1) {
           ball.amt = 1;
           if (ball.target.ID === localVideo.ID) {
-            ballArrived(this.isHost);
+            ballArrived(this.isYouserHost);
           }
         }
         break;
       default: break;
     }
   }
-  //次の目標人物設定
+  /**
+   * 次の目標人物設定
+   */
   selectTarget() {
     let next = this.getNext();
     this.setTarget(next);
-    let msg = { from: this.ball.from.ID, target: this.ball.target.ID };
+    let msg = { from: this.ball.from.ID, target: this.ball.target.ID, mode: NEXTUSER };
     if (log) console.log(msg);
     Send(CATCHBALL, msg);
   }
@@ -215,9 +234,13 @@ class BallManager {
   }
   finish() {
     this.endFunc();
-    Send(CATCHBALL, END);
-    this.isHost = false;
+    Send(CATCHBALL, { mode: END });
+    this.isYouserHost = false;
   }
+  /**
+   * USERSELECT_RANDOMの時、ホストが呼ばれる関数
+   * @returns 次のユーザのビデオクラス
+   */
   getNext() {
     let next;
     if (this.member.length > 0) {
