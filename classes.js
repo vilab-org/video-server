@@ -139,7 +139,6 @@ class Video extends Obj {
   }
   setResults(results) {
     this.results = results;
-    this.leftUpPos = createVector(this.pos.x - this.size.x / 2, this.pos.y - this.size.y / 2);
     this.minMaxes = getHandsMinMax();
 
     function minMax(marks) {

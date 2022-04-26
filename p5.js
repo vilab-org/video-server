@@ -153,13 +153,12 @@ function draw() {
     dragTimer.startTimer();
 
     if (draggingVideo !== null) {
-      Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
+      sendVideoPos();
     }
     if (localVideo.results) {
       //(今回手を認識している || 前回手を認識している)
       if (localVideo.results.multiHandLandmarks.length > 0 || (handResults && handResults.multiHandLandmarks.length > 0)) {
         Send(HANDRESULT, localVideo.results);
-        handResults = localVideo.results;
       }
     }
   }
@@ -273,11 +272,16 @@ function mouseDragged() {
 
 function mouseReleased() {
   mouseDragged();
-  if (draggingVideo !== null)
-    Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
+  if (draggingVideo !== null){
+    sendVideoPos();
+  }
+    
   draggingVideo = null;
 }
 
+function sendVideoPos(){
+  Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
+}
 function ResizeAllVideos() {
   if (localVideo === null) return;
   let i = 1;//自身の1
@@ -390,6 +394,7 @@ function SearchOthers(peerId) {
 function moveVideo(video, pos) {
   video.pos = createVector(pos.x, pos.y);
   video.capture.position(pos.x - video.size.x / 2, pos.y - video.size.y / 2);
+  video.leftUpPos = createVector(pos.x - video.size.x / 2, pos.y - video.size.y / 2);
 }
 function moveOtherVideo(video, pos) {
   moveVideo(video, new Vec(pos.x * windowWidth, pos.y * windowHeight));
