@@ -131,33 +131,20 @@ function getCollVideo(pointingLine){
       collLineLine(new Vec(leftUp.x,rightBottom.y), new Vec(rightBottom.x,leftUp.y), lineP.start, lineP.end);
   
     //当たり判定の計算
-    ////https://n-trino.hatenadiary.org/entry/20060830/p1
+    //https://qiita.com/ykob/items/ab7f30c43a0ed52d16f2
     /**
      * 
-     * @param {vec} a1 
-     * @param {vec} a2 
-     * @param {vec} b1 
-     * @param {vec} b2 
+     * @param {vec} a
+     * @param {vec} b 
+     * @param {vec} c 
+     * @param {vec} d 
      */
-    function collLineLine(a1, a2, b1, b2) {
-      let base = new Vec(b2.x - b1.x, b2.y - b1.y);
-      let sub1 = new Vec(a1.x - b1.x, a1.y - b1.y);
-      let sub2 = new Vec(a2.x - b1.x, a2.y - b1.y);
-      let bs1 = base.x * sub1.y - base.y * sub1.x;
-      let bs2 = base.x * sub2.y - base.y * sub2.x;
-      if (bs1 * bs2 > 0) {
-        return false;
-      }
-  
-      base = new Vec(a2.x - a1.x, a2.y - a1.y);
-      sub1 = new Vec(b1.x - a1.x, b1.y - a1.y);
-      sub2 = new Vec(b2.x - a1.x, b2.y - a1.y);
-      bs1 = base.x * sub1.y - base.y * sub1.x;
-      bs2 = base.x * sub2.y - base.y * sub2.x;
-      if (bs1 * bs2) {
-        return false;
-      }
-      return true;
+    function collLineLine(a, b, c, d) {
+      let ta = (c.x - d.x) * (a.y - c.y) + (c.y - d.y) * (c.x - a.x);
+      let tb = (c.x - d.x) * (b.y - c.y) + (c.y - d.y) * (c.x - b.x);
+      let tc = (a.x - b.x) * (c.y - a.y) + (a.y - b.y) * (a.x - c.x);
+      let td = (a.x - b.x) * (d.y - a.y) + (a.y - b.y) * (a.x - d.x);
+      return ta * tb <= 0 && tc * td <= 0;
     }
   }
 }
