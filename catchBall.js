@@ -37,10 +37,12 @@ function catchBallUpdate() {
     line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
   }
   let hitVideo = getCollVideo(lineP);
-  stroke(0, 255, 0, 255);
-  strokeWeight(5);
-  noFill();
-  rect(hitVideo.pos.x, hitVideo.pos.y, hitVideo.size.x, hitVideo.size.y);
+  if(hitVideo){
+    stroke(0, 255, 0, 255);
+    strokeWeight(5);
+    noFill();
+    rect(hitVideo.pos.x, hitVideo.pos.y, hitVideo.size.x, hitVideo.size.y);
+  }
 }
 /**
  * キャッチボール終了
@@ -117,15 +119,16 @@ function getPointingLine(video) {
   return { start: startP, end: createVector(x, y), a: a };
 }
 
-function getCollVideo(line){
+function getCollVideo(pointingLine){
   for(let i = 0; i < others.length; i++){
-    if(collLineVideo(others[i], line)) return others[i];
+    if(collLineVideo(others[i], pointingLine)) return others[i];
   }
-  function collLineVideo(video, line) {
+  function collLineVideo(video, lineP) {
     let leftUp = video.leftUpPos;
+    if(!leftUp || !lineP) return;
     let rightBottom = new Vec(leftUp.x + video.size.x, leftUp.y + video.size.y);
-    return collLineLine(leftUp, rightBottom, line.start, line.end) ||
-      collLineLine(new Vec(leftUp.x,rightBottom.y), new Vec(rightBottom.x,leftUp.y), line.start, line.end);
+    return collLineLine(leftUp, rightBottom, lineP.start, lineP.end) ||
+      collLineLine(new Vec(leftUp.x,rightBottom.y), new Vec(rightBottom.x,leftUp.y), lineP.start, lineP.end);
   
     //当たり判定の計算
     ////https://n-trino.hatenadiary.org/entry/20060830/p1
