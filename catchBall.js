@@ -30,7 +30,12 @@ function catchBallUpdate() {
   if (isCatchBall) {
     ballManager.update();
   }
-  handPointing(localVideo);
+  let lineP = getPointingLine(localVideo);
+  if(lineP){
+    stroke(255);
+    strokeWeight(3);
+    line(lineP.start.x,lineP.start.y,lineP.end.x,lineP.end.y);
+  }
 }
 /**
  * キャッチボール終了
@@ -83,11 +88,16 @@ function ballMovePos(fromPos, targetPos, amt) {
  * 
  * @param {video} video 
  */
-function handPointing(video) {
+function getPointingLine(video) {
   if(video.results.multiHandLandmarks.length === 0) return;
-  let multiHandLandmarks = video.results.multiHandLandmarks[0];
-  let startP = createVector(multiHandLandmarks[8].x, multiHandLandmarks[8].y);
-  let dire  = startP.copy().sub(multiHandLandmarks[5].x, multiHandLandmarks[5].y);
+  let floorValue = 10000000; // 線がブレブレにならないように精度を下げる
+  let threshold = 0.45;//指が曲がってる判定のしきい値
+  let marks = video.results.multiHandLandmarks[0];
+  let startP = createVector(floor(marks[8].x*floorValue)/floorValue, floor(marks[8].y*floorValue)/floorValue);
+  let dire = startP.copy().sub(floor(marks[5].x*floorValue)/floorValue, floor(marks[5].y*floorValue)/floorValue);
+  let bent = createVector(floor((marks[7].x-marks[6].x)*floorValue)/floorValue, floor((marks[7].y-marks[6].y)*floorValue)/floorValue);
+  let bentDot = floor(dire.dot(bent)*10000)/100;
+  if(bentDot < threshold)return;
   if(mirror) {
     startP.x = 1 - startP.x;
     dire.x *= -1;
@@ -100,9 +110,7 @@ function handPointing(video) {
   if (a === 0) return;
   let y = (a*dire.x > 0 ? height : 0);
   let x = (y - b) / a;
-  stroke(255);
-  strokeWeight(2);
-  line(startP.x, startP.y, x, y);
+  return { start:startP, end: createVector(x,y)};
 }
 
 /**
