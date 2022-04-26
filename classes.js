@@ -195,6 +195,9 @@ class Video extends Obj {
     this.mikeButton.elt.src = img;
     //this.capture.elt.volume = volume;
   }
+  updateLeftUpPos(){
+    this.leftUpPos = createVector(this.pos.x - this.size.x / 2, this.pos.y - this.size.y / 2);
+  }
 }
 
 Video.prototype.toString = function () {

@@ -357,17 +357,18 @@ function ReceivedMessage(peerID, msg) {
   }
 }
 
-function ResizeVideo(cap, size) {
+function ResizeVideo(video, size) {
   //cap.size.x = size.x;
   //cap.size.y = size.y;
-  cap.size.set(size.x, size.y);
-  let element = cap.capture.elt;
+  video.size.set(size.x, size.y);
+  let element = video.capture.elt;
   element.style.width = size.x;
   element.style.height = size.y;
   //cap.capture.elt.videoWidth = size.x;
   //cap.capture.elt.videoHeight = size.y;
   //cap.size.x = cap.capture.width * 2;
   //cap.size.y = cap.capture.height * 2;
+  video.updateLeftUpPos();
 }
 
 function SetMike(video, is) {
@@ -394,7 +395,7 @@ function SearchOthers(peerId) {
 function moveVideo(video, pos) {
   video.pos = createVector(pos.x, pos.y);
   video.capture.position(pos.x - video.size.x / 2, pos.y - video.size.y / 2);
-  video.leftUpPos = createVector(pos.x - video.size.x / 2, pos.y - video.size.y / 2);
+  video.updateLeftUpPos();
 }
 function moveOtherVideo(video, pos) {
   moveVideo(video, new Vec(pos.x * windowWidth, pos.y * windowHeight));
