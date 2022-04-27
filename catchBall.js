@@ -118,7 +118,7 @@ function getPointingLine(video) {
   if (a === 0) return;
   let y = (a * dire.x > 0 ? height : 0);
   let x = (y - b) / a;
-  return new Line(startP, createVector(x, y));
+  return new LineSeg(startP, createVector(x, y));
 }
 
 /**

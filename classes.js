@@ -332,7 +332,7 @@ class Timer {
   }
 }
 
-class Line {
+class LineSeg {
   constructor(start, end) {
     this.start = start;
     this.end = end;
