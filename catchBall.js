@@ -93,6 +93,8 @@ function ballMovePos(fromPos, targetPos, amt) {
 
 /**
  * ビデオの指からレーザーを出せる座標を取得
+ * @param {Video} video 
+ * @returns {Line}
  */
 function getPointingLine(video) {
   if (video.results.multiHandLandmarks.length === 0) return;
@@ -116,24 +118,32 @@ function getPointingLine(video) {
   if (a === 0) return;
   let y = (a * dire.x > 0 ? height : 0);
   let x = (y - b) / a;
-  return { start: startP, end: createVector(x, y), a: a };
+  return new Line(startP, createVector(x, y));
 }
 
+/**
+ * 他の参加者と線の当たり判定
+ * @param {Line} pointingLine 
+ * @returns {video}
+ */
 function getCollVideo(pointingLine){
+  if(!pointingLine) return;
   for(let i = 0; i < others.length; i++){
-    if(collLineVideo(others[i], pointingLine)) return others[i];
+    if(collLineVideo(others[i], pointingLine)) {
+      return others[i];
+    }
   }
   function collLineVideo(video, lineP) {
     let leftUp = video.leftUpPos;
-    if(!leftUp || !lineP) return;
+    if(!leftUp) return;
     let rightBottom = new Vec(leftUp.x + video.size.x, leftUp.y + video.size.y);
     return collLineLine(leftUp, rightBottom, lineP.start, lineP.end) ||
-      collLineLine(new Vec(leftUp.x,rightBottom.y), new Vec(rightBottom.x,leftUp.y), lineP.start, lineP.end);
+      collLineLine(new Vec(leftUp.x,rightBottom.y), new Vec(rightBottom.x,leftUp.y), lineP.start, lineP.end);//矩形の4辺ではなく対角線を当たり判定とする
   
     //当たり判定の計算
     //https://qiita.com/ykob/items/ab7f30c43a0ed52d16f2
     /**
-     * 
+     * 線分の当たり判定
      * @param {vec} a
      * @param {vec} b 
      * @param {vec} c 

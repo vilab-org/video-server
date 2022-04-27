@@ -331,3 +331,10 @@ class Timer {
     }, this.waitTime * 1000);
   }
 }
+
+class Line {
+  constructor(start, end) {
+    this.start = start;
+    this.end = end;
+  }
+}

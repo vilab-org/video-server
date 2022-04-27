@@ -211,11 +211,10 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
     for (let i = 0; i < len; i++) {
       let landmarks = inVideo.results.multiHandLandmarks[i];
       if (!landmarks) continue;
-      let obj = new Obj(outVideo.pos, outVideo.size);
       let leftRight = getIndexLR(inVideo.results.multiHandedness[i]);
       let minMaxPos = inVideo.minMaxes[leftRight];
-      DrawRect(obj, minMaxPos, recStroke);
-      DrawConnectors(obj, landmarks, connStroke);
+      DrawRect(outVideo, minMaxPos, recStroke);
+      DrawConnectors(outVideo, landmarks, connStroke);
       DrawCenterMark(outVideo, minMaxPos, 2);
 
       noFill();
