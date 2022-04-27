@@ -175,8 +175,9 @@ function draw() {
   if (highFiveSelected !== 'none') {
     HighFive();
   }
-
-  catchBallUpdate();
+  if(isCatchBall){
+    catchBallUpdate();
+  }  
 
 }
 
