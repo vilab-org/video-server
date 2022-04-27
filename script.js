@@ -1,5 +1,5 @@
 //テキスト選択不可（ドラッグしてる時に選択されるのをやめたい）
-document.onselectstart = function() {
+document.onselectstart = function () {
   return false;
 }
 
@@ -9,18 +9,20 @@ let localStream = null;
 let room;
 let existingroom = null;
 let isDrawRect = false;
-let highFiveTypes = ['機能なし', '自由な位置', '固定の位置','ハイブリッド'];
+let highFiveTypes = ['機能なし', '自由な位置', '固定の位置', 'ハイブリッド'];
 let highFiveSelected;
+let catchUserSelected;
+let catchUserTypes = ['ランダム', '指さし'];
 $(function () {
 
   let peer = null;
   let audioSelect = $('#audioSource');
   let videoSelect = $('#videoSource');
 
-  //high five
+  //ハイタッチ
   let highSelect = $('#highSelect');
   let highFiveTypesLen = highFiveTypes.length;
-  for(let i=0;i< highFiveTypesLen;i++){
+  for (let i = 0; i < highFiveTypesLen; i++) {
     let option = $('<option>');
     option.text(highFiveTypes[i]);
     highSelect.append(option);
@@ -29,9 +31,21 @@ $(function () {
     highFiveSelected = highSelect.val();
     Send(HIGHSELECT, highFiveSelected);
   });
-  
-  //初めて利用する人にカメラ許可ダイアログを出すためのgetUsrMedia
 
+  //キャッチボール
+  let catchUserSelect = $('catch user select');
+  let catchUserTypesLen = catchUserTypes.length;
+  for (let i = 0; i < catchUserTypesLen; i++) {
+    let option = $('<option>');
+    option.text(catchUserTypes[i]);
+    catchUserSelect.append(option);
+  }
+  catchUserSelect.on('change', () => {
+    catchUserSelected = catchUserSelect.val();
+    Send(CATCHBALL, { mode: USERSELECT ,state:catchUserSelected});
+  });
+
+  //初めて利用する人にカメラ許可ダイアログを出すためのgetUsrMedia
   navigator.mediaDevices.getUserMedia({ audio: true, video: true })
     .then(function (stream) {
     }).catch(function (error) {
@@ -131,11 +145,11 @@ $(function () {
         //https://stackoverflow.com/questions/46926479/how-to-get-media-device-ids-that-user-selected-in-request-permission-dialog
         let tracks = stream.getTracks();
         let trackLen = tracks.length;
-        for(let i=0;i<trackLen;i++){
-          if(tracks[i].kind === 'video'){
-             $('#videoSource').val(tracks[i].getSettings().deviceId);
+        for (let i = 0; i < trackLen; i++) {
+          if (tracks[i].kind === 'video') {
+            $('#videoSource').val(tracks[i].getSettings().deviceId);
           }
-          if(tracks[i].kind === 'audio') {
+          if (tracks[i].kind === 'audio') {
             $('#audioSource').val(tracks[i].getSettings().deviceId);
           }
         }
@@ -251,7 +265,7 @@ function ChangeUI() {
 
 function ChangeDrawRect() {
   isDrawRect = $('#changeDrawRect').prop('checked');
-  Send(DRAWHANDSDEBUG,isDrawRect);
+  Send(DRAWHANDSDEBUG, isDrawRect);
 }
 
 function ChangeIsCatch() {

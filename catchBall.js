@@ -1,10 +1,12 @@
 let isCatchBall = false;
 let ballManager;
 let ballImg;
+const BALLMODE = 'ball mode';
 const BALLMODE_TRACKING = 'tracking';
 const BALLMODE_THROWING = 'throwing';
 const STATE_NEXTUSER = 'nextuser';
 const STATE_CATCH = 'catch';
+const USERSELECT = 'user select mode';
 const USERSELECT_RANDOM = 'user select random';
 const USERSELECT_POINT = 'user select pointing';
 /**
@@ -27,19 +29,64 @@ function catchStart() {
  * キャッチボール機能の更新
  */
 function catchBallUpdate() {
-  let lineP = getPointingLine(localVideo);
-  ballManager.update();
-  if (lineP) {
-    stroke(255);
-    strokeWeight(3);
-    line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
-  }
-  let hitVideo = getCollVideo(lineP);
-  if (hitVideo) {
-    stroke(0, 255, 0, 255);
-    strokeWeight(5);
-    noFill();
-    rect(hitVideo.pos.x, hitVideo.pos.y, hitVideo.size.x, hitVideo.size.y);
+  let manager = ballManager;
+  let ball = manager.ball;
+  let from = ball.from;
+  switch (manager.ballMode) {
+    case BALLMODE_TRACKING:
+      if (manager.selectMode === USERSELECT_POINT) {
+        let lineP = getPointingLine(from);
+        if (lineP) {//指さしあり
+          let hitVideo = getCollVideo(lineP);
+          push();
+          stroke(0, 255, 0);
+          strokeWeight(3);
+          if (!hitVideo) setLineDash([10, 5]);
+          line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
+          pop();
+          if (hitVideo !== ball.target) {
+            ballManager.setTarget(hitVideo);
+          }
+          break;
+        }
+      }
+      // 指さしなし
+      ball.update();
+      let minMaxes = from.minMaxes;
+      let handsPos = undefined;
+      for (let i = 0; i < 2; i++) {
+        if (minMaxes[i]) {
+          handsPos = new Vec((minMaxes[i].maxX + minMaxes[i].minX) / 2, (minMaxes[i].maxY + minMaxes[i].minY) / 2);
+          break;
+        }
+      }
+      if (handsPos) {
+        let leftUp = from.leftUpPos;
+        let x = leftUp.x + handsPos.x * from.size.x;
+        let y = leftUp.y + handsPos.y * from.size.y;
+        ball.setPos(x, y);
+        ball.fromPos.x = x;
+        ball.fromPos.y = y;
+        if (ball.target && getThrowJudge(from, handsPos)) {//投げた判定
+          ballThrowed(manager.isUserHost);
+        }
+
+      }
+      break;
+
+    case BALLMODE_THROWING:
+      ball.update();
+      ball.rotate += (1 / getFrameRate()) * ball.speedR;
+      ball.setPosVec(ballMovePos(ball.fromPos, ball.target.pos, ball.amt));
+      ball.amt += (1 / getFrameRate()) / 3;//3秒で到達
+      if (ball.amt >= 1) {
+        ball.amt = 1;
+        if (ball.target.ID === localVideo.ID) {
+          ballArrived(manager.isUserHost);
+        }
+      }
+      break;
+    default: break;
   }
 }
 /**
@@ -63,7 +110,7 @@ function getThrowJudge(video, handsPos) {
  */
 function ballThrowed(isHost = false) {
   if (ballManager.ball.from.ID === localVideo.ID) {
-    Send(CATCHBALL, { state: BALLMODE_THROWING });
+    Send(CATCHBALL, { mode: BALLMODE, state: BALLMODE_THROWING });
     ballManager.setMode(BALLMODE_THROWING);
   }
 }
@@ -73,7 +120,7 @@ function ballThrowed(isHost = false) {
  */
 function ballArrived(isHost = false) {
   ballManager.setMode(BALLMODE_TRACKING);
-  Send(CATCHBALL, { state: STATE_CATCH });
+  Send(CATCHBALL, { mode: BALLMODE, state: STATE_CATCH });
   if (isHost) {
     ballManager.finish();
   }
@@ -159,30 +206,39 @@ function getCollVideo(pointingLine) {
 
 /**
  * キャッチボールに関する受信データの振り分け関数
- * @param {*} ModeAndFromAndTarget モードかボールの送信,受信相手
+ * @param {*} catchballMode モードかボールの送信,受信相手
  */
-function receiveBallStatus(ModeAndFromAndTarget) {
-  switch (ModeAndFromAndTarget.state) {
+function receiveBallStatus(catchballMode) {
+  switch (catchballMode.mode) {
     case END:
       catchEnd();
       return;
 
-    case BALLMODE_THROWING:
-      ballManager.setMode(ModeAndFromAndTarget.state);
-      return;
-
-    case STATE_CATCH:
-      ballManager.setMode(BALLMODE_TRACKING);
-      if (ballManager.isUserHost) {
-        ballManager.selectTarget();
+    case BALLMODE:
+      switch (catchballMode.state) {
+        case BALLMODE_THROWING:
+          ballManager.setMode(catchballMode.state);
+          return;
+        case STATE_CATCH:
+          ballManager.setMode(BALLMODE_TRACKING);
+          switch (ballManager.selectMode) {
+            case USERSELECT_RANDOM:
+              if (ballManager.isUserHost) {
+                ballManager.setTarget(ballManager.getNext());
+              }
+              break;
+            case USERSELECT_POINT:
+              break;
+          }
+          return;
       }
       return;
 
     case STATE_NEXTUSER:
-      let target = getVideoInst(ModeAndFromAndTarget.target);
+      let target = getVideoInst(catchballMode.target);
       let count = 0;
       while (!target) {
-        target = getVideoInst(ModeAndFromAndTarget.target);
+        target = getVideoInst(catchballMode.target);
         count++;
         if (count >= 10) return;
       }
@@ -191,11 +247,15 @@ function receiveBallStatus(ModeAndFromAndTarget) {
       } else {//初回はfromの設定が必要
         isCatchBall = true;
         ballManager.isUserHost = false;
-        let from = getVideoInst(ModeAndFromAndTarget.from);
-
+        let from = getVideoInst(catchballMode.from);
         ballManager.ball = new Ball(from.pos.copy(), from, false);
         ballManager.setTarget(target);
       }
+      return;
+      
+    case USERSELECT:
+      catchUserSelect = catchballMode.state;
+      $("#catch user select").val(catchballMode.state);
       return;
   }
 }
@@ -206,76 +266,40 @@ class BallManager {
     this.ball;//動かすの
     this.endFunc = endFunc;//終了時の処理
     this.isUserHost = false;
+    this.selectMode = USERSELECT_RANDOM;
     this.ballMode = BALLMODE_TRACKING;//ボールが動くモード
   }
   start() {
-    //配列の早いコピーらしい
-    //https://qiita.com/takahiro_itazuri/items/882d019f1d8215d1cb67#comment-1b338078985aea9f600a
-    this.member = [...others];
-    this.ball = new Ball(localVideo.pos.copy(), localVideo, true);
-    this.selectTarget();
     this.isUserHost = true;
-  }
-  update() {
-    let ball = this.ball;
-    ball.update();
-    let from = ball.from;
-    switch (this.ballMode) {
-      case BALLMODE_TRACKING:
-        let minMaxes = from.minMaxes;
-        let handsPos = undefined;
-        for (let i = 0; i < 2; i++) {
-          if (minMaxes[i]) {
-            handsPos = new Vec((minMaxes[i].maxX + minMaxes[i].minX) / 2, (minMaxes[i].maxY + minMaxes[i].minY) / 2);
-            break;
-          }
-        }
-        if (handsPos) {
-          let leftUp = from.leftUpPos;
-          let x = leftUp.x + handsPos.x * from.size.x;
-          let y = leftUp.y + handsPos.y * from.size.y;
-          ball.setPos(x, y);
-          ball.fromPos.x = x;
-          ball.fromPos.y = y;
-          if (getThrowJudge(from, handsPos)) {//投げた判定
-            ballThrowed(this.isUserHost);
-          }
-        }
+    switch (this.selectMode) {
+      case USERSELECT_RANDOM:
+        //配列の早いコピーらしい
+        //https://qiita.com/takahiro_itazuri/items/882d019f1d8215d1cb67#comment-1b338078985aea9f600a
+        this.member = [...others];
+        this.ball = new Ball(localVideo.pos.copy(), localVideo, true);
+        this.setTarget(this.getNext());
         break;
-
-      case BALLMODE_THROWING:
-        ball.rotate += (1 / getFrameRate()) * ball.speedR;
-        ball.setPosVec(ballMovePos(ball.fromPos, ball.target.pos, ball.amt));
-        ball.amt += (1 / getFrameRate()) / 3;//3秒で到達
-        if (ball.amt >= 1) {
-          ball.amt = 1;
-          if (ball.target.ID === localVideo.ID) {
-            ballArrived(this.isUserHost);
-          }
-        }
+      case USERSELECT_POINT:
         break;
-      default: break;
     }
-  }
-  /**
-   * 次の目標人物設定
-   */
-  selectTarget(next = this.getNext()) {
-    this.setTarget(next);
-    let msg = { from: this.ball.from.ID, target: this.ball.target.ID, state: STATE_NEXTUSER };
-    if (log) console.log(msg);
-    Send(CATCHBALL, msg);
   }
   setTarget(next) {
     this.ball.setTarget(next);
+    if (this.isUserHost) {
+      let msg = { from: this.ball.from.ID, target: this.ball.target.ID, mode: STATE_NEXTUSER };
+      if (log) console.log(msg);
+      Send(CATCHBALL, msg);
+    }
   }
   setMode(ballMode) {
     this.ballMode = ballMode;
   }
   finish() {
     this.endFunc();
-    Send(CATCHBALL, { state: END });
+    Send(CATCHBALL, { mode: END });
     this.isUserHost = false;
+    this.ball = undefined;
+    this.member = [];
   }
   /**
    * USERSELECT_RANDOMの時、ホストが呼ばれる関数
@@ -321,8 +345,12 @@ class Ball extends Obj {
   }
   setTarget(target) {
     this.amt = 0;
-    this.from = this.target;
-    this.target = target;
+    if (target) {
+      this.from = this.target;
+      this.target = target;
+    } else {
+      this.target = undefined;
+    }
   }
   setPosVec(vec) {
     this.pos = vec;
