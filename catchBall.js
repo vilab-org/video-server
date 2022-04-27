@@ -63,7 +63,7 @@ function getThrowJudge(video, handsPos) {
  */
 function ballThrowed(isHost = false) {
   if (ballManager.ball.from.ID === localVideo.ID) {
-    Send(CATCHBALL, { mode: BALLMODE_THROWING });
+    Send(CATCHBALL, { state: BALLMODE_THROWING });
     ballManager.setMode(BALLMODE_THROWING);
   }
 }
@@ -73,7 +73,7 @@ function ballThrowed(isHost = false) {
  */
 function ballArrived(isHost = false) {
   ballManager.setMode(BALLMODE_TRACKING);
-  Send(CATCHBALL, { mode: STATE_CATCH });
+  Send(CATCHBALL, { state: STATE_CATCH });
   if (isHost) {
     ballManager.finish();
   }
@@ -162,13 +162,13 @@ function getCollVideo(pointingLine) {
  * @param {*} ModeAndFromAndTarget モードかボールの送信,受信相手
  */
 function receiveBallStatus(ModeAndFromAndTarget) {
-  switch (ModeAndFromAndTarget.mode) {
+  switch (ModeAndFromAndTarget.state) {
     case END:
       catchEnd();
       return;
 
     case BALLMODE_THROWING:
-      ballManager.setMode(ModeAndFromAndTarget.mode);
+      ballManager.setMode(ModeAndFromAndTarget.state);
       return;
 
     case STATE_CATCH:
@@ -206,7 +206,7 @@ class BallManager {
     this.ball;//動かすの
     this.endFunc = endFunc;//終了時の処理
     this.isUserHost = false;
-    this.mode = BALLMODE_TRACKING;//ボールが動くモード
+    this.ballMode = BALLMODE_TRACKING;//ボールが動くモード
   }
   start() {
     //配列の早いコピーらしい
@@ -220,7 +220,7 @@ class BallManager {
     let ball = this.ball;
     ball.update();
     let from = ball.from;
-    switch (this.mode) {
+    switch (this.ballMode) {
       case BALLMODE_TRACKING:
         let minMaxes = from.minMaxes;
         let handsPos = undefined;
@@ -262,19 +262,19 @@ class BallManager {
    */
   selectTarget(next = this.getNext()) {
     this.setTarget(next);
-    let msg = { from: this.ball.from.ID, target: this.ball.target.ID, mode: STATE_NEXTUSER };
+    let msg = { from: this.ball.from.ID, target: this.ball.target.ID, state: STATE_NEXTUSER };
     if (log) console.log(msg);
     Send(CATCHBALL, msg);
   }
   setTarget(next) {
     this.ball.setTarget(next);
   }
-  setMode(mode) {
-    this.mode = mode;
+  setMode(ballMode) {
+    this.ballMode = ballMode;
   }
   finish() {
     this.endFunc();
-    Send(CATCHBALL, { mode: END });
+    Send(CATCHBALL, { state: END });
     this.isUserHost = false;
   }
   /**
