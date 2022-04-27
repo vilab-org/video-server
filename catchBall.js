@@ -42,7 +42,7 @@ function catchBallUpdate() {
           if (!hitVideo) drawingContext.setLineDash([10, 5]);
           line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
           pop();
-          if (hitVideo !== ball.target) {
+          if (hitVideo && hitVideo !== ball.target) {
             ballManager.setTarget(hitVideo);
           }
           break;
@@ -140,8 +140,8 @@ function ballMovePos(fromPos, targetPos, amt) {
  * @returns {Line}
  */
 function getPointingLine(video) {
-  if (video.results.multiHandLandmarks.length === 0) return;
-  let floorValue = 10000000; // 線がブレブレにならないように精度を下げる
+  if (!video || !video.results || video.results.multiHandLandmarks.length === 0) return;
+  let floorValue = 10000; // 線がブレブレにならないように精度を下げる
   let threshold = 0.45;//指が曲がってる判定のしきい値
   let marks = video.results.multiHandLandmarks[0];
   let startP = createVector(floor(marks[8].x * floorValue) / floorValue, floor(marks[8].y * floorValue) / floorValue);
@@ -234,14 +234,12 @@ function receiveBallStatus(catchballMode) {
 
     case STATE_NEXTUSER:
       let target = getVideoInst(catchballMode.target);
-      let count = 0;
-      while (!target) {
-        target = getVideoInst(catchballMode.target);
-        count++;
-        if (count >= 10) return;
-      }
       if (isCatchBall) {//2回目以降
-        ballManager.setTarget(target);
+        if(target === ballManager.ball.target) {
+          ballManager.changeTarget(target);
+        } else {
+          ballManager.setTarget(target);
+        }
       } else {//初回はfromの設定が必要
         isCatchBall = true;
         ballManager.isUserHost = false;
@@ -277,6 +275,7 @@ class BallManager {
         this.setTarget(this.getNext());
         break;
       case catchUserTypes[1]:
+        Send(CATCHBALL, {from:this.ball.from.ID, target: undefined, mode:STATE_NEXTUSER });
         break;
     }
   }
@@ -296,6 +295,9 @@ class BallManager {
       if (log) console.log(msg);
       Send(CATCHBALL, msg);
     }
+  }
+  changeTarget(target){
+    this.ball.changeTarget(target);
   }
   setMode(ballMode) {
     this.ballMode = ballMode;
@@ -337,10 +339,12 @@ class Ball extends Obj {
   }
   update() {
     //目標の人を枠取り
-    stroke(0, 255, 0, 255);
-    strokeWeight(5);
-    noFill();
-    rect(this.target.pos.x, this.target.pos.y, this.target.size.x, this.target.size.y);
+    if(this.target){
+      stroke(0, 255, 0, 255);
+      strokeWeight(5);
+      noFill();
+      rect(this.target.pos.x, this.target.pos.y, this.target.size.x, this.target.size.y);
+    }
 
     //ボールの表示
     push();
@@ -357,6 +361,9 @@ class Ball extends Obj {
     } else {
       this.target = undefined;
     }
+  }
+  changeTarget(target){
+    this.target = target;
   }
   setPosVec(vec) {
     this.pos = vec;

@@ -311,7 +311,7 @@ function ResizeAllVideos() {
 }
 
 function ReceivedMessage(peerID, msg) {
-  if (log) console.log('receive:' + peerID + ':', msg);
+  if (log && msg.type !== HANDRESULT) console.log('receive:' + peerID + ':', msg);
   let index = SearchOthers(peerID);
   if (index === -1) {
     console.warn("not found peerID");
