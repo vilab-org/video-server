@@ -39,7 +39,7 @@ function catchBallUpdate() {
           push();
           stroke(0, 255, 0);
           strokeWeight(3);
-          if (!hitVideo) setLineDash([10, 5]);
+          if (!hitVideo) drawingContext.setLineDash([10, 5]);
           line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
           pop();
           if (hitVideo !== ball.target) {
