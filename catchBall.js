@@ -123,6 +123,7 @@ function ballArrived(isHost = false) {
   ballManager.setMode(BALLMODE_TRACKING);
   if(ballManager.selectMode === catchUserTypes[1]){
     ballManager.isUserHost = true;
+    ballManager.setTarget();
   }
   Send(CATCHBALL, { mode: BALLMODE, state: STATE_CATCH });
   if (isHost) {
@@ -233,6 +234,7 @@ function receiveBallStatus(catchballMode) {
               }
               break;
             case catchUserTypes[1]:
+              ballManager.setTarget();
               break;
           }
           return;

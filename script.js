@@ -72,7 +72,6 @@ $(function () {
       setupGetUserMedia();
     }).catch(function (error) {
       console.error(error);
-      window.alert('カメラかマイクの設定を見直してください\nリロードしてください');
       return;
     });
 
@@ -163,7 +162,8 @@ $(function () {
         }
 
       }).catch(function (error) {
-        console.error('mediaDevice.getUserMedia() error:', error);
+        console.error(error);
+        window.alert('カメラかマイクの設定を見直してください\nリロードしてください');
         return;
       });
   }
