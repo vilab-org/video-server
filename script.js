@@ -1,5 +1,5 @@
 //テキスト選択不可（ドラッグしてる時に選択されるのをやめたい）
-document.onselectstart = function () {
+document.onselectstart = function() {
   return false;
 }
 
@@ -9,7 +9,7 @@ let localStream = null;
 let room;
 let existingroom = null;
 let isDrawRect = false;
-let highFiveTypes = ['機能なし', '自由な位置', '固定の位置', 'ハイブリッド'];
+let highFiveTypes = ['機能なし', '自由な位置', '固定の位置','ハイブリッド'];
 let highFiveSelected;
 $(function () {
 
@@ -20,7 +20,7 @@ $(function () {
   //high five
   let highSelect = $('#highSelect');
   let highFiveTypesLen = highFiveTypes.length;
-  for (let i = 0; i < highFiveTypesLen; i++) {
+  for(let i=0;i< highFiveTypesLen;i++){
     let option = $('<option>');
     option.text(highFiveTypes[i]);
     highSelect.append(option);
@@ -29,7 +29,7 @@ $(function () {
     highFiveSelected = highSelect.val();
     Send(HIGHSELECT, highFiveSelected);
   });
-
+  
   //初めて利用する人にカメラ許可ダイアログを出すためのgetUsrMedia
 
   navigator.mediaDevices.getUserMedia({ audio: true, video: true })
@@ -37,32 +37,28 @@ $(function () {
     }).catch(function (error) {
       console.error(error);
     });
-    let hasSetup = false;
-  while(!hasSetup) {
-    setTimeout(()=>{
-      navigator.mediaDevices.enumerateDevices()
-      .then(function (deviceInfos) {
-        for (let i = 0; i !== deviceInfos.length; ++i) {
-          let deviceInfo = deviceInfos[i];
-          let option = $('<option>');
-          option.val(deviceInfo.deviceId);
-          if (deviceInfo.kind === 'audioinput') {
-            option.text(deviceInfo.label);
-            audioSelect.append(option);
-          } else if (deviceInfo.kind === 'videoinput') {
-            option.text(deviceInfo.label);
-            videoSelect.append(option);
-          }
+
+  navigator.mediaDevices.enumerateDevices()
+    .then(function (deviceInfos) {
+      for (let i = 0; i !== deviceInfos.length; ++i) {
+        let deviceInfo = deviceInfos[i];
+        let option = $('<option>');
+        option.val(deviceInfo.deviceId);
+        if (deviceInfo.kind === 'audioinput') {
+          option.text(deviceInfo.label);
+          audioSelect.append(option);
+        } else if (deviceInfo.kind === 'videoinput') {
+          option.text(deviceInfo.label);
+          videoSelect.append(option);
         }
-        hasSetup = true;
-      }).catch(function (error) {
-        console.error('mediaDevices.enumerateDevices() error:', error);
-      });
-    },200);
-  } // end while 
-  videoSelect.on('change', setupGetUserMedia);
-  audioSelect.on('change', setupGetUserMedia);
-  setupGetUserMedia();
+      }
+      videoSelect.on('change', setupGetUserMedia);
+      audioSelect.on('change', setupGetUserMedia);
+      setupGetUserMedia();
+    }).catch(function (error) {
+      console.error('mediaDevices.enumerateDevices() error:', error);
+      return;
+    });
 
   peer = new Peer({
     key: APIKey,
@@ -135,11 +131,11 @@ $(function () {
         //https://stackoverflow.com/questions/46926479/how-to-get-media-device-ids-that-user-selected-in-request-permission-dialog
         let tracks = stream.getTracks();
         let trackLen = tracks.length;
-        for (let i = 0; i < trackLen; i++) {
-          if (tracks[i].kind === 'video') {
-            $('#videoSource').val(tracks[i].getSettings().deviceId);
+        for(let i=0;i<trackLen;i++){
+          if(tracks[i].kind === 'video'){
+             $('#videoSource').val(tracks[i].getSettings().deviceId);
           }
-          if (tracks[i].kind === 'audio') {
+          if(tracks[i].kind === 'audio') {
             $('#audioSource').val(tracks[i].getSettings().deviceId);
           }
         }
@@ -255,7 +251,7 @@ function ChangeUI() {
 
 function ChangeDrawRect() {
   isDrawRect = $('#changeDrawRect').prop('checked');
-  Send(DRAWHANDSDEBUG, isDrawRect);
+  Send(DRAWHANDSDEBUG,isDrawRect);
 }
 
 function ChangeIsCatch() {
