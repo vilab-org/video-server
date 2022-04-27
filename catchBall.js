@@ -1,12 +1,12 @@
 let isCatchBall = false;
 let ballManager;
 let ballImg;
-const TRACKING = 'tracking';
-const THROWING = 'throwing';
-const NEXTUSER = 'nextuser';
-const SELECT = 'select';
-const CATCH = 'catch';
+const BALLMODE_TRACKING = 'tracking';
+const BALLMODE_THROWING = 'throwing';
+const STATE_NEXTUSER = 'nextuser';
+const STATE_CATCH = 'catch';
 const USERSELECT_RANDOM = 'user select random';
+const USERSELECT_POINT = 'user select pointing';
 /**
  * キャッチボールのsetup
  */
@@ -35,7 +35,7 @@ function catchBallUpdate() {
     line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
   }
   let hitVideo = getCollVideo(lineP);
-  if(hitVideo){
+  if (hitVideo) {
     stroke(0, 255, 0, 255);
     strokeWeight(5);
     noFill();
@@ -63,8 +63,8 @@ function getThrowJudge(video, handsPos) {
  */
 function ballThrowed(isHost = false) {
   if (ballManager.ball.from.ID === localVideo.ID) {
-    Send(CATCHBALL, { mode: THROWING });
-    ballManager.setMode(THROWING);
+    Send(CATCHBALL, { mode: BALLMODE_THROWING });
+    ballManager.setMode(BALLMODE_THROWING);
   }
 }
 /**
@@ -72,8 +72,8 @@ function ballThrowed(isHost = false) {
  * @param {boolean} isHost キャッチボールのホスト
  */
 function ballArrived(isHost = false) {
-  ballManager.setMode(TRACKING);
-  Send(CATCHBALL, { mode: CATCH });
+  ballManager.setMode(BALLMODE_TRACKING);
+  Send(CATCHBALL, { mode: STATE_CATCH });
   if (isHost) {
     ballManager.finish();
   }
@@ -124,20 +124,20 @@ function getPointingLine(video) {
  * @param {Line} pointingLine 
  * @returns {video}
  */
-function getCollVideo(pointingLine){
-  if(!pointingLine) return;
-  for(let i = 0; i < others.length; i++){
-    if(collLineVideo(others[i], pointingLine)) {
+function getCollVideo(pointingLine) {
+  if (!pointingLine) return;
+  for (let i = 0; i < others.length; i++) {
+    if (collLineVideo(others[i], pointingLine)) {
       return others[i];
     }
   }
   function collLineVideo(video, lineP) {
     let leftUp = video.leftUpPos;
-    if(!leftUp) return;
+    if (!leftUp) return;
     let rightBottom = new Vec(leftUp.x + video.size.x, leftUp.y + video.size.y);
     return collLineLine(leftUp, rightBottom, lineP.start, lineP.end) ||
-      collLineLine(new Vec(leftUp.x,rightBottom.y), new Vec(rightBottom.x,leftUp.y), lineP.start, lineP.end);//矩形の4辺ではなく対角線を当たり判定とする
-  
+      collLineLine(new Vec(leftUp.x, rightBottom.y), new Vec(rightBottom.x, leftUp.y), lineP.start, lineP.end);//矩形の4辺ではなく対角線を当たり判定とする
+
     //当たり判定の計算
     //https://qiita.com/ykob/items/ab7f30c43a0ed52d16f2
     /**
@@ -167,18 +167,18 @@ function receiveBallStatus(ModeAndFromAndTarget) {
       catchEnd();
       return;
 
-    case THROWING:
+    case BALLMODE_THROWING:
       ballManager.setMode(ModeAndFromAndTarget.mode);
       return;
 
-    case CATCH:
-      ballManager.setMode(TRACKING);
+    case STATE_CATCH:
+      ballManager.setMode(BALLMODE_TRACKING);
       if (ballManager.isUserHost) {
         ballManager.selectTarget();
       }
       return;
 
-    case NEXTUSER:
+    case STATE_NEXTUSER:
       let target = getVideoInst(ModeAndFromAndTarget.target);
       let count = 0;
       while (!target) {
@@ -206,7 +206,7 @@ class BallManager {
     this.ball;//動かすの
     this.endFunc = endFunc;//終了時の処理
     this.isUserHost = false;
-    this.mode = TRACKING;//ボールが動くモード
+    this.mode = BALLMODE_TRACKING;//ボールが動くモード
   }
   start() {
     //配列の早いコピーらしい
@@ -221,7 +221,7 @@ class BallManager {
     ball.update();
     let from = ball.from;
     switch (this.mode) {
-      case TRACKING:
+      case BALLMODE_TRACKING:
         let minMaxes = from.minMaxes;
         let handsPos = undefined;
         for (let i = 0; i < 2; i++) {
@@ -243,7 +243,7 @@ class BallManager {
         }
         break;
 
-      case THROWING:
+      case BALLMODE_THROWING:
         ball.rotate += (1 / getFrameRate()) * ball.speedR;
         ball.setPosVec(ballMovePos(ball.fromPos, ball.target.pos, ball.amt));
         ball.amt += (1 / getFrameRate()) / 3;//3秒で到達
@@ -260,10 +260,9 @@ class BallManager {
   /**
    * 次の目標人物設定
    */
-  selectTarget() {
-    let next = this.getNext();
+  selectTarget(next = this.getNext()) {
     this.setTarget(next);
-    let msg = { from: this.ball.from.ID, target: this.ball.target.ID, mode: NEXTUSER };
+    let msg = { from: this.ball.from.ID, target: this.ball.target.ID, mode: STATE_NEXTUSER };
     if (log) console.log(msg);
     Send(CATCHBALL, msg);
   }
