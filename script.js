@@ -11,7 +11,6 @@ let existingroom = null;
 let isDrawRect = false;
 let highFiveTypes = ['機能なし', '自由な位置', '固定の位置', 'ハイブリッド'];
 let highFiveSelected;
-let catchUserSelected;
 let catchUserTypes = ['ランダム', '指さし'];
 $(function () {
 
@@ -25,7 +24,7 @@ $(function () {
   for (let i = 0; i < highFiveTypesLen; i++) {
     let option = $('<option>');
     option.text(highFiveTypes[i]);
-    highSelect.append(option);console.log(option);
+    highSelect.append(option);
   }
   highSelect.on('change', () => {
     highFiveSelected = highSelect.val();
@@ -33,18 +32,19 @@ $(function () {
   });
 
   //キャッチボール
-  let catchUserSelect = $('#catchUserSelect');console.log(catchUserSelect);
+  let catchUserSelect = $('#catchUserSelect');
   let catchUserTypesLen = catchUserTypes.length;
   for (let i = 0; i < catchUserTypesLen; i++) {
     let option = $('<option>');
-    option.text(catchUserTypes[i]);console.log(option);
+    option.text(catchUserTypes[i]);
     catchUserSelect.append(option);
   }
   catchUserSelect.on('change', () => {
-    catchUserSelected = catchUserSelect.val();
-    Send(CATCHBALL, { mode: USERSELECT ,state:catchUserSelected});
+    let isChanged = ballManager.setUserSelectMode(catchUserSelect.val());
+    if(isChanged){
+      Send(CATCHBALL, { mode: USERSELECT ,state:ballManager.selectMode});
+    }
   });
-console.log(catchUserSelect);
 
   //初めて利用する人にカメラ許可ダイアログを出すためのgetUsrMedia
   navigator.mediaDevices.getUserMedia({ audio: true, video: true })
@@ -71,7 +71,7 @@ console.log(catchUserSelect);
       audioSelect.on('change', setupGetUserMedia);
       setupGetUserMedia();
     }).catch(function (error) {
-      console.error('mediaDevices.enumerateDevices() error:', error);
+      console.error(error);
       return;
     });
 

@@ -254,8 +254,7 @@ function receiveBallStatus(catchballMode) {
       return;
       
     case USERSELECT:
-      ballManager.selectMode = catchballMode.state;
-      $("#catchUserSelect").val(catchballMode.state);console.log(ballManager.selectMode);
+      ballManager.setUserSelectMode(catchballMode.state);
       return;
   }
 }
@@ -282,6 +281,15 @@ class BallManager {
       case USERSELECT_POINT:
         break;
     }
+  }
+  setUserSelectMode(mode){
+    if(isCatchBall) {
+      $("#catchUserSelect").val(this.selectMode);
+      return false;
+    }
+    this.selectMode = mode;
+    $("#catchUserSelect").val(mode);
+    return true;
   }
   setTarget(next) {
     this.ball.setTarget(next);
