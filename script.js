@@ -25,7 +25,7 @@ $(function () {
   for (let i = 0; i < highFiveTypesLen; i++) {
     let option = $('<option>');
     option.text(highFiveTypes[i]);
-    highSelect.append(option);
+    highSelect.append(option);console.log(option);
   }
   highSelect.on('change', () => {
     highFiveSelected = highSelect.val();
@@ -33,17 +33,18 @@ $(function () {
   });
 
   //キャッチボール
-  let catchUserSelect = $('catch user select');
+  let catchUserSelect = $('#catchUserSelect');console.log(catchUserSelect);
   let catchUserTypesLen = catchUserTypes.length;
   for (let i = 0; i < catchUserTypesLen; i++) {
     let option = $('<option>');
-    option.text(catchUserTypes[i]);
+    option.text(catchUserTypes[i]);console.log(option);
     catchUserSelect.append(option);
   }
   catchUserSelect.on('change', () => {
     catchUserSelected = catchUserSelect.val();
     Send(CATCHBALL, { mode: USERSELECT ,state:catchUserSelected});
   });
+console.log(catchUserSelect);
 
   //初めて利用する人にカメラ許可ダイアログを出すためのgetUsrMedia
   navigator.mediaDevices.getUserMedia({ audio: true, video: true })

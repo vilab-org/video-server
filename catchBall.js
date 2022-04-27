@@ -254,8 +254,8 @@ function receiveBallStatus(catchballMode) {
       return;
       
     case USERSELECT:
-      catchUserSelect = catchballMode.state;
-      $("#catch user select").val(catchballMode.state);
+      catchUserSelected = catchballMode.state;
+      $("#catchUserSelect").val(catchballMode.state);
       return;
   }
 }
