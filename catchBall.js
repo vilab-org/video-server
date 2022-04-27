@@ -7,8 +7,6 @@ const BALLMODE_THROWING = 'throwing';
 const STATE_NEXTUSER = 'nextuser';
 const STATE_CATCH = 'catch';
 const USERSELECT = 'user select mode';
-const USERSELECT_RANDOM = 'user select random';
-const USERSELECT_POINT = 'user select pointing';
 /**
  * キャッチボールのsetup
  */
@@ -34,7 +32,7 @@ function catchBallUpdate() {
   let from = ball.from;
   switch (manager.ballMode) {
     case BALLMODE_TRACKING:
-      if (manager.selectMode === USERSELECT_POINT) {
+      if (manager.selectMode === catchUserTypes[1]) {
         let lineP = getPointingLine(from);
         if (lineP) {//指さしあり
           let hitVideo = getCollVideo(lineP);
@@ -222,12 +220,12 @@ function receiveBallStatus(catchballMode) {
         case STATE_CATCH:
           ballManager.setMode(BALLMODE_TRACKING);
           switch (ballManager.selectMode) {
-            case USERSELECT_RANDOM:
+            case catchUserTypes[0]:
               if (ballManager.isUserHost) {
                 ballManager.setTarget(ballManager.getNext());
               }
               break;
-            case USERSELECT_POINT:
+            case catchUserTypes[1]:
               break;
           }
           return;
@@ -265,20 +263,20 @@ class BallManager {
     this.ball;//動かすの
     this.endFunc = endFunc;//終了時の処理
     this.isUserHost = false;
-    this.selectMode = USERSELECT_RANDOM;
+    this.selectMode = catchUserTypes[0];
     this.ballMode = BALLMODE_TRACKING;//ボールが動くモード
   }
   start() {
     this.isUserHost = true;
     this.ball = new Ball(localVideo.pos.copy(), localVideo, true);
     switch (this.selectMode) {
-      case USERSELECT_RANDOM:
+      case catchUserTypes[0]:
         //配列の早いコピーらしい
         //https://qiita.com/takahiro_itazuri/items/882d019f1d8215d1cb67#comment-1b338078985aea9f600a
         this.member = [...others];
         this.setTarget(this.getNext());
         break;
-      case USERSELECT_POINT:
+      case catchUserTypes[1]:
         break;
     }
   }
@@ -310,7 +308,7 @@ class BallManager {
     this.member = [];
   }
   /**
-   * USERSELECT_RANDOMの時、ホストが呼ばれる関数
+   * USERSELECTがランダムの時、ホストが呼ばれる関数
    * @returns 次のユーザのビデオクラス
    */
   getNext() {
