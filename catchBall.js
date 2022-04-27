@@ -35,7 +35,7 @@ function catchBallUpdate() {
       if (manager.selectMode === catchUserTypes[1]) {
         let lineP = getPointingLine(from);
         if (lineP) {//指さしあり
-          let hitVideo = getCollVideo(lineP);
+          let hitVideo = getCollVideo(from, lineP);
           push();
           stroke(0, 255, 0);
           strokeWeight(3);
@@ -169,10 +169,11 @@ function getPointingLine(video) {
  * @param {Line} pointingLine 
  * @returns {video}
  */
-function getCollVideo(pointingLine) {
+function getCollVideo(from, pointingLine) {
   if (!pointingLine) return;
+  if(collLineVideo(localVideo, pointingLine)) return localVideo;
   for (let i = 0; i < others.length; i++) {
-    if (collLineVideo(others[i], pointingLine)) {
+    if (from.ID !== others[i].ID && collLineVideo(others[i], pointingLine)) {
       return others[i];
     }
   }
