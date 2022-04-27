@@ -80,7 +80,7 @@ function catchBallUpdate() {
       if (ball.amt >= 1) {
         ball.amt = 1;
         if (ball.target.ID === localVideo.ID) {
-          ballArrived(manager.isUserHost);
+          ballArrived(manager.isHost);
         }
       }
       break;
@@ -110,6 +110,9 @@ function ballThrowed(isHost = false) {
   if (ballManager.ball.from.ID === localVideo.ID) {
     Send(CATCHBALL, { mode: BALLMODE, state: BALLMODE_THROWING });
     ballManager.setMode(BALLMODE_THROWING);
+    if(ballManager.selectMode === catchUserTypes[1]){
+      ballManager.isUserHost = false;
+    }
   }
 }
 /**
@@ -118,6 +121,9 @@ function ballThrowed(isHost = false) {
  */
 function ballArrived(isHost = false) {
   ballManager.setMode(BALLMODE_TRACKING);
+  if(ballManager.selectMode === catchUserTypes[1]){
+    ballManager.isUserHost = true;
+  }
   Send(CATCHBALL, { mode: BALLMODE, state: STATE_CATCH });
   if (isHost) {
     ballManager.finish();
@@ -261,12 +267,14 @@ class BallManager {
     this.member;//参加者
     this.ball;//動かすの
     this.endFunc = endFunc;//終了時の処理
+    this.isHost = false;
     this.isUserHost = false;
     this.selectMode = catchUserTypes[0];
     this.ballMode = BALLMODE_TRACKING;//ボールが動くモード
   }
   start() {
     this.isUserHost = true;
+    this.isHost = true;
     this.ball = new Ball(localVideo.pos.copy(), localVideo, true);
     switch (this.selectMode) {
       case catchUserTypes[0]:
