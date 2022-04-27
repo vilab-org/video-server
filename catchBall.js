@@ -34,7 +34,7 @@ function catchBallUpdate() {
     case BALLMODE_TRACKING:
       if (manager.selectMode === catchUserTypes[1]) {
         let lineP = getPointingLine(from);
-        if (lineP) {//指さしあり
+        if (ballManager.isUserHost && lineP) {//指さしあり
           let hitVideo = getCollVideo(from, lineP);
           push();
           stroke(0, 255, 0);
@@ -171,15 +171,15 @@ function getPointingLine(video) {
  */
 function getCollVideo(from, pointingLine) {
   if (!pointingLine) return;
-  if(collLineVideo(localVideo, pointingLine)) return localVideo;
+  if(collLineVideo(localVideo, from, pointingLine)) return localVideo;
   for (let i = 0; i < others.length; i++) {
-    if (from.ID !== others[i].ID && collLineVideo(others[i], pointingLine)) {
+    if (collLineVideo(others[i], from, pointingLine)) {
       return others[i];
     }
   }
-  function collLineVideo(video, lineP) {
+  function collLineVideo(video, from, lineP) {
     let leftUp = video.leftUpPos;
-    if (!leftUp) return;
+    if (!leftUp || video.ID === from.ID) return false;
     let rightBottom = new Vec(leftUp.x + video.size.x, leftUp.y + video.size.y);
     return collLineLine(leftUp, rightBottom, lineP.start, lineP.end) ||
       collLineLine(new Vec(leftUp.x, rightBottom.y), new Vec(rightBottom.x, leftUp.y), lineP.start, lineP.end);//矩形の4辺ではなく対角線を当たり判定とする
@@ -328,11 +328,11 @@ class BallManager {
 }
 
 class Ball extends Obj {
-  constructor(pos, target, isUserHost) {
+  constructor(pos, from, isUserHost) {
     super(pos, 50);
-    this.target = target;//目標
+    this.target;//目標
     this.isUserHost = isUserHost;
-    this.from = target;//出発
+    this.from = from;//出発
     this.fromPos = createVector();
     this.rotate = 0;
     this.amt = 0;//線形補間の割合
@@ -357,7 +357,7 @@ class Ball extends Obj {
   setTarget(target) {
     this.amt = 0;
     if (target) {
-      this.from = this.target;
+      if(this.target) this.from = this.target;
       this.target = target;
     } else {
       this.target = undefined;
