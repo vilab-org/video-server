@@ -270,12 +270,12 @@ class BallManager {
   }
   start() {
     this.isUserHost = true;
+    this.ball = new Ball(localVideo.pos.copy(), localVideo, true);
     switch (this.selectMode) {
       case USERSELECT_RANDOM:
         //配列の早いコピーらしい
         //https://qiita.com/takahiro_itazuri/items/882d019f1d8215d1cb67#comment-1b338078985aea9f600a
         this.member = [...others];
-        this.ball = new Ball(localVideo.pos.copy(), localVideo, true);
         this.setTarget(this.getNext());
         break;
       case USERSELECT_POINT:
