@@ -32,51 +32,8 @@ function catchBallUpdate() {
   let from = ball.from;
   switch (manager.ballMode) {
     case BALLMODE_TRACKING:
-      if (manager.selectMode === catchUserTypes[1]) {
-        let lineP = getPointingLine(from);
-        if (lineP) {//指さしあり
-          let hitVideo = getCollVideo(from, lineP);
-          push();
-          stroke(0, 255, 0);
-          strokeWeight(3);
-          if (hitVideo) {
-            line(lineP.start.x, lineP.start.y, hitVideo.pos.x, hitVideo.pos.y);
-            rect(hitVideo.pos.x, hitVideo.pos.y, hitVideo.size.x, hitVideo.size.y);
-          } else {
-            drawingContext.setLineDash([10, 5]);
-            line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
-          }
-          pop();
-          if (ballManager.isUserHost && hitVideo && hitVideo !== ball.target) {
-            ballManager.setTarget(hitVideo);
-          }
-          break;
-        }
-      }
-      // 指さしなし
-      ball.update();
-      let minMaxes = from.minMaxes;
-      let handsPos = undefined;
-      for (let i = 0; i < 2; i++) {
-        if (minMaxes[i]) {
-          handsPos = new Vec((minMaxes[i].maxX + minMaxes[i].minX) / 2, (minMaxes[i].maxY + minMaxes[i].minY) / 2);
-          break;
-        }
-      }
-      if (handsPos) {
-        let leftUp = from.leftUpPos;
-        let x = leftUp.x + handsPos.x * from.size.x;
-        let y = leftUp.y + handsPos.y * from.size.y;
-        ball.setPos(x, y);
-        ball.fromPos.x = x;
-        ball.fromPos.y = y;
-        if (ball.target && getThrowJudge(from, handsPos)) {//投げた判定
-          ballThrowed(manager.isUserHost);
-        }
-
-      }
+      trackingMode();
       break;
-
     case BALLMODE_THROWING:
       ball.update();
       ball.rotate += (1 / getFrameRate()) * ball.speedR;
@@ -85,12 +42,61 @@ function catchBallUpdate() {
       if (ball.amt >= 1) {
         ball.amt = 1;
         if (ball.target.ID === localVideo.ID) {
-          ballArrived(manager.isHost);
+          ballArrived();
         }
       }
       break;
-    default: break;
   }
+  function trackingMode() {
+    switch (ballManager.selectMode) {
+      case catchUserTypes[0]:
+        break;
+      case catchUserTypes[1]:
+        let lineP = getPointingLine(from);
+        if (lineP) {//指さしあり
+          let hitInfo = getCollVideo(from, lineP);
+          push();
+          stroke(0, 255, 0);
+          strokeWeight(3);
+          if (hitInfo) {
+            noFill();
+            line(lineP.start.x, lineP.start.y, hitInfo.hitPos.x, hitInfo.hitPos.y);
+            let hitVideo = hitInfo.video;
+            rect(hitVideo.pos.x, hitVideo.pos.y, hitVideo.size.x, hitVideo.size.y);
+            if (ballManager.isUserHost && hitVideo !== ball.target) {
+              ballManager.changeTarget(hitVideo);
+              Send(CATCHBALL, { mode: STATE_NEXTUSER, from: undefined, target: hitVideo.ID });
+            }
+          } else {
+            drawingContext.setLineDash([10, 20]);
+            line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
+          }
+          pop();
+        }
+        return;
+    }//switch end
+    // 指さしなし
+    ball.update();
+    let minMaxes = from.minMaxes;
+    let handsPos = undefined;
+    for (let i = 0; i < 2; i++) {
+      if (minMaxes[i]) {
+        handsPos = new Vec((minMaxes[i].maxX + minMaxes[i].minX) / 2, (minMaxes[i].maxY + minMaxes[i].minY) / 2);
+        break;
+      }
+    }
+    if (handsPos) {
+      let leftUp = from.leftUpPos;
+      let x = leftUp.x + handsPos.x * from.size.x;
+      let y = leftUp.y + handsPos.y * from.size.y;
+      ball.setPos(x, y);
+      ball.fromPos.x = x;
+      ball.fromPos.y = y;
+      if (ball.target && ball.from.ID === localVideo.ID && getThrowJudge(from, handsPos)) {//投げた判定
+        ballThrowed();
+      }
+    }
+  }// end trackingMode()
 }
 /**
  * キャッチボール終了
@@ -102,36 +108,38 @@ function catchEnd() {
  * ボールを投げた判定
  * @param {video} video 
  * @param {vec} handsPos 
- * @returns 投げた判定
  */
 function getThrowJudge(video, handsPos) {
-  return handsPos && handsPos.y < 0.3;
+  return handsPos && handsPos.y < 0.35;
 }
 /**
  * ボールを投げたときに呼ばれる関数
- * @param {boolean} isHost キャッチボールのホスト
  */
-function ballThrowed(isHost = false) {
-  if (ballManager.ball.from.ID === localVideo.ID) {
-    Send(CATCHBALL, { mode: BALLMODE, state: BALLMODE_THROWING });
-    ballManager.setMode(BALLMODE_THROWING);
-    if (ballManager.selectMode === catchUserTypes[1]) {
+function ballThrowed() {
+  ballManager.setMode(BALLMODE_THROWING);
+  Send(CATCHBALL, { mode: BALLMODE, state: BALLMODE_THROWING });
+  switch (ballManager.selectMode) {
+    case catchUserTypes[0]: break;
+    case catchUserTypes[1]:
       ballManager.isUserHost = false;
-    }
+      break;
   }
+
 }
 /**
  * ボールが届いたときに呼ばれる関数
- * @param {boolean} isHost キャッチボールのホスト
  */
-function ballArrived(isHost = false) {
+function ballArrived() {
   ballManager.setMode(BALLMODE_TRACKING);
-  if (ballManager.selectMode === catchUserTypes[1]) {
-    ballManager.setTarget();
-    ballManager.isUserHost = true;
+  switch (ballManager.selectMode) {
+    case catchUserTypes[0]: break;
+    case catchUserTypes[1]:
+      ballManager.isUserHost = true;
+      ballManager.setTarget();
+      break;
   }
   Send(CATCHBALL, { mode: BALLMODE, state: STATE_CATCH });
-  if (isHost) {
+  if (ballManager.isHost) {
     ballManager.finish();
   }
 }
@@ -154,11 +162,11 @@ function ballMovePos(fromPos, targetPos, amt) {
 function getPointingLine(video) {
   if (!video || !video.results || video.results.multiHandLandmarks.length === 0) return;
   let floorValue = 10000; // 線がブレブレにならないように精度を下げる
-  let threshold = 0.45;//指が曲がってる判定のしきい値
+  let threshold = 0.5;//指が曲がってる判定のしきい値
   let marks = video.results.multiHandLandmarks[0];
   let startP = createVector(floor(marks[8].x * floorValue) / floorValue, floor(marks[8].y * floorValue) / floorValue);
-  let dire = startP.copy().sub(floor(marks[5].x * floorValue) / floorValue, floor(marks[5].y * floorValue) / floorValue);
-  let bent = createVector(floor((marks[7].x - marks[6].x) * floorValue) / floorValue, floor((marks[7].y - marks[6].y) * floorValue) / floorValue);
+  let dire = startP.copy().sub(floor(marks[6].x * floorValue) / floorValue, floor(marks[6].y * floorValue) / floorValue);
+  let bent = createVector(floor((marks[6].x - marks[5].x) * floorValue) / floorValue, floor((marks[6].y - marks[5].y) * floorValue) / floorValue);
   let bentDot = floor(dire.dot(bent) * 10000) / 100;
   if (bentDot < threshold) return;
   if (mirror) {
@@ -168,34 +176,70 @@ function getPointingLine(video) {
   startP.x *= video.size.x;
   startP.y *= video.size.y;
   startP.add(video.leftUpPos);
-  let a = dire.y / dire.x;
-  let b = -a * startP.x + startP.y;
-  if (a === 0) return;
-  let y = (a * dire.x > 0 ? height : 0);
-  let x = (y - b) / a;
+  let linear = getLinear(dire, startP);
+  if (linear.a === 0) return;
+  let y = (linear.a * dire.x > 0 ? height : 0);
+  let x = (y - linear.b) / linear.a;
   return new LineSeg(startP, createVector(x, y));
+}
+/**
+ * 
+ * @param {vec} dire 
+ * @param {vec} pos 
+ * @returns {{傾きa,切片b}}
+ */
+function getLinear(dire, pos) {
+  let a = dire.y / dire.x;
+  let b = -a * pos.x + pos.y;
+  return { a: a, b: b };
 }
 
 /**
  * 他の参加者と線の当たり判定
  * @param {Line} pointingLine 
- * @returns {video}
+ * @returns {{video,Vec}}
  */
 function getCollVideo(from, pointingLine) {
-  if (!pointingLine) return;
-  if (collLineVideo(localVideo, from, pointingLine)) return localVideo;
+  let hitPos;
+  if (hitPos = collLineVideo(localVideo, from, pointingLine)) {
+    return { video: localVideo, hitPos: hitPos };
+  }
   for (let i = 0; i < others.length; i++) {
-    if (collLineVideo(others[i], from, pointingLine)) {
-      return others[i];
+    if (hitPos = collLineVideo(others[i], from, pointingLine)) {
+      return { video: others[i], hitPos: hitPos };
     }
   }
   function collLineVideo(video, from, lineP) {
     let leftUp = video.leftUpPos;
-    if (!leftUp || video.ID === from.ID) return false;
+    if (!leftUp || video.ID === from.ID) return undefined;
     let rightBottom = new Vec(leftUp.x + video.size.x, leftUp.y + video.size.y);
-    return collLineLine(leftUp, rightBottom, lineP.start, lineP.end) ||
-      collLineLine(new Vec(leftUp.x, rightBottom.y), new Vec(rightBottom.x, leftUp.y), lineP.start, lineP.end);//矩形の4辺ではなく対角線を当たり判定とする
-
+    let rightUp = new Vec(rightBottom.x, leftUp, y);
+    let leftBottom = new Vec(leftUp.x, rightBottom.y);
+    let sideArray = [new LineSeg(leftUp, rightUp), new LineSeg(rightUp, rightBottom), new LineSeg(rightBottom, leftBottom), new LineSeg(leftBottom, rightUp)]//4辺
+    let sideArrayLen = sideArray.length;
+    let hitPosition = undefined;
+    let distance = Number.MAX_SAFE_INTEGER;
+    for (let i = 0; i < sideArrayLen; i++) { //基本的に2本の辺に被るから4辺forを回す
+      if (collLineLine(sideArray[i].start, sideArray[i].end, lineP.start, lineP.end)) {
+        let linear = getLinear(new Vec(lineP.end.x - lineP.start.x, lineP.end.y - lineP.start.y), lineP.start);
+        let vec;
+        if (i % 2 === 0) {//上辺か下辺
+          let y = sideArray[i].start.y;
+          let x = (y - linear.b) / linear.a;
+          vec = new Vec(x, y);
+        } else {//右辺か左辺
+          let x = sideArray[i].x;
+          let y = linear.a * x + linear.b;
+          vec = new Vec(x, y);
+        }
+        let dist = pow(vec.x - lineP.start.x, 2) + pow(vec.y - lineP.start.y, 2);
+        if (dist < distance) {//より短い距離の交点を求める
+          distance = dist;
+          hitPosition = vec;
+        }
+      }
+    }
+    return hitPosition;
     //当たり判定の計算
     //https://qiita.com/ykob/items/ab7f30c43a0ed52d16f2
     /**
@@ -242,30 +286,46 @@ function receiveBallStatus(catchballMode) {
               ballManager.setTarget();
               break;
           }
-          return;
       }
       return;
 
     case STATE_NEXTUSER:
-      let target = getVideoInst(catchballMode.target);
-      if (isCatchBall) {//2回目以降
-        if (target === ballManager.ball.target) {
-          ballManager.changeTarget(target);
-        } else {
-          ballManager.setTarget(target);
-        }
-      } else {//初回はfromの設定が必要
-        isCatchBall = true;
-        ballManager.isUserHost = false;
-        let from = getVideoInst(catchballMode.from);
-        ballManager.ball = new Ball(from.pos.copy(), from, false);
-        ballManager.setTarget(target);
-      }
+      nextUser();
       return;
-      
+
     case USERSELECT:
       ballManager.setUserSelectMode(catchballMode.state);
       return;
+  }
+  function nextUser() {
+    switch (ballManager.selectMode) {
+      case catchUserTypes[0]:
+        let target = getVideoInst(catchballMode.target);
+        if (isCatchBall) {//2回目以降
+          ballManager.setTarget(target);
+        } else {//初回
+          isCatchBall = true;
+          ballManager.isUserHost = false;
+          let from = getVideoInst(catchballMode.from);
+          ballManager.ball = new Ball(from.pos.copy(), from);
+          ballManager.setTarget(target);
+        }
+        break;
+      case catchUserTypes[1]:
+        if (isCatchBall) {
+          let target = getVideoInst(catchballMode.target);
+          ballManager.changeTarget(target);
+          let from = getVideoInst(catchballMode.from);
+          if (from) ballManager.setFrom(from);
+        } else {//初回
+          isCatchBall = true;
+          ballManager.isUserHost = false;
+          ballManager.ballMode = BALLMODE_TRACKING;
+          let from = getVideoInst(catchballMode.from);
+          ballManager.ball = new Ball(from.pos.copy(), from);
+        }
+        break;
+    }
   }
 }
 
@@ -282,7 +342,7 @@ class BallManager {
   start() {
     this.isUserHost = true;
     this.isHost = true;
-    this.ball = new Ball(localVideo.pos.copy(), localVideo, true);
+    this.ball = new Ball(localVideo.pos.copy(), localVideo);
     switch (this.selectMode) {
       case catchUserTypes[0]:
         //配列の早いコピーらしい
@@ -291,7 +351,8 @@ class BallManager {
         this.setTarget(this.getNext());
         break;
       case catchUserTypes[1]:
-        Send(CATCHBALL, { from:this.ball.from.ID, target: undefined, mode:STATE_NEXTUSER });
+        let fAndT = this.ball.getFromTargetID();
+        Send(CATCHBALL, { from: fAndT.from, target: undefined, mode: STATE_NEXTUSER });
         break;
     }
   }
@@ -307,14 +368,17 @@ class BallManager {
   setTarget(next) {
     this.ball.setTarget(next);
     if (this.isUserHost) {
-      let ball = this.ball;
-      let msg = { from: ball.from.ID, target: (ball.target ? ball.target.ID : undefined), mode: STATE_NEXTUSER };
+      let fAndT = this.ball.getFromTargetID();
+      let msg = { from: fAndT.from, target: fAndT.target, mode: STATE_NEXTUSER };
       if (log) console.log(msg);
       Send(CATCHBALL, msg);
     }
   }
-  changeTarget(target){
+  changeTarget(target) {
     this.ball.changeTarget(target);
+  }
+  setFrom(from) {
+    this.ball.setFrom(from);
   }
   setMode(ballMode) {
     this.ballMode = ballMode;
@@ -344,10 +408,9 @@ class BallManager {
 }
 
 class Ball extends Obj {
-  constructor(pos, from, isUserHost) {
+  constructor(pos, from) {
     super(pos, 50);
     this.target;//目標
-    this.isUserHost = isUserHost;
     this.from = from;//出発
     this.fromPos = createVector();
     this.rotate = 0;
@@ -356,7 +419,7 @@ class Ball extends Obj {
   }
   update() {
     //目標の人を枠取り
-    if(this.target){
+    if (this.target) {
       stroke(0, 255, 0, 255);
       strokeWeight(5);
       noFill();
@@ -372,15 +435,14 @@ class Ball extends Obj {
   }
   setTarget(target) {
     this.amt = 0;
-    if (target) {
-      if(this.target) this.from = this.target;
-      this.target = target;
-    } else {
-      this.target = undefined;
-    }
+    if (this.target) this.from = this.target;
+    this.changeTarget(target);
   }
-  changeTarget(target){
+  changeTarget(target) {
     this.target = target;
+  }
+  setFrom(from) {
+    this.from = from;
   }
   setPosVec(vec) {
     this.pos = vec;
@@ -388,5 +450,10 @@ class Ball extends Obj {
   setPos(x, y) {
     this.pos.x = x;
     this.pos.y = y;
+  }
+  getFromTargetID() {
+    let from = this.from ? this.from.ID : undefined;
+    let target = this.target ? this.target.ID : undefined;
+    return { from: from, target: target };
   }
 }

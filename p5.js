@@ -145,8 +145,8 @@ function draw() {
     //Send(REGULAR, new ReceiveMessage(Date.now()));
   }
   if (localVideo === null) return;
-  if(!localVideo.results){
-    text(width/2,height/2,'system loading');
+  if (!localVideo.results) {
+    text(width / 2, height / 2, 'system loading');
     return;
   }
   if (!dragTimer.isWait) {
@@ -175,9 +175,9 @@ function draw() {
   if (highFiveSelected !== 'none') {
     HighFive();
   }
-  if(isCatchBall){
+  if (isCatchBall) {
     catchBallUpdate();
-  }  
+  }
 
 }
 
@@ -272,14 +272,14 @@ function mouseDragged() {
 
 function mouseReleased() {
   mouseDragged();
-  if (draggingVideo !== null){
+  if (draggingVideo !== null) {
     sendVideoPos();
   }
-    
+
   draggingVideo = null;
 }
 
-function sendVideoPos(){
+function sendVideoPos() {
   Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
 }
 function ResizeAllVideos() {
@@ -377,6 +377,7 @@ function SetMike(video, is) {
 }
 
 function getVideoInst(ID) {
+  if (!ID) return undefined;
   if (ID === localVideo.ID) {
     return localVideo;
   }
@@ -628,4 +629,8 @@ function DrawConnectors(video, marks, weight) {
 
 function randomInt(max) {
   return Math.floor(Math.random() * max);
+}
+
+function sign(value) {
+  return value > 0 ? 1 : value < 0 ? -1 : 0;
 }

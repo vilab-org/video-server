@@ -272,7 +272,7 @@ function ChangeDrawRect() {
 
 function ChangeIsCatch() {
   if (isCatchBall) {
-    if (ballManager.host) {
+    if (ballManager.isHost) {
       catchEnd();
     }
     return;
