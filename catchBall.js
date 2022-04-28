@@ -72,8 +72,8 @@ function catchBallUpdate() {
             line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
           }
           pop();
+          return;
         }
-        return;
     }//switch end
     // 指さしなし
     ball.update();
@@ -134,8 +134,8 @@ function ballArrived() {
   switch (ballManager.selectMode) {
     case catchUserTypes[0]: break;
     case catchUserTypes[1]:
-      ballManager.isUserHost = true;
       ballManager.setTarget();
+      ballManager.isUserHost = true;
       break;
   }
   Send(CATCHBALL, { mode: BALLMODE, state: STATE_CATCH });
@@ -213,7 +213,7 @@ function getCollVideo(from, pointingLine) {
     let leftUp = video.leftUpPos;
     if (!leftUp || video.ID === from.ID) return undefined;
     let rightBottom = new Vec(leftUp.x + video.size.x, leftUp.y + video.size.y);
-    let rightUp = new Vec(rightBottom.x, leftUp, y);
+    let rightUp = new Vec(rightBottom.x, leftUp.y);
     let leftBottom = new Vec(leftUp.x, rightBottom.y);
     let sideArray = [new LineSeg(leftUp, rightUp), new LineSeg(rightUp, rightBottom), new LineSeg(rightBottom, leftBottom), new LineSeg(leftBottom, rightUp)]//4辺
     let sideArrayLen = sideArray.length;
@@ -228,7 +228,7 @@ function getCollVideo(from, pointingLine) {
           let x = (y - linear.b) / linear.a;
           vec = new Vec(x, y);
         } else {//右辺か左辺
-          let x = sideArray[i].x;
+          let x = sideArray[i].start.x;
           let y = linear.a * x + linear.b;
           vec = new Vec(x, y);
         }

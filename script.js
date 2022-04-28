@@ -255,6 +255,7 @@ function LeaveRoom() {
 }
 
 function Send(type, msg) {
+  if (type !== HANDRESULT && log) console.log("send", type, msg);
   if (room) room.send(toJSON(new Message(type, msg)));//JSONにしなくても大きくないデータなら普通に送信できる
 }
 function toJSON(classtype) {
