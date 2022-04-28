@@ -34,16 +34,21 @@ function catchBallUpdate() {
     case BALLMODE_TRACKING:
       if (manager.selectMode === catchUserTypes[1]) {
         let lineP = getPointingLine(from);
-        if (ballManager.isUserHost && lineP) {//指さしあり
+        if (lineP) {//指さしあり
           let hitVideo = getCollVideo(from, lineP);
           push();
           stroke(0, 255, 0);
           strokeWeight(3);
-          if (!hitVideo) drawingContext.setLineDash([10, 5]);
-          line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
+          if (hitVideo) {
+            line(lineP.start.x, lineP.start.y, hitVideo.pos.x, hitVideo.pos.y);
+            rect(hitVideo.pos.x, hitVideo.pos.y, hitVideo.size.x, hitVideo.size.y);
+          } else {
+            drawingContext.setLineDash([10, 5]);
+            line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
+          }
           pop();
-          if (hitVideo && hitVideo !== ball.target) {
-            ballManager.setTarget(hitVideo);
+          if (ballManager.isUserHost && hitVideo && hitVideo !== ball.target) {
+            ballManager.changeTarget(hitVideo);
           }
           break;
         }
@@ -110,7 +115,7 @@ function ballThrowed(isHost = false) {
   if (ballManager.ball.from.ID === localVideo.ID) {
     Send(CATCHBALL, { mode: BALLMODE, state: BALLMODE_THROWING });
     ballManager.setMode(BALLMODE_THROWING);
-    if(ballManager.selectMode === catchUserTypes[1]){
+    if (ballManager.selectMode === catchUserTypes[1]) {
       ballManager.isUserHost = false;
     }
   }
@@ -121,7 +126,7 @@ function ballThrowed(isHost = false) {
  */
 function ballArrived(isHost = false) {
   ballManager.setMode(BALLMODE_TRACKING);
-  if(ballManager.selectMode === catchUserTypes[1]){
+  if (ballManager.selectMode === catchUserTypes[1]) {
     ballManager.isUserHost = true;
     ballManager.setTarget();
   }
@@ -178,7 +183,7 @@ function getPointingLine(video) {
  */
 function getCollVideo(from, pointingLine) {
   if (!pointingLine) return;
-  if(collLineVideo(localVideo, from, pointingLine)) return localVideo;
+  if (collLineVideo(localVideo, from, pointingLine)) return localVideo;
   for (let i = 0; i < others.length; i++) {
     if (collLineVideo(others[i], from, pointingLine)) {
       return others[i];
@@ -244,7 +249,7 @@ function receiveBallStatus(catchballMode) {
     case STATE_NEXTUSER:
       let target = getVideoInst(catchballMode.target);
       if (isCatchBall) {//2回目以降
-        if(target === ballManager.ball.target) {
+        if (target === ballManager.ball.target) {
           ballManager.changeTarget(target);
         } else {
           ballManager.setTarget(target);
@@ -257,7 +262,7 @@ function receiveBallStatus(catchballMode) {
         ballManager.setTarget(target);
       }
       return;
-      
+
     case USERSELECT:
       ballManager.setUserSelectMode(catchballMode.state);
       return;
@@ -286,12 +291,12 @@ class BallManager {
         this.setTarget(this.getNext());
         break;
       case catchUserTypes[1]:
-        Send(CATCHBALL, {from:this.ball.from.ID, target: undefined, mode:STATE_NEXTUSER });
+        Send(CATCHBALL, { from: this.ball.from.ID, target: undefined, mode: STATE_NEXTUSER });
         break;
     }
   }
-  setUserSelectMode(mode){
-    if(isCatchBall) {
+  setUserSelectMode(mode) {
+    if (isCatchBall) {
       $("#catchUserSelect").val(this.selectMode);
       return false;
     }
@@ -302,13 +307,19 @@ class BallManager {
   setTarget(next) {
     this.ball.setTarget(next);
     if (this.isUserHost) {
-      let msg = { from: this.ball.from.ID, target: this.ball.target.ID, mode: STATE_NEXTUSER };
-      if (log) console.log(msg);
-      Send(CATCHBALL, msg);
+      this.sendBallUsers();
     }
   }
-  changeTarget(target){
+  changeTarget(target) {
     this.ball.changeTarget(target);
+    if (this.isUserHost) {
+      this.sendBallUsers();
+    }
+  }
+  sendBallUsers() {
+    let msg = { from: this.ball.from.ID, target: this.ball.target.ID, mode: STATE_NEXTUSER };
+    if (log) console.log(msg);
+    Send(CATCHBALL, msg);
   }
   setMode(ballMode) {
     this.ballMode = ballMode;
@@ -350,7 +361,7 @@ class Ball extends Obj {
   }
   update() {
     //目標の人を枠取り
-    if(this.target){
+    if (this.target) {
       stroke(0, 255, 0, 255);
       strokeWeight(5);
       noFill();
@@ -367,13 +378,13 @@ class Ball extends Obj {
   setTarget(target) {
     this.amt = 0;
     if (target) {
-      if(this.target) this.from = this.target;
+      if (this.target) this.from = this.target;
       this.target = target;
     } else {
       this.target = undefined;
     }
   }
-  changeTarget(target){
+  changeTarget(target) {
     this.target = target;
   }
   setPosVec(vec) {
