@@ -101,12 +101,12 @@ function setup() {
     let cs = getCanvasSize();
     resizeCanvas(cs.x, cs.y);
     ResizeAllVideos();
-  }; 
-  
+  };
+
   blackimg = loadImage('/image/nekocan.png');
   handImgs = [loadImage('/image/handLef.png'), loadImage('/image/handRig.png')]
   if (log) console.log('setup');
-  function getCanvasSize(){
+  function getCanvasSize() {
     return new Vec(document.getElementById('autoWidth').clientWidth, windowHeight);
   }
 }
@@ -152,7 +152,8 @@ function draw() {
   }
   if (localVideo === null) return;
   if (!localVideo.results) {
-    text(width / 2, height / 2, 'system loading');
+    stroke(255);
+    text('system loading', width / 2, height / 2);
     return;
   }
   if (!dragTimer.isWait) {
