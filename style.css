@@ -42,7 +42,7 @@ input:checked+.tab_class {
   display: none;
   width: 100%;
   background-color: rgb(249, 249, 249);;
-  color: cadetblue;
+  color: black;
   padding-left: 5px;
 }
 
