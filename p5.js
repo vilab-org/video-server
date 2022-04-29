@@ -391,6 +391,10 @@ function SearchOthers(peerId) {
 }
 
 function moveVideo(video, pos) {
+  pos.x = max(video.size.x / 2, pos.x);
+  pos.x = min(width - video.size.x / 2, pos.x);
+  pos.y = max(video.size.y/2, pos.y);
+  pos.y = min(height - video.size.y / 2, pos.y);
   video.pos = createVector(pos.x, pos.y);
   video.capture.position(pos.x - video.size.x / 2, pos.y - video.size.y / 2);
   video.updateLeftUpPos();
