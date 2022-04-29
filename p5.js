@@ -1,6 +1,6 @@
 //https://qiita.com/yusuke84/items/54dce88f9e896903e64f
 //アイコン https://icooon-mono.com/
-let log = true;
+let log = false;
 let localVideo = null;
 let localID;
 let others = [];
@@ -152,8 +152,12 @@ function draw() {
   }
   if (localVideo === null) return;
   if (!localVideo.results) {
-    stroke(255);
-    text('system loading', width / 2, height / 2);
+    push();
+    stroke(255);fill(255);
+    textSize(24);
+    textAlign(CENTER);
+    text('system loading...', width / 2, height / 2);
+    pop();
     return;
   }
   if (!dragTimer.isWait) {
