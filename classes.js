@@ -9,22 +9,28 @@ class Mathf {
     this.sin.push(this.sin[0]);
     this.cos.push(this.cos[0]);
   }
-  Sin(rad){
+  Sin(rad) {
     rad %= 360;
-    if(rad<0)rad = 360+rad;
+    if (rad < 0) rad = 360 + rad;
     return this.sin[rad];
   }
-  Cos(rad){
+  Cos(rad) {
     rad %= 360;
-    if(rad<0)rad = 360+rad;
+    if (rad < 0) rad = 360 + rad;
     return this.cos[rad];
   }
   sqrMag(vec) {
     return vec.x * vec.x + vec.y * vec.y;
   }
-  sqrDist(vec1,vec2){
-    let vec = new Vec(vec1.x-vec2.x,vec1.y-vec2.y);
+  sqrDist(vec1, vec2) {
+    let vec = new Vec(vec1.x - vec2.x, vec1.y - vec2.y);
     return this.sqrMag(vec);
+  }
+  bezier(p1, p2, p3, amt) {//https://ja.javascript.info/bezier-curve
+    let subT = 1 - amt;
+    let x = pow(subT, 2) * p1.x + 2 * subT * amt * p2.x + pow(amt, 2) * p3.x;
+    let y = pow(subT, 2) * p1.y + 2 * subT * amt * p2.y + pow(amt, 2) * p3.y;
+    return createVector(x, y);
   }
 }
 
@@ -195,7 +201,7 @@ class Video extends Obj {
     this.mikeButton.elt.src = img;
     //this.capture.elt.volume = volume;
   }
-  updateLeftUpPos(){
+  updateLeftUpPos() {
     this.leftUpPos = createVector(this.pos.x - this.size.x / 2, this.pos.y - this.size.y / 2);
   }
 }
