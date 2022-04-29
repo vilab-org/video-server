@@ -12,6 +12,7 @@ let isDrawRect = false;
 let highFiveTypes = ['機能なし', '自由な位置', '固定の位置', 'ハイブリッド'];
 let highFiveSelected;
 let catchUserTypes = ['ランダム', '指さし'];
+let flyingTypes = ['直線', '曲線'];
 $(function () {
 
   let peer = null;
@@ -41,8 +42,22 @@ $(function () {
   }
   catchUserSelect.on('change', () => {
     let isChanged = ballManager.setUserSelectMode(catchUserSelect.val());
-    if(isChanged){
-      Send(CATCHBALL, { mode: USERSELECT ,state:ballManager.selectMode});
+    if (isChanged) {
+      Send(CATCHBALL, { mode: USERSELECT, state: ballManager.selectMode });
+    }
+  });
+  //ボールの飛び方
+  let flyingSelect = $('#flyingSelect');
+  let flyingTypesLen = flyingTypes.length;
+  for (let i = 0; i < flyingTypesLen; i++) {
+    let option = $('<option>');
+    option.text(flyingTypes[i]);
+    flyingSelect.append(option);
+  }
+  flyingSelect.on('Change', () => {
+    let isChanged = ballManager.setFlyingSelectMode(flyingSelect.val());
+    if (isChanged) {
+      Send(CATCHBALL, { mode: FLYINGSELECT, state: ballManager.flyingMode });
     }
   });
 

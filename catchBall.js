@@ -1,12 +1,13 @@
 let isCatchBall = false;
 let ballManager;
 let ballImg;
-const BALLMODE = 'ball mode';
-const BALLMODE_TRACKING = 'tracking';
-const BALLMODE_THROWING = 'throwing';
-const STATE_NEXTUSER = 'nextuser';
-const STATE_CATCH = 'catch';
-const USERSELECT = 'user select mode';
+const BALLMODE = 'BALLMODE';
+const BALLMODE_TRACKING = 'TRACKING';
+const BALLMODE_THROWING = 'THROWING';
+const STATE_NEXTUSER = 'NEXTUSER';
+const STATE_CATCH = 'CATCH';
+const USERSELECT = 'USERSELECT';
+const FLYINGSELECT = 'FLYINGSELECT';
 /**
  * キャッチボールのsetup
  */
@@ -37,7 +38,7 @@ function catchBallUpdate() {
     case BALLMODE_THROWING:
       ball.update();
       ball.rotate += (1 / getFrameRate()) * ball.speedR;
-      ball.setPosVec(ballMovePos(ball.fromPos, ball.target.pos, ball.amt));
+      ball.setPosVec(ballMovePos(ball.from, ball.target, ball.amt));
       ball.amt += (1 / getFrameRate()) / 3;//3秒で到達
       if (ball.amt >= 1) {
         ball.amt = 1;
@@ -145,13 +146,24 @@ function ballArrived() {
 }
 /**
  * ボールの動き方
- * @param {PVector} fromPos 
- * @param {PVector} targetPos 
+ * @param {video} from 
+ * @param {video} target
  * @param {float} amt 
  * @returns {PVector} pvector
  */
-function ballMovePos(fromPos, targetPos, amt) {
-  return p5.Vector.lerp(fromPos, targetPos, amt);
+function ballMovePos(from, target, amt) {
+  switch (ballManager.flyingMode) {
+    case flyingTypes[0]:
+      return p5.Vector.lerp(from.fromPos, target.pos, amt);
+    case flyingTypes[1]:
+      let minPos = min(from.fromPos.y, target.pos.y);//より高い位置
+      let y = - (from.size.y + target.size.y) * 2;
+      if (minPos - (minPos - p3.y) / 2 < 0) { //放物線の頂点が画面外なら
+        y = -minPos;
+      }
+      let p3 = new Vec((fromPos.x + targetPos.x) / 2, y);
+      return mathf.bezier(fromPos, target.pos, p3, amt);
+  }
 }
 
 /**
@@ -296,6 +308,9 @@ function receiveBallStatus(catchballMode) {
     case USERSELECT:
       ballManager.setUserSelectMode(catchballMode.state);
       return;
+    case FLYINGSELECT:
+      ballManager.setFlyingSelectMode(catchballMode.state);
+      return;
   }
   function nextUser() {
     switch (ballManager.selectMode) {
@@ -338,6 +353,7 @@ class BallManager {
     this.isUserHost = false;
     this.selectMode = catchUserTypes[0];
     this.ballMode = BALLMODE_TRACKING;//ボールが動くモード
+    this.flyingMode = flyingTypes[0];
   }
   start() {
     this.isUserHost = true;
@@ -363,6 +379,15 @@ class BallManager {
     }
     this.selectMode = mode;
     $("#catchUserSelect").val(mode);
+    return true;
+  }
+  setFlyingSelectMode(mode) {
+    if (isCatchBall) {
+      $('#flyingSelect').val(this.flyingMode);
+      return false;
+    }
+    this.flyingMode = mode;
+    $('#flyingSelect').val(mode);
     return true;
   }
   setTarget(next) {
