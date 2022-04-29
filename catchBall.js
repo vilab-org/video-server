@@ -38,7 +38,7 @@ function catchBallUpdate() {
     case BALLMODE_THROWING:
       ball.update();
       ball.rotate += (1 / getFrameRate()) * ball.speedR;
-      ball.setPosVec(ballMovePos(ball.from, ball.target, ball.amt));
+      ball.setPosVec(ballMovePos(ball.fromPos, ball.from, ball.target, ball.amt));
       ball.amt += (1 / getFrameRate()) / 3;//3秒で到達
       if (ball.amt >= 1) {
         ball.amt = 1;
@@ -151,18 +151,18 @@ function ballArrived() {
  * @param {float} amt 
  * @returns {PVector} pvector
  */
-function ballMovePos(from, target, amt) {
+function ballMovePos(fromPos, from, target, amt) {
   switch (ballManager.flyingMode) {
     case flyingTypes[0]:
-      return p5.Vector.lerp(from.fromPos, target.pos, amt);
+      return p5.Vector.lerp(fromPos, target.pos, amt);
     case flyingTypes[1]:
-      let minPos = min(from.fromPos.y, target.pos.y);//より高い位置
+      let minPos = min(fromPos.y, target.pos.y);//より高い位置
       let y = - (from.size.y + target.size.y) * 2;
-      if (minPos - (minPos - p3.y) / 2 < 0) { //放物線の頂点が画面外なら
+      if (minPos - (minPos - y) / 2 < 0) { //放物線の頂点が画面外なら
         y = -minPos;
       }
-      let p3 = new Vec((fromPos.x + targetPos.x) / 2, y);
-      return mathf.bezier(fromPos, target.pos, p3, amt);
+      let p2 = new Vec((fromPos.x + target.pos.x) / 2, y);
+      return mathf.bezier(fromPos, p2, target.pos, amt);
   }
 }
 
@@ -440,7 +440,7 @@ class Ball extends Obj {
     this.fromPos = createVector();
     this.rotate = 0;
     this.amt = 0;//線形補間の割合
-    this.speedR = 2;
+    this.speedR = 5;
   }
   update() {
     //目標の人を枠取り

@@ -54,7 +54,7 @@ $(function () {
     option.text(flyingTypes[i]);
     flyingSelect.append(option);
   }
-  flyingSelect.on('Change', () => {
+  flyingSelect.on('change', () => {
     let isChanged = ballManager.setFlyingSelectMode(flyingSelect.val());
     if (isChanged) {
       Send(CATCHBALL, { mode: FLYINGSELECT, state: ballManager.flyingMode });
