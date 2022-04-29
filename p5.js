@@ -311,7 +311,7 @@ function ReceivedMessage(peerID, msg) {
   if (log && msg.type !== HANDRESULT) console.log('receive:' + peerID + ':', msg);
   let index = SearchOthers(peerID);
   if (index === -1) {
-    console.warn("not found peerID");
+    window.alert("上手く通話ができてない参加者がいます\n更新ボタンを押してください（ctrl+R）")
     return;
   }
   let video = others[index];

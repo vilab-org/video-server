@@ -163,7 +163,7 @@ $(function () {
 
       }).catch(function (error) {
         console.error(error);
-        window.alert('カメラかマイクの設定を見直してください\nリロードしてください');
+        window.alert('カメラかマイクの設定を見直して\nリロードしてください（ctrl+R）');
         return;
       });
   }
