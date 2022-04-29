@@ -95,14 +95,20 @@ function setup() {
   ellipseMode(CENTER);
   mathf = new Mathf();
   //canvas作成
-  createCanvas(windowWidth, windowHeight);
+  let size = getCanvasSize();
+  createCanvas(size.x, size.y);
   window.onresize = function () {
-    resizeCanvas(windowWidth, windowHeight);
+    let cs = getCanvasSize();
+    resizeCanvas(cs.x, cs.y);
     ResizeAllVideos();
-  };
+  }; 
+  
   blackimg = loadImage('/image/nekocan.png');
   handImgs = [loadImage('/image/handLef.png'), loadImage('/image/handRig.png')]
   if (log) console.log('setup');
+  function getCanvasSize(){
+    return new Vec(document.getElementById('autoWidth').clientWidth, windowHeight);
+  }
 }
 
 function addOtherVideo(otherStream) {

@@ -9,7 +9,7 @@ html {
 /**/
 .area {
   width: auto;
-  height: 200px;
+  height: auto;
   flex-wrap: wrap;
   display: flex;
   position: sticky;
@@ -40,6 +40,7 @@ input:checked+.tab_class {
 .content_class {
   display: none;
   width: 100%;
+  background-color: white;
 }
 
 input:checked+.tab_class+.content_class {
