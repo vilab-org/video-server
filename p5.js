@@ -299,8 +299,8 @@ function ResizeAllVideos() {
     let x = (width * 0.5) / num;
     let ratio = video.size.y / video.size.x;//xを基準としたyの比率
     let y = x * ratio;
-    if (y > height * 0.8) {
-      y = height * 0.8;
+    if (y > height * 0.7) {
+      y = height * 0.7;
       return new Vec(y / ratio, y);
     }
     return new Vec(x, y);
