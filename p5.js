@@ -153,7 +153,7 @@ function draw() {
   if (localVideo === null) return;
   if (!localVideo.results) {
     push();
-    stroke(255);fill(255);
+    stroke(255); fill(255);
     textSize(24);
     textAlign(CENTER);
     text('system loading...', width / 2, height / 2);
@@ -250,17 +250,6 @@ function mousePressed() {
   if (collide(mouseX, mouseY, localVideo)) {
     if (mouseButton === LEFT) {
       draggingVideo = localVideo;
-    } else { //RIGHT
-      let resize = localVideo.size;
-      //resize.x *= 0.75;
-      //resize.y *= 0.75;
-      resize.set(resize.x * 0.75, resize.y * 0.75);
-      if (resize.x < windowWidth / 20) {
-        resize.set(localVideo.capture.width, localVideo.capture.height);
-        //resize.x = localVideo.capture.width;
-        //resize.y = localVideo.capture.height;
-      }
-      Send(RESIZE, resize);
     }
   } else { //マウスの位置は自分のビデオじゃない
     for (let i = 0; i < dummys.length; i++) { //ダミーをクリックしてる説
@@ -307,17 +296,14 @@ function ResizeAllVideos() {
   }
 
   function getSize(video, num) {
-    if (windowWidth > windowHeight) {
-      let ratio = video.size.x / video.size.y;
-      let x = (windowWidth * 0.5) / num;
-      let y = x / ratio;
-      return new Vec(x, y);
-    } else {
-      let ratio = video.size.y / video.size.x;
-      let y = (windowHeight * 0.5) / num;
-      let x = y / ratio;
-      return new Vec(x, y);
+    let x = (width * 0.5) / num;
+    let ratio = video.size.y / video.size.x;//xを基準としたyの比率
+    let y = x * ratio;
+    if (y > height * 0.8) {
+      y = height * 0.8;
+      return new Vec(y / ratio, y);
     }
+    return new Vec(x, y);
   }
 }
 
