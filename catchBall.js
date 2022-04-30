@@ -8,6 +8,7 @@ const STATE_NEXTUSER = 'NEXTUSER';
 const STATE_CATCH = 'CATCH';
 const USERSELECT = 'USERSELECT';
 const FLYINGSELECT = 'FLYINGSELECT';
+let isManualCatch = false;
 /**
  * キャッチボールのsetup
  */
@@ -311,6 +312,9 @@ function receiveBallStatus(catchballMode) {
     case FLYINGSELECT:
       ballManager.setFlyingSelectMode(catchballMode.state);
       return;
+    case MANUALCATCH:
+      OnChangeManualCatch(catchballMode.state);
+      return;
   }
   function nextUser() {
     switch (ballManager.selectMode) {
@@ -341,6 +345,16 @@ function receiveBallStatus(catchballMode) {
         }
         break;
     }
+  }
+}
+
+function OnChangeManualCatch(enabled) {
+  if (enabled != null) {
+    isDynamicEffect = enabled;
+    document.getElementById('manualCatch').checked = enabled;
+  } else {
+    isManualCatch = $('#manualCatch').prop('checked');
+    Send(DYNAMICEFFECT, isManualCatch);
   }
 }
 
