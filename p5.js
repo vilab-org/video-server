@@ -15,6 +15,7 @@ let VideOFFImg = '/image/VideOFF red.png';
 let MikeONImg = '/image/MikeON green.png';
 let MikeOFFImg = '/image/MikeOFF red.png';
 let mathf;
+let deltaTime = 0;
 let averagePing = 0;
 let regularTime = new Timer(10);
 let dragTimer = new Timer(0.5);
@@ -145,6 +146,7 @@ function removeOtherVideo(video) {
 }
 
 function draw() {
+  deltaTime = 1 / getFrameRate();
   background(100);
   if (!regularTime.isWait) {
     regularTime.startTimer();
