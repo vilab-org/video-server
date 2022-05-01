@@ -1,13 +1,13 @@
 //https://qiita.com/yusuke84/items/54dce88f9e896903e64f
 //アイコン https://icooon-mono.com/
-let log = false;
+let log = true;
 let localVideo = null;
 let localID;
 let others = [];
 let dummys = [];
 let draggingVideo = null;
 let hideCapture = null;
-let handResults;
+let wasHandResults = false;
 let blackimg;
 let handImgs;
 let VideONImg = '/image/VideON green.png';
@@ -170,7 +170,8 @@ function draw() {
     }
     if (localVideo.results) {
       //(今回手を認識している || 前回手を認識している)
-      if (localVideo.results.multiHandLandmarks.length > 0 || (handResults && handResults.multiHandLandmarks.length > 0)) {
+      if (localVideo.results.multiHandLandmarks.length > 0 || wasHandResults) {
+        wasHandResults = localVideo.results.multiHandLandmarks.length > 0;
         Send(HANDRESULT, localVideo.results);
       }
     }

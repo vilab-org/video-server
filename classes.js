@@ -93,7 +93,7 @@ class Video extends Obj {
     this.videoEnabled = false;
     this.mikeEnabled = true;
     this.minMaxes = [undefined, undefined];
-    this.results = undefined;
+    this.results = { multiHandLandmarks: [] };
     this.highFive = [false, false];
     this.leftUpPos;
     this.ping = 1;
