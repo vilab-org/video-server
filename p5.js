@@ -17,7 +17,6 @@ let MikeOFFImg = '/image/MikeOFF red.png';
 let mathf;
 let deltaTime = 0;
 let averagePing = 0;
-let regularTime = new Timer(10);
 let dragTimer = new Timer(0.5);
 let mirror = true;
 let handInterval = 0;
@@ -146,22 +145,18 @@ function removeOtherVideo(video) {
 }
 
 function draw() {
-  deltaTime = 1 / getFrameRate();
-  background(100);
-  if (!regularTime.isWait) {
-    regularTime.startTimer();
-    //Send(REGULAR, new ReceiveMessage(Date.now()));
-  }
-  if (localVideo === null) return;
-  if (!localVideo.results) {
+  if (localVideo === null || !(localVideo.results && localVideo.results.image)) {
     push();
     stroke(255); fill(255);
     textSize(24);
     textAlign(CENTER);
-    text('system loading...', width / 2, height / 2);
+    background(0);
+    text('system loading' + '...'.substring(0, second()%4), width / 2, height / 2);
     pop();
     return;
   }
+  deltaTime = 1 / getFrameRate();
+  background(100);
   if (!dragTimer.isWait) {
     dragTimer.startTimer();
 
