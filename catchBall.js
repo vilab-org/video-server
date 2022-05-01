@@ -9,6 +9,7 @@ const STATE_NEXTUSER = 'NEXTUSER';
 const STATE_CATCH = 'CATCH';
 const USERSELECT = 'USERSELECT';
 const FLYINGSELECT = 'FLYINGSELECT';
+const MANUALCATCH = 'MANUALCATCH';
 let isManualCatch = false;
 /**
  * キャッチボールのsetup
@@ -33,6 +34,10 @@ function catchBallUpdate() {
   let manager = ballManager;
   let ball = manager.ball;
   let from = ball.from;
+  if(ball.targetPos){
+    fill(255,0,0);
+    ellipse(ball.targetPos.x,ball.targetPos.y,50,50);
+  }
   switch (manager.ballMode) {
     case BALLMODE_TRACKING:
       trackingMode();
@@ -52,8 +57,9 @@ function catchBallUpdate() {
       }
       break;
     case BALLMODE_CATCHING:
-      ball.setPos(ball.pos.x, ball.pos.y + (ball.target.size.y / height) * (10 / deltaTime));
+      ball.setPos(ball.pos.x, ball.pos.y + (ball.target.size.y / height) * 10);
       ballManager.catching();
+      ball.update();
       break;
   }
   function trackingMode() {
@@ -112,6 +118,8 @@ function catchBallUpdate() {
  */
 function catchEnd() {
   isCatchBall = false;
+  ballManager.isHost = false;
+  ballManager.isUserHost = false;
 }
 /**
  * ボールを投げた判定
@@ -369,11 +377,11 @@ function receiveBallStatus(catchballMode) {
 
 function OnChangeManualCatch(enabled) {
   if (enabled != null) {
-    isDynamicEffect = enabled;
+    isManualCatch = enabled;
     document.getElementById('manualCatch').checked = enabled;
   } else {
     isManualCatch = $('#manualCatch').prop('checked');
-    Send(DYNAMICEFFECT, isManualCatch);
+    Send(CATCHBALL, { mode: MANUALCATCH, state: isManualCatch});
   }
 }
 
@@ -392,6 +400,7 @@ class BallManager {
   start() {
     this.isUserHost = true;
     this.isHost = true;
+    this.ballMode = BALLMODE_TRACKING;
     this.ball = new Ball(localVideo.pos.copy(), localVideo);
     switch (this.selectMode) {
       case catchUserTypes[0]:
@@ -466,10 +475,11 @@ class BallManager {
   }
   setTargetPos(int) {
     let target = this.ball.target;
-    if (!int) {
+    if (int === undefined) {
       this.ball.targetPos = target.pos.copy();
+      return;
     }
-    let vec = target.leftUp.copy();
+    let vec = target.leftUpPos.copy();
     let x = [vec.x + this.ball.size * 2, target.pos.x, target.pos.x + target.size.x / 2 - this.ball.size * 2];
     vec.x = x[int];
     this.ball.targetPos = vec;
@@ -482,23 +492,34 @@ class BallManager {
         this.catchingTime += deltaTime;
         if (this.catchingTime >= 1) {
           this.catchingTime = 0;
+          if (log) console.log("キャッチ成功");
           ballArrived();
         }
-      } else if (pos.y > ball.target.pos.y + ball.target.size.y) {
+      } else if (pos.y > ball.target.pos.y + ball.target.size.y / 2) {
+        if (log) console.log("キャッチ失敗");
         this.finish();
+        this.ballMode = BALLMODE_TRACKING;
       }
     }
     function collBallHands() {
       for (let i = 0; i < 2; i++) {
-        if (collBallHand(ball.target.minMaxes[i])) {
-          ball.setPos(pos.x, ball.target.minMaxes[i].minY - ball.size);
+        let minMax = formatMinMax(ball.target, ball.target.minMaxes[i])
+        if (minMax && collBallHand(minMax)) {
+          ball.setPos(pos.x, minMax.minY - ball.size);
           return true;
         }
       }
       return false;
       function collBallHand(minMax) {
         return pos.y + ball.size >= minMax.minY && pos.y - ball.size <= minMax.maxY &&
-          pos.x + ball.size >= minMax.minX && pos.x - ball.size <= minMax.maxX;
+          pos.x + ball.size >= (mirror ? minMax.maxX : minMax.minX) && pos.x - ball.size <= (mirror ? minMax.minX : minMax.maxX);
+      }
+      function formatMinMax(video, minMax){
+        if(!minMax) return;
+        let minPos = video.leftUpPos.copy();
+        let size = video.size;
+        
+        return { minX: minPos.x + minMax.minX * size.x, minY: minPos.y + minMax.minY * size.y, maxX: minPos.x + minMax.maxX * size.x, maxY: minPos.y + minMax.maxY * size.y};
       }
     }
   }
