@@ -503,13 +503,13 @@ class BallManager {
       for (let i = 0; i < 2; i++) {
         let minMax = formatMinMax(ball.target, ball.target.minMaxes[i])
         if (minMax && collBallHand(minMax)) {
-          return new Vec(pos.x, minMax.minY - ball.size);
+          return new Vec(pos.x, minMax.minY - ball.size / 2);
         }
       }
       return undefined;
       function collBallHand(minMax) {
-        return pos.y + ball.size >= minMax.minY && pos.y - ball.size <= minMax.maxY &&
-          pos.x + ball.size >= (mirror ? minMax.maxX : minMax.minX) && pos.x - ball.size <= (mirror ? minMax.minX : minMax.maxX);
+        return pos.y + ball.size / 2 >= minMax.minY && pos.y - ball.size / 2 <= minMax.maxY &&
+          pos.x + ball.size / 2 >= (mirror ? minMax.maxX : minMax.minX) && pos.x - ball.size / 2 <= (mirror ? minMax.minX : minMax.maxX);
       }
       function formatMinMax(video, minMax) {
         if (!minMax) return;
