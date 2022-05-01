@@ -4,6 +4,7 @@ let ballImg;
 const BALLMODE = 'BALLMODE';
 const BALLMODE_TRACKING = 'TRACKING';
 const BALLMODE_THROWING = 'THROWING';
+const BALLMODE_CATCHING = 'CATCHING';
 const STATE_NEXTUSER = 'NEXTUSER';
 const STATE_CATCH = 'CATCH';
 const USERSELECT = 'USERSELECT';
@@ -38,15 +39,21 @@ function catchBallUpdate() {
       break;
     case BALLMODE_THROWING:
       ball.update();
-      ball.rotate += (1 / getFrameRate()) * ball.speedR;
-      ball.setPosVec(ballMovePos(ball.fromPos, ball.from, ball.target, ball.amt));
-      ball.amt += (1 / getFrameRate()) / 3;//3秒で到達
+      ball.rotate += deltaTime * ball.speedR;
+      ball.setPosVec(ballMovePos(ball.fromPos, ball.targetPos, ball.amt, ball.from, ball.target));
+      ball.amt += deltaTime / 3;//3秒で到達
       if (ball.amt >= 1) {
         ball.amt = 1;
-        if (ball.target.ID === localVideo.ID) {
+        if (manager.flyingMode === flyingTypes[1] && isManualCatch) { //放物線で飛んできて、手動キャッチの時はモードごと変える
+          manager.setMode(BALLMODE_CATCHING);//落ちる場所はわかってるから各自でモード移行してOK
+        } else if (ball.target.ID === localVideo.ID) {//キャッチした判定
           ballArrived();
         }
       }
+      break;
+    case BALLMODE_CATCHING:
+      ball.setPos(ball.pos.x, ball.pos.y + (ball.target.size.y / height) * (10 / deltaTime));
+      ballManager.catching();
       break;
   }
   function trackingMode() {
@@ -119,25 +126,33 @@ function getThrowJudge(video, handsPos) {
  */
 function ballThrowed() {
   ballManager.setMode(BALLMODE_THROWING);
-  Send(CATCHBALL, { mode: BALLMODE, state: BALLMODE_THROWING });
   switch (ballManager.selectMode) {
     case catchUserTypes[0]: break;
     case catchUserTypes[1]:
       ballManager.isUserHost = false;
       break;
   }
-
+  let int;
+  switch (ballManager.flyingMode) {
+    case flyingTypes[1]://放物線描くモード
+      if (isManualCatch) {//手動キャッチの場合
+        int = randomInt(3);
+      }
+      break;
+  }
+  ballManager.setTargetPos(int);
+  Send(CATCHBALL, { mode: BALLMODE, state: BALLMODE_THROWING, int: int });
 }
 /**
- * ボールが届いたときに呼ばれる関数
+ * ボールをキャッチときに呼ばれる関数
  */
 function ballArrived() {
   ballManager.setMode(BALLMODE_TRACKING);
   switch (ballManager.selectMode) {
     case catchUserTypes[0]: break;
     case catchUserTypes[1]:
-      ballManager.setTarget();
-      ballManager.isUserHost = true;
+      ballManager.setTarget();//Sendが被るから
+      ballManager.isUserHost = true;//この処理順番
       break;
   }
   Send(CATCHBALL, { mode: BALLMODE, state: STATE_CATCH });
@@ -147,23 +162,25 @@ function ballArrived() {
 }
 /**
  * ボールの動き方
- * @param {video} from 
- * @param {video} target
- * @param {float} amt 
- * @returns {PVector} pvector
+ * @param {PVector} fromPos 
+ * @param {PVector} targetPos 
+ * @param {value} amt 
+ * @param {Video} from 
+ * @param {Video} target 
+ * @returns {PVector}
  */
-function ballMovePos(fromPos, from, target, amt) {
+function ballMovePos(fromPos, targetPos, amt, from, target) {
   switch (ballManager.flyingMode) {
     case flyingTypes[0]:
-      return p5.Vector.lerp(fromPos, target.pos, amt);
+      return p5.Vector.lerp(fromPos, targetPos, amt);
     case flyingTypes[1]:
-      let minPos = min(fromPos.y, target.pos.y);//より高い位置
+      let minPos = min(fromPos.y, targetPos.y);//より高い位置
       let y = - (from.size.y + target.size.y) * 2;
       if (minPos - (minPos - y) / 2 < 0) { //放物線の頂点が画面外なら
         y = -minPos;
       }
-      let p2 = new Vec((fromPos.x + target.pos.x) / 2, y);
-      return mathf.bezier(fromPos, p2, target.pos, amt);
+      let p2 = new Vec((fromPos.x + targetPos.x) / 2, y);
+      return mathf.bezier(fromPos, p2, targetPos, amt);
   }
 }
 
@@ -286,6 +303,7 @@ function receiveBallStatus(catchballMode) {
       switch (catchballMode.state) {
         case BALLMODE_THROWING:
           ballManager.setMode(catchballMode.state);
+          ballManager.setTargetPos(catchballMode.int);
           return;
         case STATE_CATCH:
           ballManager.setMode(BALLMODE_TRACKING);
@@ -299,6 +317,7 @@ function receiveBallStatus(catchballMode) {
               ballManager.setTarget();
               break;
           }
+          return;
       }
       return;
 
@@ -368,6 +387,7 @@ class BallManager {
     this.selectMode = catchUserTypes[0];
     this.ballMode = BALLMODE_TRACKING;//ボールが動くモード
     this.flyingMode = flyingTypes[0];
+    this.catchingTime = 0;
   }
   start() {
     this.isUserHost = true;
@@ -431,7 +451,7 @@ class BallManager {
   }
   /**
    * USERSELECTがランダムの時、ホストが呼ばれる関数
-   * @returns 次のユーザのビデオクラス
+   * @returns {Video} 次のユーザのビデオクラス
    */
   getNext() {
     let next;
@@ -444,6 +464,44 @@ class BallManager {
     }
     return next;
   }
+  setTargetPos(int) {
+    let target = this.ball.target;
+    if (!int) {
+      this.ball.targetPos = target.pos.copy();
+    }
+    let vec = target.leftUp.copy();
+    let x = [vec.x + this.ball.size * 2, target.pos.x, target.pos.x + target.size.x / 2 - this.ball.size * 2];
+    vec.x = x[int];
+    this.ball.targetPos = vec;
+  }
+  catching() {
+    let ball = this.ball;
+    let pos = ball.pos;
+    if (ball.target.ID === localVideo.ID) {
+      if (collBallHands()) {
+        this.catchingTime += deltaTime;
+        if (this.catchingTime >= 1) {
+          this.catchingTime = 0;
+          ballArrived();
+        }
+      } else if (pos.y > ball.target.pos.y + ball.target.size.y) {
+        this.finish();
+      }
+    }
+    function collBallHands() {
+      for (let i = 0; i < 2; i++) {
+        if (collBallHand(ball.target.minMaxes[i])) {
+          ball.setPos(pos.x, ball.target.minMaxes[i].minY - ball.size);
+          return true;
+        }
+      }
+      return false;
+      function collBallHand(minMax) {
+        return pos.y + ball.size >= minMax.minY && pos.y - ball.size <= minMax.maxY &&
+          pos.x + ball.size >= minMax.minX && pos.x - ball.size <= minMax.maxX;
+      }
+    }
+  }
 }
 
 class Ball extends Obj {
@@ -452,9 +510,11 @@ class Ball extends Obj {
     this.target;//目標
     this.from = from;//出発
     this.fromPos = createVector();
+    this.targetPos = createVector();
     this.rotate = 0;
     this.amt = 0;//線形補間の割合
     this.speedR = 5;
+    this.prevPos = createVector();
   }
   update() {
     //目標の人を枠取り
@@ -484,9 +544,10 @@ class Ball extends Obj {
     this.from = from;
   }
   setPosVec(vec) {
-    this.pos = vec;
+    this.setPos(vec.x, vec.y);
   }
   setPos(x, y) {
+    this.prevPos = this.pos.copy();
     this.pos.x = x;
     this.pos.y = y;
   }
