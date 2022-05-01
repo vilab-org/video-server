@@ -1,6 +1,6 @@
 //https://qiita.com/yusuke84/items/54dce88f9e896903e64f
 //アイコン https://icooon-mono.com/
-let log = true;
+let log = false;
 let localVideo = null;
 let localID;
 let others = [];

@@ -34,10 +34,6 @@ function catchBallUpdate() {
   let manager = ballManager;
   let ball = manager.ball;
   let from = ball.from;
-  if(ball.targetPos){
-    fill(255,0,0);
-    ellipse(ball.targetPos.x,ball.targetPos.y,50,50);
-  }
   switch (manager.ballMode) {
     case BALLMODE_TRACKING:
       trackingMode();
@@ -120,6 +116,8 @@ function catchEnd() {
   isCatchBall = false;
   ballManager.isHost = false;
   ballManager.isUserHost = false;
+  ballManager.ball = undefined;
+  ballManager.ballMode = BALLMODE_TRACKING;
 }
 /**
  * ボールを投げた判定
@@ -163,9 +161,10 @@ function ballArrived() {
       ballManager.isUserHost = true;//この処理順番
       break;
   }
-  Send(CATCHBALL, { mode: BALLMODE, state: STATE_CATCH });
   if (ballManager.isHost) {
     ballManager.finish();
+  } else {
+    Send(CATCHBALL, { mode: BALLMODE, state: STATE_CATCH });
   }
 }
 /**
@@ -381,7 +380,7 @@ function OnChangeManualCatch(enabled) {
     document.getElementById('manualCatch').checked = enabled;
   } else {
     isManualCatch = $('#manualCatch').prop('checked');
-    Send(CATCHBALL, { mode: MANUALCATCH, state: isManualCatch});
+    Send(CATCHBALL, { mode: MANUALCATCH, state: isManualCatch });
   }
 }
 
@@ -452,11 +451,9 @@ class BallManager {
     this.ballMode = ballMode;
   }
   finish() {
+    this.member = [];
     this.endFunc();
     Send(CATCHBALL, { mode: END });
-    this.isUserHost = false;
-    this.ball = undefined;
-    this.member = [];
   }
   /**
    * USERSELECTがランダムの時、ホストが呼ばれる関数
@@ -475,7 +472,7 @@ class BallManager {
   }
   setTargetPos(int) {
     let target = this.ball.target;
-    if (int === undefined) {
+    if (int === undefined) { //!intだと0がtrueになる
       this.ball.targetPos = target.pos.copy();
       return;
     }
@@ -487,8 +484,10 @@ class BallManager {
   catching() {
     let ball = this.ball;
     let pos = ball.pos;
+    let movePos = collBallHands();
+    if (movePos) ball.setPos(movePos.x, movePos.y);//他の参加者も当たり判定計算するからこの処理だけ外に出してる
     if (ball.target.ID === localVideo.ID) {
-      if (collBallHands()) {
+      if (movePos) {
         this.catchingTime += deltaTime;
         if (this.catchingTime >= 1) {
           this.catchingTime = 0;
@@ -498,28 +497,26 @@ class BallManager {
       } else if (pos.y > ball.target.pos.y + ball.target.size.y / 2) {
         if (log) console.log("キャッチ失敗");
         this.finish();
-        this.ballMode = BALLMODE_TRACKING;
       }
     }
     function collBallHands() {
       for (let i = 0; i < 2; i++) {
         let minMax = formatMinMax(ball.target, ball.target.minMaxes[i])
         if (minMax && collBallHand(minMax)) {
-          ball.setPos(pos.x, minMax.minY - ball.size);
-          return true;
+          return new Vec(pos.x, minMax.minY - ball.size);
         }
       }
-      return false;
+      return undefined;
       function collBallHand(minMax) {
         return pos.y + ball.size >= minMax.minY && pos.y - ball.size <= minMax.maxY &&
           pos.x + ball.size >= (mirror ? minMax.maxX : minMax.minX) && pos.x - ball.size <= (mirror ? minMax.minX : minMax.maxX);
       }
-      function formatMinMax(video, minMax){
-        if(!minMax) return;
+      function formatMinMax(video, minMax) {
+        if (!minMax) return;
         let minPos = video.leftUpPos.copy();
         let size = video.size;
-        
-        return { minX: minPos.x + minMax.minX * size.x, minY: minPos.y + minMax.minY * size.y, maxX: minPos.x + minMax.maxX * size.x, maxY: minPos.y + minMax.maxY * size.y};
+
+        return { minX: minPos.x + minMax.minX * size.x, minY: minPos.y + minMax.minY * size.y, maxX: minPos.x + minMax.maxX * size.x, maxY: minPos.y + minMax.maxY * size.y };
       }
     }
   }
