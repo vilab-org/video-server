@@ -20,6 +20,7 @@ let averagePing = 0;
 let dragTimer = new Timer(0.5);
 let mirror = true;
 let handInterval = 0;
+let animation = new Animation();
 
 const MOVING = 'Moving';
 const RESIZE = 'Resize';
@@ -151,7 +152,7 @@ function draw() {
     textSize(24);
     textAlign(CENTER);
     background(0);
-    text('system loading' + '...'.substring(0, second()%4), width / 2, height / 2);
+    text('system loading' + '...'.substring(0, second() % 4), width / 2, height / 2);
     pop();
     return;
   }
@@ -187,7 +188,7 @@ function draw() {
   if (isCatchBall) {
     catchBallUpdate();
   }
-
+  animation.update();
 }
 
 function img(cap, isLocalVideo = false) {
@@ -391,7 +392,7 @@ function SearchOthers(peerId) {
 function moveVideo(video, pos) {
   pos.x = max(video.size.x / 2, pos.x);
   pos.x = min(width - video.size.x / 2, pos.x);
-  pos.y = max(video.size.y/2, pos.y);
+  pos.y = max(video.size.y / 2, pos.y);
   pos.y = min(height - video.size.y / 2, pos.y);
   video.pos = createVector(pos.x, pos.y);
   video.capture.position(pos.x - video.size.x / 2, pos.y - video.size.y / 2);
@@ -454,6 +455,32 @@ function textVideo(tex, cap) {
   text(tex, cap.pos.x - cap.size.x / 2, cap.pos.y - cap.size.y / 2 - 10);
 }
 
+function createAnimeText(text,texSize,texColor,pos,dire){
+  let update;
+  let finish;
+  let judge;
+  let anime = new Anime(update,judge,finish);
+  anime.text = text;
+  anime.texSize = texSize;
+  anime.texColor = texColor;
+  anime.pos = pos;
+  anime.dire = dire;
+  anime.alpha = 1;
+  anime.update = ()=>{
+    anime.pos.add(dire);
+    push();
+    fill(texColor,anime.alpha);
+    textSize(anime.texSize);
+    text(anime.text,anime.pos.x,anime.pos.y);
+    anime.alpha -= deltaTime;
+    pop();
+  };
+  anime.judge = ()=>{
+    return anime.alpha <= 0;
+  };
+  anime.finish = ()=>{};
+  return anime;
+}
 
 
 

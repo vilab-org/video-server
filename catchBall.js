@@ -10,6 +10,7 @@ const STATE_CATCH = 'CATCH';
 const USERSELECT = 'USERSELECT';
 const FLYINGSELECT = 'FLYINGSELECT';
 const MANUALCATCH = 'MANUALCATCH';
+const CATCHSUCCESSFUL = 'CATCHSUCCESSFUL';
 let isManualCatch = false;
 /**
  * キャッチボールのsetup
@@ -40,7 +41,7 @@ function catchBallUpdate() {
       break;
     case BALLMODE_THROWING:
       ball.update();
-      ball.rotate += deltaTime * ball.speedR;
+      ball.Rotate();
       ball.setPosVec(ballMovePos(ball.fromPos, ball.targetPos, ball.amt, ball.from, ball.target));
       ball.amt += deltaTime / 3;//3秒で到達
       if (ball.amt >= 1) {
@@ -53,7 +54,8 @@ function catchBallUpdate() {
       }
       break;
     case BALLMODE_CATCHING:
-      ball.setPos(ball.pos.x, ball.pos.y + (ball.target.size.y / height) * 10);
+      ball.setPos(ball.pos.x, ball.pos.y + (ball.target.size.y / height) * ball.fallSpeed);
+      ball.Rotate();
       ballManager.catching();
       ball.update();
       break;
@@ -114,10 +116,6 @@ function catchBallUpdate() {
  */
 function catchEnd() {
   isCatchBall = false;
-  ballManager.isHost = false;
-  ballManager.isUserHost = false;
-  ballManager.ball = undefined;
-  ballManager.ballMode = BALLMODE_TRACKING;
 }
 /**
  * ボールを投げた判定
@@ -341,6 +339,9 @@ function receiveBallStatus(catchballMode) {
     case MANUALCATCH:
       OnChangeManualCatch(catchballMode.state);
       return;
+    case CATCHSUCCESSFUL:
+      ballManager.catchSuccessful(catchballMode.state, false);
+      return;
   }
   function nextUser() {
     switch (ballManager.selectMode) {
@@ -452,6 +453,10 @@ class BallManager {
   }
   finish() {
     this.member = [];
+    this.isHost = false;
+    this.isUserHost = false;
+    this.ball = undefined;
+    this.ballMode = BALLMODE_TRACKING;
     this.endFunc();
     Send(CATCHBALL, { mode: END });
   }
@@ -489,14 +494,15 @@ class BallManager {
     if (ball.target.ID === localVideo.ID) {
       if (movePos) {
         this.catchingTime += deltaTime;
-        if (this.catchingTime >= 1) {
+        if (this.catchingTime >= 0.5) {
           this.catchingTime = 0;
           if (log) console.log("キャッチ成功");
           ballArrived();
+          this.catchSuccessful((this.isHost ? 2 : 1), true);
         }
       } else if (pos.y > ball.target.pos.y + ball.target.size.y / 2) {
         if (log) console.log("キャッチ失敗");
-        this.finish();
+        this.catchSuccessful(0, true);
       }
     }
     function collBallHands() {
@@ -520,6 +526,24 @@ class BallManager {
       }
     }
   }
+  catchSuccessful(successValue, hasBall) {
+    let anime;
+    switch (successValue) {
+      case 0:
+        anime = createAnimeText("失敗",24,color(50,50,255),this.ball.pos.copy(),createVector(0,-1));
+        break;
+      case 1:
+      anime = createAnimeText("成功",24,color(50,255,50),this.ball.pos.copy(),createVector(0,-1));
+        break;
+      case 2:
+      anime = createAnimeText("大成功",48,color(50,255,50),createVector(width/2,height/2),createVector(0,-2));
+        break;
+    }
+    if (anime) animation.addAnime(anime);
+    if (hasBall) {
+      Send(CATCHBALL, { mode: CATCHSUCCESSFUL, state: successValue });
+    }
+  }
 }
 
 class Ball extends Obj {
@@ -529,9 +553,10 @@ class Ball extends Obj {
     this.from = from;//出発
     this.fromPos = createVector();
     this.targetPos = createVector();
-    this.rotate = 0;
+    this.rotation = 0;
     this.amt = 0;//線形補間の割合
     this.speedR = 5;
+    this.fallSpeed = 10;
     this.prevPos = createVector();
   }
   update() {
@@ -546,9 +571,12 @@ class Ball extends Obj {
     //ボールの表示
     push();
     translate(this.pos.x, this.pos.y);
-    rotate(this.rotate);
+    rotate(this.rotation);
     image(ballImg, 0, 0, this.size, this.size);
     pop();
+  }
+  Rotate() {
+    this.rotation = (this.rotation + deltaTime * this.speedR) % (PI * 2);
   }
   setTarget(target) {
     this.amt = 0;

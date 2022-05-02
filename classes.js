@@ -344,3 +344,34 @@ class LineSeg {
     this.end = end;
   }
 }
+
+class Animation {
+  constructor() {
+    this.animes = [];
+  }
+  update() {
+    let animesLen = this.animes.length;
+    let i = 0;
+    while (i < animesLen) {
+      let anime = this.animes[i];
+      anime.update();
+
+      if (anime.judge()) {
+        anime.finish();
+        this.animes.splice(i, 1);
+        continue;
+      }
+      i++;
+    }
+  }
+  addAnime(anime) {
+    this.animes.push(anime);
+  }
+}
+class Anime{
+  constructor(updateFunc, judge, finishFunc){
+    this.update = updateFunc;
+    this.judge = judge;
+    this.finish = finishFunc;
+  }
+}
