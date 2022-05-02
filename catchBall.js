@@ -530,14 +530,14 @@ class BallManager {
     let anime;
     switch (successValue) {
       case 0:
-        anime = createAnimeText("失敗",24,color(50,50,255),this.ball.pos.copy(),createVector(0,-1));
+        anime = createAnimeText("失敗", 32, new Color(50,50,255), this.ball.pos.copy(), createVector(0,-1));
         this.finish();
         break;
       case 1:
-      anime = createAnimeText("成功",24,color(50,255,50),this.ball.pos.copy(),createVector(0,-1));
+      anime = createAnimeText("成功", 32, new Color(50,255,50), this.ball.pos.copy(), createVector(0,-1));
         break;
       case 2:
-      anime = createAnimeText("大成功",48,color(50,255,50),createVector(width/2,height/2),createVector(0,-2));
+      anime = createAnimeText("大成功", 48, new Color(50,255,50), createVector(width/2,height/2), createVector(0,-2));
         break;
     }
     if (anime) animation.addAnime(anime);

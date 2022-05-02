@@ -465,18 +465,18 @@ function createAnimeText(tex,texSize,texColor,pos,dire){
   anime.texColor = texColor;
   anime.pos = pos;
   anime.dire = dire;
-  anime.alpha = 1;
   anime.update = ()=>{
     anime.pos.add(dire);
     push();
-    fill(texColor,anime.alpha);
+    noStroke();
+    fill(anime.texColor.getColor());
     textSize(anime.texSize);
-    text(anime.text,anime.pos.x,anime.pos.y);
-    anime.alpha -= deltaTime;
+    text(anime.text, anime.pos.x, anime.pos.y);
+    anime.texColor.a -= deltaTime * 255;
     pop();
   };
   anime.judge = ()=>{
-    return anime.alpha <= 0;
+    return anime.texColor.a <= 0;
   };
   anime.finish = ()=>{};
   return anime;

@@ -66,11 +66,11 @@ class Obj {
 }
 
 class Color {
-  constructor(r, g, b, a) {
+  constructor(r, g, b, a = 255) {
     this.r = r;
     this.g = g;
     this.b = b;
-    this.a = a ? a : 255;
+    this.a = a;
   }
   getColor() {
     return color(this.r, this.g, this.b, this.a);
