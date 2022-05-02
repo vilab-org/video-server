@@ -490,6 +490,10 @@ class BallManager {
     let ball = this.ball;
     let pos = ball.pos;
     let movePos = collBallHands();
+    let target = ball.target;
+    for(let i=0; i < 2; i++){
+      if (target.minMaxes[i]) DrawRect(target, target.minMaxes[i], 1);
+    }
     if (movePos) ball.setPos(movePos.x, movePos.y);//他の参加者も当たり判定計算するからこの処理だけ外に出してる
     if (ball.target.ID === localVideo.ID) {
       if (movePos) {

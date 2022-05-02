@@ -89,7 +89,7 @@ function setupVideo(stream, peer) {
 }
 
 function preload(){
-  loadFont('/fonts/07にくまるフォント.otf');
+  font_nikumaru = loadFont('/fonts/07にくまるフォント.otf');
 }
 
 function setup() {
@@ -232,9 +232,9 @@ function DrawHands(inVideo, outVideo, recStroke, connStroke) {
       DrawConnectors(outVideo, landmarks, connStroke);
       DrawCenterMark(outVideo, minMaxPos, 2);
 
-      noFill();
+      fill(0);
       stroke(255);
-      strokeWeight(1);
+      strokeWeight(0.7);
       let cap = outVideo;
       let lefRigStr = ['Left', 'Right'];
       let displayIndex = (mirror ? 1 - leftRight : leftRight);
@@ -472,8 +472,10 @@ function createAnimeText(tex,texSize,texColor,pos,dire){
   anime.update = ()=>{
     anime.pos.add(dire);
     push();
-    noStroke();
+    stroke(255, 255, 255, anime.texColor.a);
+    strokeWeight(anime.texSize/10);
     fill(anime.texColor.getColor());
+    textAlign(CENTER);
     textSize(anime.texSize);
     text(anime.text, anime.pos.x, anime.pos.y);
     anime.texColor.a -= deltaTime * 255;
