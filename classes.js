@@ -359,6 +359,7 @@ class Animation {
       if (anime.judge()) {
         anime.finish();
         this.animes.splice(i, 1);
+        animesLen--;
         continue;
       }
       i++;

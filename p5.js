@@ -455,12 +455,12 @@ function textVideo(tex, cap) {
   text(tex, cap.pos.x - cap.size.x / 2, cap.pos.y - cap.size.y / 2 - 10);
 }
 
-function createAnimeText(text,texSize,texColor,pos,dire){
+function createAnimeText(tex,texSize,texColor,pos,dire){
   let update;
   let finish;
   let judge;
   let anime = new Anime(update,judge,finish);
-  anime.text = text;
+  anime.text = tex;
   anime.texSize = texSize;
   anime.texColor = texColor;
   anime.pos = pos;

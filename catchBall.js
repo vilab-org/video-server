@@ -497,10 +497,10 @@ class BallManager {
         if (this.catchingTime >= 0.5) {
           this.catchingTime = 0;
           if (log) console.log("キャッチ成功");
-          ballArrived();
           this.catchSuccessful((this.isHost ? 2 : 1), true);
+          ballArrived();
         }
-      } else if (pos.y > ball.target.pos.y + ball.target.size.y / 2) {
+      } else if (pos.y - ball.size / 2 > ball.target.pos.y + ball.target.size.y / 2) {
         if (log) console.log("キャッチ失敗");
         this.catchSuccessful(0, true);
       }
@@ -531,6 +531,7 @@ class BallManager {
     switch (successValue) {
       case 0:
         anime = createAnimeText("失敗",24,color(50,50,255),this.ball.pos.copy(),createVector(0,-1));
+        this.finish();
         break;
       case 1:
       anime = createAnimeText("成功",24,color(50,255,50),this.ball.pos.copy(),createVector(0,-1));
