@@ -10,7 +10,7 @@ p {
   margin: 0;
 }
 
-/**/
+/*https://style.potepan.com/articles/21437.html*/
 .area {
   width: auto;
   height: auto;
@@ -57,7 +57,9 @@ input:checked+.tab_class+.content_class {
 }
 
 /**/
+/*https://mgmgblog.com/?p=1935*/
 
+/**/
 #my-id {
   font-weight: bold;
 }
