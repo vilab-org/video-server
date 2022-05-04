@@ -33,10 +33,10 @@
     <input type="radio" name="tab_name" id="tab2">
     <label class="tab_class" for="tab2">デバイス</label>
     <div class="content_class">
-      <div class="select">
+      <div class="vertical_margin">
         <label for="audioSource">マイク: </label><select id="audioSource"></select>
       </div>
-      <div class="select">
+      <div class="vertical_margin">
         <label for="videoSource">カメラ: </label><select id="videoSource"></select>
       </div>
     </div>
@@ -57,24 +57,30 @@
     <input type="radio" name="tab_name" id="tab4">
     <label class="tab_class" for="tab4">ハイタッチ</label>
     <div class="content_class">
-      <div class="select">
+      <div class="vertical_margin">
         <label for="for high touch">ハイタッチ</label><select id="highSelect"></select>
       </div>
-      <input type="checkbox" id="changeDrawRect" onchange="ChangeDrawRect()">手のひら検出表示</input>
-      <input type="checkbox" id="dynamicEffect" onchange="OnChangeDynamic()">可変エフェクト量</input>
-
+      <div class="vertical_margin">
+        <input type="checkbox" id="changeDrawRect" onchange="ChangeDrawRect()">手のひら検出表示</input>
+      </div>
+      <div class="vertical_margin">
+        <input type="checkbox" id="dynamicEffect" onchange="OnChangeDynamic()">可変エフェクト量</input>
+      </div>
     </div>
+
     <input type="radio" name="tab_name" id="tab5">
     <label class="tab_class" for="tab5">キャッチボール</label>
     <div class="content_class">
-      <button type="button" id="ChangeIsCatch" onclick="ChangeIsCatch()">キャッチボール</button><br>
-      <div class="select">
+      <div class="vertical_margin">
         <label for="for catch ball">投げる相手</label><select id="catchUserSelect"></select>
       </div>
-      <div class="select">
+      <div class="vertical_margin">
         <label for="for catch ball">飛び方</label><select id="flyingSelect"></select>
       </div>
-      <input type="checkbox" id="manualCatch" onchange="OnChangeManualCatch()">手動キャッチ</input>
+      <div class="vertical_margin">
+        <input type="checkbox" id="manualCatch" onchange="OnChangeManualCatch()">手動キャッチ</input>
+      </div>
+      <button type="button" id="ChangeIsCatch" onclick="ChangeIsCatch()">キャッチボール</button>
     </div>
   </div>
   <script type="text/javascript" src="p5.js"></script>
