@@ -9,8 +9,10 @@ const STATE_NEXTUSER = 'NEXTUSER';
 const STATE_CATCH = 'CATCH';
 const USERSELECT = 'USERSELECT';
 const FLYINGSELECT = 'FLYINGSELECT';
+const BALLSELECT = 'BALLSELECT';
 const MANUALCATCH = 'MANUALCATCH';
 const CATCHSUCCESSFUL = 'CATCHSUCCESSFUL';
+
 let isManualCatch = false;
 /**
  * キャッチボールのsetup
@@ -336,6 +338,9 @@ function receiveBallStatus(catchballMode) {
     case FLYINGSELECT:
       ballManager.setFlyingSelectMode(catchballMode.state);
       return;
+    case BALLSELECT:
+      ballManager.setBallSelectMode(catchballMode.state);
+      return;
     case MANUALCATCH:
       OnChangeManualCatch(catchballMode.state);
       return;
@@ -366,7 +371,7 @@ function receiveBallStatus(catchballMode) {
         } else {//初回
           isCatchBall = true;
           ballManager.isUserHost = false;
-          ballManager.ballMode = BALLMODE_TRACKING;
+          ballManager.setMode(BALLMODE_TRACKING);
           let from = getVideoInst(catchballMode.from);
           ballManager.ball = new Ball(from.pos.copy(), from);
         }
@@ -395,6 +400,7 @@ class BallManager {
     this.selectMode = catchUserTypes[0];
     this.ballMode = BALLMODE_TRACKING;//ボールが動くモード
     this.flyingMode = flyingTypes[0];
+    this.ballImg = ballTypes[0];
     this.catchingTime = 0;
   }
   start() {
@@ -433,6 +439,16 @@ class BallManager {
     $('#flyingSelect').val(mode);
     return true;
   }
+  setBallSelectMode(mode) {
+    if (isCatchBall) {
+      $('#ballSelect').val(this.ballImg);
+      return false;
+    }
+    this.ballImg = mode;
+    $('#ballSelect').val(mode);
+    return true;
+  }
+
   setTarget(next) {
     this.ball.setTarget(next);
     if (this.isUserHost) {
