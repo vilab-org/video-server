@@ -73,7 +73,7 @@ $(function () {
   ballSelect.on('change', () => {
     let changed = ballManager.setBallSelectMode(ballSelect.val());
     if (changed) {
-      Send(CATCHBALL, { mode: BALLSELECT, state: ballManager.ballImg });
+      Send(CATCHBALL, { mode: BALLSELECT, state: ballManager.ballType });
     }
   });
 

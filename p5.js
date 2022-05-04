@@ -488,25 +488,27 @@ function createAnimeText(tex, texSize, texColor, pos, dire) {
   return anime;
 }
 
-function createAnimeImg(img, pos, dire) {
+function createAnimeImg(img, pos, dire, rotateR = 0) {
   let update;
   let finish;
   let judge;
   let anime = new Anime(update, judge, finish);
-  anime.alpha = 0;
-  update = () => {
+  anime.alpha = 255;
+  anime.update = () => {
     pos.add(dire);
     anime.alpha -= deltaTime * 255;
     push();
     translate(pos.x, pos.y);
     tint(255, 255, 255, anime.alpha);
-    image(img, 0, 0);
+    rotate(rotateR);
+    image(img, 0, 0, defaultBallSize, defaultBallSize);
     pop();
   };
-  judge = () => {
+  anime.judge = () => {
     return anime.alpha <= 0;
   }
-  finish = () => { };
+  anime.finish = () => { };
+  return anime;
 }
 
 

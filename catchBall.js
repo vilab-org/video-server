@@ -2,6 +2,7 @@ let isCatchBall = false;
 let ballManager;
 let ballImg;
 let failedBallImg;
+let defaultBallSize = 50;
 const BALLMODE = 'BALLMODE';
 const BALLMODE_TRACKING = 'TRACKING';
 const BALLMODE_THROWING = 'THROWING';
@@ -23,7 +24,7 @@ function catchBallInit() {
     catchEnd();
   });
   ballImg = [loadImage('/image/ball.png'), loadImage('/image/nuigurumi_bear.png'), loadImage('/image/bakudan.png')];
-  failedBallImg = [undefined, loadImage('/image/nugurumi_bear_boroboro.png'), loadImage('/image/bakuhatsu.png')];
+  failedBallImg = [undefined, loadImage('/image/nuigurumi_bear_boroboro.png'), loadImage('/image/bakuhatsu.png')];
 }
 /**
  * キャッチボールスタート
@@ -107,8 +108,7 @@ function catchBallUpdate() {
       let x = leftUp.x + handsPos.x * from.size.x;
       let y = leftUp.y + handsPos.y * from.size.y;
       ball.setPos(x, y);
-      ball.fromPos.x = x;
-      ball.fromPos.y = y;
+      ball.setFromPos(x, y);
       if (ball.target && ball.from.ID === localVideo.ID && getThrowJudge(from, handsPos)) {//投げた判定
         ballThrowed();
       }
@@ -149,7 +149,7 @@ function ballThrowed() {
       break;
   }
   ballManager.setTargetPos(int);
-  Send(CATCHBALL, { mode: BALLMODE, state: BALLMODE_THROWING, int: int });
+  Send(CATCHBALL, { mode: BALLMODE, state: BALLMODE_THROWING, fromPos: new Vec(ballManager.ball.pos.x / width, ballManager.ball.pos.y / height), int: int });
 }
 /**
  * ボールをキャッチときに呼ばれる関数
@@ -311,6 +311,7 @@ function receiveBallStatus(catchballMode) {
     case BALLMODE:
       switch (catchballMode.state) {
         case BALLMODE_THROWING:
+          ballManager.ball.setFromPos(catchballMode.fromPos.x * width, catchballMode.fromPos.y * height);
           ballManager.setMode(catchballMode.state);
           ballManager.setTargetPos(catchballMode.int);
           return;
@@ -427,9 +428,9 @@ class BallManager {
     let ballTypeIndex = this.getBallImgIndex();
     let speedR;
     switch (ballTypeIndex) {
-      case 0: speedR = 5;
-      case 1: speedR = 2;
-      case 2: speedR = 3;
+      case 0: speedR = 5; break;
+      case 1: speedR = 2; break;
+      case 2: speedR = 3; break;
     }
     this.ball = new Ball(video.pos.copy(), video, ballImg[ballTypeIndex], speedR);
   }
@@ -463,6 +464,7 @@ class BallManager {
 
   setTarget(next) {
     this.ball.setTarget(next);
+    this.ball.rotation = 0;
     if (this.isUserHost) {
       let fAndT = this.ball.getFromTargetID();
       let msg = { from: fAndT.from, target: fAndT.target, mode: STATE_NEXTUSER };
@@ -489,7 +491,7 @@ class BallManager {
     Send(CATCHBALL, { mode: END });
   }
   getBallImgIndex() {
-    return this.ballTypes.indexOf(this.ballType);
+    return ballTypes.indexOf(this.ballType);
   }
   /**
    * USERSELECTがランダムの時、ホストが呼ばれる関数
@@ -565,10 +567,10 @@ class BallManager {
     let anime;
     switch (successValue) {
       case 0:
-        let index = ballManager.getBallImgIndex();
+        let index = this.getBallImgIndex();
         let failedImg = failedBallImg[index];
         if (failedImg) {
-          anime = createAnimeImg(failedImg, this.ball.pos.copy(), createVector(0, -0.2));
+          anime = createAnimeImg(failedImg, this.ball.pos.copy(), createVector(0, -0.2), (index === 1 ? this.ball.rotation : 0));
         } else {
           anime = createAnimeText("失敗", 32, new Color(50, 50, 255), this.ball.pos.copy(), createVector(0, -1));
         }
@@ -590,7 +592,7 @@ class BallManager {
 
 class Ball extends Obj {
   constructor(pos, from, ballImg, speedR = 5) {
-    super(pos, 50);
+    super(pos, defaultBallSize);
     this.target;//目標
     this.from = from;//出発
     this.ballImg = ballImg;
@@ -615,7 +617,7 @@ class Ball extends Obj {
     push();
     translate(this.pos.x, this.pos.y);
     rotate(this.rotation);
-    image(ballImg, 0, 0, this.size, this.size);
+    image(this.ballImg, 0, 0, this.size, this.size);
     pop();
   }
   Rotate() {
@@ -639,6 +641,10 @@ class Ball extends Obj {
     this.prevPos = this.pos.copy();
     this.pos.x = x;
     this.pos.y = y;
+  }
+  setFromPos(x, y) {
+    this.fromPos.x = x;
+    this.fromPos.y = y;
   }
   getFromTargetID() {
     let from = this.from ? this.from.ID : undefined;
