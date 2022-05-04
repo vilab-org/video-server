@@ -58,6 +58,27 @@ input:checked+.tab_class+.content_class {
 
 /**/
 /*https://mgmgblog.com/?p=1935*/
+input[type=radio][name="ballImgSelect"]+label::before {
+  content: "";
+  display: inline-block;
+  background-size: contain;
+  width: auto;
+  height: auto;
+}
+input[type=radio][name="ballImgSelect"]{
+  display: none;
+}
+input[type=radio][value="ball"]+label:before {
+  background-image: url("./image/ball.png");
+}
+
+input[type=radio][value="bear"]+label:before {
+  background-image: url("./image/ball.png");
+}
+
+input[type=radio][value="bom"]+label:before {
+  background-image: url("./image/ball.png");
+}
 
 /**/
 #my-id {
