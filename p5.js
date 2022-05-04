@@ -88,7 +88,7 @@ function setupVideo(stream, peer) {
   console.log(stream.getVideoTracks()[0]);
 }
 
-function preload(){
+function preload() {
   font_nikumaru = loadFont('/fonts/07にくまるフォント.otf');
 }
 
@@ -459,21 +459,21 @@ function textVideo(tex, cap) {
   text(tex, cap.pos.x - cap.size.x / 2, cap.pos.y - cap.size.y / 2 - 10);
 }
 
-function createAnimeText(tex,texSize,texColor,pos,dire){
+function createAnimeText(tex, texSize, texColor, pos, dire) {
   let update;
   let finish;
   let judge;
-  let anime = new Anime(update,judge,finish);
+  let anime = new Anime(update, judge, finish);
   anime.text = tex;
   anime.texSize = texSize;
   anime.texColor = texColor;
   anime.pos = pos;
   anime.dire = dire;
-  anime.update = ()=>{
+  anime.update = () => {
     anime.pos.add(dire);
     push();
     stroke(255, 255, 255, anime.texColor.a);
-    strokeWeight(anime.texSize/10);
+    strokeWeight(anime.texSize / 10);
     fill(anime.texColor.getColor());
     textAlign(CENTER);
     textSize(anime.texSize);
@@ -481,13 +481,33 @@ function createAnimeText(tex,texSize,texColor,pos,dire){
     anime.texColor.a -= deltaTime * 255;
     pop();
   };
-  anime.judge = ()=>{
+  anime.judge = () => {
     return anime.texColor.a <= 0;
   };
-  anime.finish = ()=>{};
+  anime.finish = () => { };
   return anime;
 }
 
+function createAnimeImg(img, pos, dire) {
+  let update;
+  let finish;
+  let judge;
+  let anime = new Anime(update, judge, finish);
+  anime.alpha = 0;
+  update = () => {
+    pos.add(dire);
+    anime.alpha -= deltaTime * 255;
+    push();
+    translate(pos.x, pos.y);
+    tint(255, 255, 255, anime.alpha);
+    image(img, 0, 0);
+    pop();
+  };
+  judge = () => {
+    return anime.alpha <= 0;
+  }
+  finish = () => { };
+}
 
 
 

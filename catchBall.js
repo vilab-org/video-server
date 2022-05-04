@@ -1,6 +1,7 @@
 let isCatchBall = false;
 let ballManager;
 let ballImg;
+let failedBallImg;
 const BALLMODE = 'BALLMODE';
 const BALLMODE_TRACKING = 'TRACKING';
 const BALLMODE_THROWING = 'THROWING';
@@ -21,7 +22,8 @@ function catchBallInit() {
   ballManager = new BallManager(() => {
     catchEnd();
   });
-  ballImg = loadImage('/image/ball.png');
+  ballImg = [loadImage('/image/ball.png'), loadImage('/image/nuigurumi_bear.png'), loadImage('/image/bakudan.png')];
+  failedBallImg = [undefined, loadImage('/image/nugurumi_bear_boroboro.png'), loadImage('/image/bakuhatsu.png')];
 }
 /**
  * キャッチボールスタート
@@ -358,7 +360,7 @@ function receiveBallStatus(catchballMode) {
           isCatchBall = true;
           ballManager.isUserHost = false;
           let from = getVideoInst(catchballMode.from);
-          ballManager.ball = new Ball(from.pos.copy(), from);
+          ballManager.createBall(from);
           ballManager.setTarget(target);
         }
         break;
@@ -373,7 +375,7 @@ function receiveBallStatus(catchballMode) {
           ballManager.isUserHost = false;
           ballManager.setMode(BALLMODE_TRACKING);
           let from = getVideoInst(catchballMode.from);
-          ballManager.ball = new Ball(from.pos.copy(), from);
+          ballManager.createBall(from);
         }
         break;
     }
@@ -400,14 +402,14 @@ class BallManager {
     this.selectMode = catchUserTypes[0];
     this.ballMode = BALLMODE_TRACKING;//ボールが動くモード
     this.flyingMode = flyingTypes[0];
-    this.ballImg = ballTypes[0];
+    this.ballType = ballTypes[0];
     this.catchingTime = 0;
   }
   start() {
     this.isUserHost = true;
     this.isHost = true;
     this.ballMode = BALLMODE_TRACKING;
-    this.ball = new Ball(localVideo.pos.copy(), localVideo);
+    this.createBall(localVideo);
     switch (this.selectMode) {
       case catchUserTypes[0]:
         //配列の早いコピーらしい
@@ -420,6 +422,16 @@ class BallManager {
         Send(CATCHBALL, { from: fAndT.from, target: undefined, mode: STATE_NEXTUSER });
         break;
     }
+  }
+  createBall(video) {
+    let ballTypeIndex = this.getBallImgIndex();
+    let speedR;
+    switch (ballTypeIndex) {
+      case 0: speedR = 5;
+      case 1: speedR = 2;
+      case 2: speedR = 3;
+    }
+    this.ball = new Ball(video.pos.copy(), video, ballImg[ballTypeIndex], speedR);
   }
   setUserSelectMode(mode) {
     if (isCatchBall) {
@@ -441,10 +453,10 @@ class BallManager {
   }
   setBallSelectMode(mode) {
     if (isCatchBall) {
-      $('#ballSelect').val(this.ballImg);
+      $('#ballSelect').val(this.ballType);
       return false;
     }
-    this.ballImg = mode;
+    this.ballType = mode;
     $('#ballSelect').val(mode);
     return true;
   }
@@ -475,6 +487,9 @@ class BallManager {
     this.ballMode = BALLMODE_TRACKING;
     this.endFunc();
     Send(CATCHBALL, { mode: END });
+  }
+  getBallImgIndex() {
+    return this.ballTypes.indexOf(this.ballType);
   }
   /**
    * USERSELECTがランダムの時、ホストが呼ばれる関数
@@ -507,7 +522,7 @@ class BallManager {
     let pos = ball.pos;
     let movePos = collBallHands();
     let target = ball.target;
-    for(let i=0; i < 2; i++){
+    for (let i = 0; i < 2; i++) {
       if (target.minMaxes[i]) DrawRect(target, target.minMaxes[i], 1);
     }
     if (movePos) ball.setPos(movePos.x, movePos.y);//他の参加者も当たり判定計算するからこの処理だけ外に出してる
@@ -550,14 +565,20 @@ class BallManager {
     let anime;
     switch (successValue) {
       case 0:
-        anime = createAnimeText("失敗", 32, new Color(50,50,255), this.ball.pos.copy(), createVector(0,-1));
+        let index = ballManager.getBallImgIndex();
+        let failedImg = failedBallImg[index];
+        if (failedImg) {
+          anime = createAnimeImg(failedImg, this.ball.pos.copy(), createVector(0, -0.2));
+        } else {
+          anime = createAnimeText("失敗", 32, new Color(50, 50, 255), this.ball.pos.copy(), createVector(0, -1));
+        }
         this.finish();
         break;
       case 1:
-      anime = createAnimeText("成功", 32, new Color(50,255,50), this.ball.pos.copy(), createVector(0,-1));
+        anime = createAnimeText("成功", 32, new Color(50, 255, 50), this.ball.pos.copy(), createVector(0, -1));
         break;
       case 2:
-      anime = createAnimeText("大成功", 48, new Color(50,255,50), createVector(width/2,height/2), createVector(0,-2));
+        anime = createAnimeText("大成功", 48, new Color(50, 255, 50), createVector(width / 2, height / 2), createVector(0, -2));
         break;
     }
     if (anime) animation.addAnime(anime);
@@ -568,15 +589,16 @@ class BallManager {
 }
 
 class Ball extends Obj {
-  constructor(pos, from) {
+  constructor(pos, from, ballImg, speedR = 5) {
     super(pos, 50);
     this.target;//目標
     this.from = from;//出発
+    this.ballImg = ballImg;
     this.fromPos = createVector();
     this.targetPos = createVector();
     this.rotation = 0;
     this.amt = 0;//線形補間の割合
-    this.speedR = 5;
+    this.speedR = speedR;
     this.fallSpeed = 10;
     this.prevPos = createVector();
   }
