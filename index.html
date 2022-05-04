@@ -52,7 +52,9 @@
           <button type="button" onclick="LeaveRoom()">退室</button>
         </p>
       </div>
-      <p>ID: <span id="my-id">...</span></p>
+      <div class="vertical_margin">
+        ID: <span id="my-id">...</span>
+      </div>
     </div>
     <input type="radio" name="tab_name" id="tab4">
     <label class="tab_class" for="tab4">ハイタッチ</label>
@@ -80,7 +82,9 @@
       <div class="vertical_margin">
         <input type="checkbox" id="manualCatch" onchange="OnChangeManualCatch()">手動キャッチ</input>
       </div>
-      <button type="button" id="ChangeIsCatch" onclick="ChangeIsCatch()">キャッチボール</button>
+      <div class="vertical_margin">
+        <button type="button" id="ChangeIsCatch" onclick="ChangeIsCatch()">キャッチボール</button>
+      </div>
     </div>
   </div>
   <script type="text/javascript" src="p5.js"></script>
