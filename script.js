@@ -229,10 +229,13 @@ $(function () {
     });
 
     room.on('data', ({
-      data,
+      data,//名前は変更しない
       src
     }) => {
-      ReceivedMessage(src, Object.assign(new Message(), JSON.parse(data)));
+      let dataLen = data.length;
+      for (i = 0; i < dataLen; i++) {
+        ReceivedMessage(src, data[i]);
+      }
     });
   }
 
@@ -287,7 +290,7 @@ function LeaveRoom() {
 
 function Send(type, msg) {
   if (type !== HANDRESULT && log) console.log("send", type, msg);
-  if (room) room.send(toJSON(new Message(type, msg)));//JSONにしなくても大きくないデータなら普通に送信できる
+  if (room) room.send([new Message(type, msg)]);
 }
 function toJSON(classtype) {
   return JSON.stringify(classtype);
