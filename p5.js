@@ -49,7 +49,7 @@ function setupVideo(stream, peer) {
     capture.elt.autoplay = true;
     capture.elt.muted = true;
 
-    let pos = createVector(width / 3, height / 3);
+    let pos = createVector(width / 2, height / 3);
 
     localVideo = new Video(pos, videoSize, peer.id, capture);
     if (!localVideo.ID) {
@@ -85,6 +85,7 @@ function setupVideo(stream, peer) {
   localVideo.capture.show();
   localVideo.capture.hide();
   ResizeAllVideos();
+  RePosAllVideos();
   if (log) console.log("localVideo:", localVideo);
   console.log(stream.getVideoTracks()[0]);
 }
@@ -152,7 +153,7 @@ function removeOtherVideo(video, index) {
 }
 
 function draw() {
-  if (localVideo === null || !(localVideo.results && localVideo.results.image)) {
+  if (localVideo === null || !localVideo.results.multiHandedness) {
     push();
     stroke(255); fill(255);
     textSize(24);
@@ -294,6 +295,7 @@ function ResizeAllVideos() {
   let i = 1;//自身の1
   for (; i * i <= others.length + dummys.length; i++);
   let size = getSize(localVideo, i);
+  if (size.x === 0 || size.y === 0) size = new Vec(320, 240);
   ResizeVideo(localVideo, size);
   for (i = 0; i < others.length; i++) {
     ResizeVideo(others[i], size);

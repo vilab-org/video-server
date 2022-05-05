@@ -144,6 +144,7 @@ class Video extends Obj {
         */
   }
   setResults(results) {
+    delete results.image;
     this.results = results;
     this.minMaxes = getHandsMinMax();
 
