@@ -253,7 +253,7 @@ $(function () {
     if (index === -1) {
       return;
     }
-    removeOtherVideo(others[index]);
+    removeOtherVideo(others[index], index);
   }
 
   function removeAllRemoteVideos() {

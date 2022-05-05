@@ -142,10 +142,10 @@ function addOtherVideo(otherStream) {
   }, 2000);
 }
 
-function removeOtherVideo(video) {
+function removeOtherVideo(video, index) {
   video.videoButton.elt.remove();
   video.mikeButton.elt.remove();
-  others.splice(video);
+  others.splice(index, 1);
   aveOthersHands = [undefined, undefined];
   ResizeAllVideos();
   RePosAllVideos();
