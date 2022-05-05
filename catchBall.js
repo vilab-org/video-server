@@ -119,6 +119,10 @@ function catchBallUpdate() {
  * キャッチボール終了
  */
 function catchEnd() {
+  ballManager.isHost = false;
+  ballManager.isUserHost = false;
+  ballManager.ball = undefined;
+  ballManager.ballMode = BALLMODE_TRACKING;
   isCatchBall = false;
 }
 /**
@@ -467,9 +471,7 @@ class BallManager {
     this.ball.rotation = 0;
     if (this.isUserHost) {
       let fAndT = this.ball.getFromTargetID();
-      let msg = { from: fAndT.from, target: fAndT.target, mode: STATE_NEXTUSER };
-      if (log) console.log(msg);
-      Send(CATCHBALL, msg);
+      Send(CATCHBALL, { from: fAndT.from, target: fAndT.target, mode: STATE_NEXTUSER });
     }
   }
   changeTarget(target) {
@@ -479,14 +481,11 @@ class BallManager {
     this.ball.setFrom(from);
   }
   setMode(ballMode) {
+    if (log) console.log("change ball mode:", ballMode);
     this.ballMode = ballMode;
   }
   finish() {
     this.member = [];
-    this.isHost = false;
-    this.isUserHost = false;
-    this.ball = undefined;
-    this.ballMode = BALLMODE_TRACKING;
     this.endFunc();
     Send(CATCHBALL, { mode: END });
   }
