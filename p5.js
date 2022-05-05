@@ -1,6 +1,7 @@
 //https://qiita.com/yusuke84/items/54dce88f9e896903e64f
 //アイコン https://icooon-mono.com/
 let log = false;
+let canvasSize;
 let localVideo = null;
 let localID;
 let others = [];
@@ -101,19 +102,18 @@ function setup() {
   //canvas作成
   let size = getCanvasSize();
   createCanvas(size.x, size.y);
+  canvasSize = size;//現在のキャンバスサイズを保持
   window.onresize = function () {
     let cs = getCanvasSize();
     resizeCanvas(cs.x, cs.y);
     ResizeAllVideos();
+    RePosAllVideos();
   };
   textFont(font_nikumaru);
 
   blackimg = loadImage('/image/nekocan.png');
   handImgs = [loadImage('/image/handLef.png'), loadImage('/image/handRig.png')]
   if (log) console.log('setup');
-  function getCanvasSize() {
-    return new Vec(document.getElementById('autoWidth').clientWidth, windowHeight);
-  }
 }
 
 function addOtherVideo(otherStream) {
@@ -132,6 +132,7 @@ function addOtherVideo(otherStream) {
   video.mikeButton.size(16, 16);
   others.push(video);
   ResizeAllVideos();
+  RePosAllVideos();
   if (log) console.log("addOtherVideo", video);
 
   setTimeout(() => {
@@ -147,6 +148,7 @@ function removeOtherVideo(video) {
   others.splice(video);
   aveOthersHands = [undefined, undefined];
   ResizeAllVideos();
+  RePosAllVideos();
 }
 
 function draw() {
@@ -281,7 +283,9 @@ function mouseReleased() {
 
   draggingVideo = null;
 }
-
+function getCanvasSize() {
+  return new Vec(document.getElementById('autoWidth').clientWidth, windowHeight);
+}
 function sendVideoPos() {
   Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
 }
@@ -307,6 +311,18 @@ function ResizeAllVideos() {
       return new Vec(y / ratio, y);
     }
     return new Vec(x, y);
+  }
+}
+
+function RePosAllVideos() {
+  let cs = getCanvasSize();
+  let othersLen = others.length;
+  let ratio = new Vec(cs.x / canvasSize.x, cs.y / canvasSize.y);//現在のキャンバスサイズが前のサイズの何倍になるかを計算
+  canvasSize = cs;//キャンバスサイズを更新
+  moveVideo(localVideo, new Vec(localVideo.pos.x * ratio.x, localVideo.pos.y * ratio.y));//キャンバスサイズが変わったので、位置も更新
+  for(let i = 0; i < othersLen; i++) {
+    let video = others[i];
+    moveVideo(video, new Vec(video.pos.x * ratio.x, video.pos.y * ratio.y));
   }
 }
 
