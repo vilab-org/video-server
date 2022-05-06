@@ -217,6 +217,13 @@ class Message {
     this.type = type;
     this.data = data;
   }
+  equals(msg) {
+    if (this.data.mode && msg.data.mode) {
+      return msg.data.mode === this.data.mode;
+    } else {
+      return msg.type === this.type;
+    }
+  }
 }
 Message.prototype.toString = function () {
   return '[' + this.type + ' , ' + this.data + ']';
@@ -370,8 +377,8 @@ class Animation {
     this.animes.push(anime);
   }
 }
-class Anime{
-  constructor(updateFunc, judge, finishFunc){
+class Anime {
+  constructor(updateFunc, judge, finishFunc) {
     this.update = updateFunc;
     this.judge = judge;
     this.finish = finishFunc;

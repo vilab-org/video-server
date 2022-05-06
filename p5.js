@@ -113,8 +113,9 @@ function setup() {
   textFont(font_nikumaru);
 
   blackimg = loadImage('/image/nekocan.png');
-  handImgs = [loadImage('/image/handLef.png'), loadImage('/image/handRig.png')]
-  if (log) console.log('setup');
+  handImgs = [loadImage('/image/handLef.png'), loadImage('/image/handRig.png')];
+  startRegularSend();
+  console.log('complete setup');
 }
 
 function addOtherVideo(otherStream) {
@@ -165,18 +166,15 @@ function draw() {
   }
   deltaTime = 1 / getFrameRate();
   background(100);
-  if (!dragTimer.isWait) {
-    dragTimer.startTimer();
-
-    if (draggingVideo !== null) {
-      sendVideoPos();
-    }
-    if (localVideo.results) {
-      //(今回手を認識している || 前回手を認識している)
-      if (localVideo.results.multiHandLandmarks.length > 0 || wasHandResults) {
-        wasHandResults = localVideo.results.multiHandLandmarks.length > 0;
-        Send(HANDRESULT, localVideo.results);
-      }
+  if (draggingVideo !== null) {
+    sendVideoPos();
+  }
+  let handResults = localVideo.results;
+  if (handResults) {
+    //(今回手を認識している || 前回手を認識している)
+    if (handResults.multiHandLandmarks.length > 0 || wasHandResults) {
+      wasHandResults = handResults.multiHandLandmarks.length > 0;
+      Send(HANDRESULT, handResults);
     }
   }
   if (localVideo) {
@@ -322,7 +320,7 @@ function RePosAllVideos() {
   let ratio = new Vec(cs.x / canvasSize.x, cs.y / canvasSize.y);//現在のキャンバスサイズが前のサイズの何倍になるかを計算
   canvasSize = cs;//キャンバスサイズを更新
   moveVideo(localVideo, new Vec(localVideo.pos.x * ratio.x, localVideo.pos.y * ratio.y));//キャンバスサイズが変わったので、位置も更新
-  for(let i = 0; i < othersLen; i++) {
+  for (let i = 0; i < othersLen; i++) {
     let video = others[i];
     moveVideo(video, new Vec(video.pos.x * ratio.x, video.pos.y * ratio.y));
   }

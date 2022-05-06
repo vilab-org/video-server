@@ -8,6 +8,10 @@ let APIKey = '96ff1dfd-a19d-4b53-a97d-376d0006d337';
 let localStream = null;
 let room;
 let existingroom = null;
+let sendData = [];
+let stackSendData = [];
+let regularID;
+
 let isDrawRect = false;
 let highFiveTypes = ['機能なし', '自由な位置', '固定の位置', 'ハイブリッド'];
 let highFiveSelected;
@@ -65,7 +69,7 @@ $(function () {
   //ボールの種類
   let ballSelect = $('#ballSelect');
   let ballTypesLen = ballTypes.length;
-  for (let i = 0; i < ballTypesLen; i++){
+  for (let i = 0; i < ballTypesLen; i++) {
     let option = $('<option>');
     option.text(ballTypes[i]);
     ballSelect.append(option);
@@ -288,16 +292,57 @@ function LeaveRoom() {
   removeAllOthers();
 }
 
+function startRegularSend() {
+  regularID = setInterval((args) => {
+    do {
+      if (sendData.length === 0) {
+        //配列の早いコピーらしい
+        //https://qiita.com/takahiro_itazuri/items/882d019f1d8215d1cb67#comment-1b338078985aea9f600a
+        sendData = [...stackSendData];
+      }
+      try {
+        room.send(sendData);
+        if (log && !(sendData.length === 1 && sendData[0].type === HANDRESULT)) console.log(sendData);
+        sendData.length = 0;
+        break;
+      } catch (error) {
+        sliceSendData();
+      }
+    } while (true);
+
+  }, 150);
+  if (log) console.log("定期送信開始", regularID);
+
+  function sliceSendData() {
+    if (sendData.length !== 1) {
+      let half = Math.floor(sendData.length / 2);
+      stackSendData = sendData.slice(half).concat(stackSendData);//sendDataの後半 + stackSendData
+      sendData = sendData.slice(0, half);//前半だけに減らす
+    } else {
+      console.error("maximum size", sendData[0]);
+      sendData.length = 0;
+    }
+  }
+}
+function stopRegularSend() {
+  clearInterval(regularID);
+  if (log) console.log("定期送信停止", regularID);
+}
+
 function Send(type, msg) {
-  if (type !== HANDRESULT && log) console.log("send", type, msg);
-  if (room) room.send([new Message(type, msg)]);
+  if (room) {
+    let message = new Message(type, msg);
+    for (let i = 0; i < stackSendData.length; i++) {
+      if (stackSendData[i].equals(message)) {
+        stackSendData[i] = message;
+        return;
+      }
+    }
+    stackSendData.push([message]);
+  }
 }
 function toJSON(classtype) {
   return JSON.stringify(classtype);
-}
-
-function ChangeUI() {
-  $('#settings').toggle(500, 'swing');
 }
 
 function ChangeDrawRect() {
