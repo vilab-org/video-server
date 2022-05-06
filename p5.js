@@ -327,7 +327,7 @@ function RePosAllVideos() {
 }
 
 function ReceivedMessage(peerID, msg) {
-  if (log && msg.type !== HANDRESULT) console.log('receive:' + peerID + ':', msg);
+  if (log && msg.type !== HANDRESULT) console.log('receive:' + peerID + ':', msg.type, msg.data);
   let index = SearchOthers(peerID);
   if (index === -1) {
     window.alert("上手く通話ができてない参加者がいます\n更新ボタンを押してください（ctrl+R）")

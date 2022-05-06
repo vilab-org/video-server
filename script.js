@@ -294,26 +294,31 @@ function LeaveRoom() {
 
 function startRegularSend() {
   regularID = setInterval((args) => {
-    do {
+    while(room) {
       if (sendData.length === 0) {
+        if (stackSendData.length === 0) break;
         //配列の早いコピーらしい
         //https://qiita.com/takahiro_itazuri/items/882d019f1d8215d1cb67#comment-1b338078985aea9f600a
         sendData = [...stackSendData];
+        stackSendData.length = 0;
       }
       try {
         room.send(sendData);
-        if (log && !(sendData.length === 1 && sendData[0].type === HANDRESULT)) console.log(sendData);
+        if (log && !(sendData.length === 1 && sendData[0].type === HANDRESULT)) {
+          console.log('send', [...sendData]);
+        }
         sendData.length = 0;
         break;
       } catch (error) {
         sliceSendData();
       }
-    } while (true);
+    }
 
-  }, 150);
+  }, 200);
   if (log) console.log("定期送信開始", regularID);
 
   function sliceSendData() {
+    console.warn("warning size",sendData);
     if (sendData.length !== 1) {
       let half = Math.floor(sendData.length / 2);
       stackSendData = sendData.slice(half).concat(stackSendData);//sendDataの後半 + stackSendData
@@ -333,12 +338,12 @@ function Send(type, msg) {
   if (room) {
     let message = new Message(type, msg);
     for (let i = 0; i < stackSendData.length; i++) {
-      if (stackSendData[i].equals(message)) {
+      if (stackSendData[i].Equals(message)) {
         stackSendData[i] = message;
         return;
       }
     }
-    stackSendData.push([message]);
+    stackSendData.push(message);
   }
 }
 function toJSON(classtype) {
@@ -353,7 +358,7 @@ function ChangeDrawRect() {
 function ChangeIsCatch() {
   if (isCatchBall) {
     if (ballManager.isHost) {
-      catchEnd();
+      ballManager.finish();
     }
     return;
   }

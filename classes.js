@@ -217,7 +217,7 @@ class Message {
     this.type = type;
     this.data = data;
   }
-  equals(msg) {
+  Equals(msg) {
     if (this.data.mode && msg.data.mode) {
       return msg.data.mode === this.data.mode;
     } else {
