@@ -563,6 +563,9 @@ class BallManager {
     }
   }
   catchSuccessful(successValue, hasBall) {
+    if (hasBall) {
+      Send(CATCHBALL, { mode: CATCHSUCCESSFUL, state: successValue });
+    }
     let anime;
     switch (successValue) {
       case 0:
@@ -583,9 +586,6 @@ class BallManager {
         break;
     }
     if (anime) animation.addAnime(anime);
-    if (hasBall) {
-      Send(CATCHBALL, { mode: CATCHSUCCESSFUL, state: successValue });
-    }
   }
 }
 
