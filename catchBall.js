@@ -13,9 +13,11 @@ const USERSELECT = 'USERSELECT';
 const FLYINGSELECT = 'FLYINGSELECT';
 const BALLSELECT = 'BALLSELECT';
 const MANUALCATCH = 'MANUALCATCH';
+const ROUND1 = 'ROUND1';
 const CATCHSUCCESSFUL = 'CATCHSUCCESSFUL';
 
 let isManualCatch = false;
+let isRound1 = true;
 /**
  * キャッチボールのsetup
  */
@@ -394,6 +396,17 @@ function OnChangeManualCatch(enabled) {
   } else {
     isManualCatch = $('#manualCatch').prop('checked');
     Send(CATCHBALL, { mode: MANUALCATCH, state: isManualCatch });
+  }
+}
+function OnChangeRound1(enabled) {
+  if (enabled != null) {
+    isRound1 = enabled;
+    document.getElementById('round1').checked = enabled;
+    console.log(enabled);
+  } else {
+    isRound1 = $('#round1').prop('checked');
+    console.log(isRound1);
+    Send(CATCHBALL, { mode: ROUND1, state: isRound1 });
   }
 }
 
