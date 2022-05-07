@@ -353,6 +353,9 @@ function receiveBallStatus(catchballMode) {
     case MANUALCATCH:
       OnChangeManualCatch(catchballMode.state);
       return;
+    case ROUND1:
+      OnChangeRound1(catchballMode.state);
+      return;
     case CATCHSUCCESSFUL:
       ballManager.catchSuccessful(catchballMode.state, false);
       return;
@@ -402,10 +405,8 @@ function OnChangeRound1(enabled) {
   if (enabled != null) {
     isRound1 = enabled;
     document.getElementById('round1').checked = enabled;
-    console.log(enabled);
   } else {
     isRound1 = $('#round1').prop('checked');
-    console.log(isRound1);
     Send(CATCHBALL, { mode: ROUND1, state: isRound1 });
   }
 }
