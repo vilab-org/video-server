@@ -163,20 +163,27 @@ function ballThrowed() {
 function ballArrived() {
   ballManager.setMode(BALLMODE_TRACKING);
   switch (ballManager.selectMode) {
-    case catchUserTypes[0]: break;
+    case catchUserTypes[0]:
+      if (ballManager.isHost) {
+        if (isRound1) {
+          ballManager.finish();
+        } else {
+          Send(CATCHBALL, { mode: BALLMODE, state: STATE_CATCH });
+          ballManager.setTarget(ballManager.getNext());
+        }
+      } else {
+        Send(CATCHBALL, { mode: BALLMODE, state: STATE_CATCH });
+      }
+      break;
     case catchUserTypes[1]:
       ballManager.setTarget();//Sendが被るから
       ballManager.isUserHost = true;//この処理順番
+      if (ballManager.isHost && isRound1) {
+        ballManager.finish();
+      } else {
+        Send(CATCHBALL, { mode: BALLMODE, state: STATE_CATCH });
+      }
       break;
-  }
-  if (ballManager.isHost) {
-    if (isRound1) {
-      ballManager.finish();
-    } else {
-      ballManager.setTarget(ballManager.getNext());
-    }
-  } else {
-    Send(CATCHBALL, { mode: BALLMODE, state: STATE_CATCH });
   }
 }
 /**
@@ -419,7 +426,7 @@ function OnChangeRound1(enabled) {
 
 class BallManager {
   constructor(endFunc) {
-    this.member;//参加者
+    this.member = [];//参加者
     this.ball;//動かすの
     this.endFunc = endFunc;//終了時の処理
     this.isHost = false;
@@ -450,19 +457,34 @@ class BallManager {
   }
   createBall(video) {
     let ballTypeIndex = this.getBallImgIndex();
-    let speedR;
-    switch (ballTypeIndex) {
-      case 0: speedR = 5; break;
-      case 1: speedR = 2; break;
-      case 2: speedR = 3; break;
-    }
+    let speedR = this.getBallSpeedR(ballTypeIndex);
     this.ball = new Ball(video.pos.copy(), video, ballTypeIndex, speedR);
+  }
+  getBallSpeedR(index){
+    switch (index) {
+      case 0: return 5;
+      case 1: return 1;
+      case 2: return 3;
+    }
   }
   setUserSelectMode(mode) {
     let isCanChange = getCanChange();
     if (isCanChange) {
       this.selectMode = mode;
       $("#catchUserSelect").val(mode);
+      
+      switch(this.selectMode){
+        case catchUserTypes[0]:
+          this.isUserHost = this.isHost === true;
+          if (this.isHost) {
+            this.setTarget(this.getNext());
+          }
+          break;
+        case catchUserTypes[1]:
+          this.isUserHost = this.ball && this.ball.from.ID === localVideo.ID;
+          break;
+        }
+      
     } else {
       $("#catchUserSelect").val(this.selectMode);
     }
@@ -485,7 +507,7 @@ class BallManager {
       $('#ballSelect').val(mode);
       let index = ballTypes.indexOf(this.ballType);
       if (this.ball) this.setBallImgIndex(index);
-    }else{
+    } else {
       $('#ballSelect').val(this.ballType);
     }
     return isCanChange;
@@ -511,6 +533,7 @@ class BallManager {
   }
   setBallImgIndex(index) {
     this.ball.ballTypeIndex = index;
+    this.ball.speedR = this.getBallSpeedR(index);
   }
   finish() {
     this.member = [];
@@ -535,11 +558,17 @@ class BallManager {
         next = localVideo;//ラスト自分
       }
     } else {//ずっと巡るモード
-      let fromID = this.ball.from.ID;
+      let targetID = this.ball.target ? this.ball.target.ID : localVideo;
+      if (this.member.length === 0) {
+        this.member = [...others];
+        this.member.push(localVideo);
+      }
+      let index;
       do {
-        let index = randomInt(this.member.length);
+        index = randomInt(this.member.length);
         next = this.member[index];
-      } while (next.ID === fromID)
+      } while (next.ID === targetID);
+      this.member.splice(index, 1);
     }
     return next;
   }
@@ -569,7 +598,7 @@ class BallManager {
         if (this.catchingTime >= 0.5) {
           this.catchingTime = 0;
           if (log) console.log("キャッチ成功");
-          this.catchSuccessful((this.isHost ? 2 : 1), true);
+          this.catchSuccessful((this.isHost && isRound1 ? 2 : 1), true);
           ballArrived();
         }
       } else if (pos.y - ball.size / 2 > ball.target.pos.y + ball.target.size.y / 2) {

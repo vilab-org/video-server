@@ -236,6 +236,10 @@ $(function () {
       data,//名前は変更しない
       src
     }) => {
+      data = fromJSON(data);
+      if (log && !(data.length === 1 && data[0].type === HANDRESULT)) {
+        console.log('receive:' + src + ':', data);
+      }
       let dataLen = data.length;
       for (i = 0; i < dataLen; i++) {
         ReceivedMessage(src, data[i]);
@@ -303,7 +307,7 @@ function startRegularSend() {
         stackSendData.length = 0;
       }
       try {
-        room.send(sendData);
+        room.send(toJSON(sendData));
         if (log && !(sendData.length === 1 && sendData[0].type === HANDRESULT)) {
           console.log('send', [...sendData]);
         }
@@ -348,6 +352,9 @@ function Send(type, msg) {
 }
 function toJSON(classtype) {
   return JSON.stringify(classtype);
+}
+function fromJSON(json){
+  return JSON.parse(json);
 }
 
 function ChangeDrawRect() {

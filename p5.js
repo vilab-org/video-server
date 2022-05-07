@@ -85,7 +85,6 @@ function setupVideo(stream, peer) {
   localVideo.capture.show();
   localVideo.capture.hide();
   ResizeAllVideos();
-  RePosAllVideos();
   if (log) console.log("localVideo:", localVideo);
   console.log(stream.getVideoTracks()[0]);
 }
@@ -327,7 +326,7 @@ function RePosAllVideos() {
 }
 
 function ReceivedMessage(peerID, msg) {
-  if (log && msg.type !== HANDRESULT) console.log('receive:' + peerID + ':', msg.type, msg.data);
+  //if (log && msg.type !== HANDRESULT) console.log('receive:' + peerID + ':', msg.type, msg.data);
   let index = SearchOthers(peerID);
   if (index === -1) {
     window.alert("上手く通話ができてない参加者がいます\n更新ボタンを押してください（ctrl+R）")
