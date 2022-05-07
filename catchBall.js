@@ -170,7 +170,11 @@ function ballArrived() {
       break;
   }
   if (ballManager.isHost) {
-    ballManager.finish();
+    if (isRound1) {
+      ballManager.finish();
+    } else {
+      ballManager.setTarget(ballManager.getNext());
+    }
   } else {
     Send(CATCHBALL, { mode: BALLMODE, state: STATE_CATCH });
   }
@@ -391,7 +395,9 @@ function receiveBallStatus(catchballMode) {
     }
   }
 }
-
+function getCanChange() {
+  return !isCatchBall || (!isRound1 && ballManager.ballMode === BALLMODE_TRACKING);
+}
 function OnChangeManualCatch(enabled) {
   if (enabled != null) {
     isManualCatch = enabled;
@@ -450,34 +456,39 @@ class BallManager {
       case 1: speedR = 2; break;
       case 2: speedR = 3; break;
     }
-    this.ball = new Ball(video.pos.copy(), video, ballImg[ballTypeIndex], speedR);
+    this.ball = new Ball(video.pos.copy(), video, ballTypeIndex, speedR);
   }
   setUserSelectMode(mode) {
-    if (isCatchBall) {
+    let isCanChange = getCanChange();
+    if (isCanChange) {
+      this.selectMode = mode;
+      $("#catchUserSelect").val(mode);
+    } else {
       $("#catchUserSelect").val(this.selectMode);
-      return false;
     }
-    this.selectMode = mode;
-    $("#catchUserSelect").val(mode);
-    return true;
+    return isCanChange;
   }
   setFlyingSelectMode(mode) {
-    if (isCatchBall) {
+    let isCanChange = getCanChange();
+    if (isCanChange) {
+      this.flyingMode = mode;
+      $('#flyingSelect').val(mode);
+    } else {
       $('#flyingSelect').val(this.flyingMode);
-      return false;
     }
-    this.flyingMode = mode;
-    $('#flyingSelect').val(mode);
-    return true;
+    return isCanChange;
   }
   setBallSelectMode(mode) {
-    if (isCatchBall) {
+    let isCanChange = getCanChange();
+    if (isCanChange) {
+      this.ballType = mode;
+      $('#ballSelect').val(mode);
+      let index = ballTypes.indexOf(this.ballType);
+      if (this.ball) this.setBallImgIndex(index);
+    }else{
       $('#ballSelect').val(this.ballType);
-      return false;
     }
-    this.ballType = mode;
-    $('#ballSelect').val(mode);
-    return true;
+    return isCanChange;
   }
 
   setTarget(next) {
@@ -498,6 +509,9 @@ class BallManager {
     if (log) console.log("change ball mode:", ballMode);
     this.ballMode = ballMode;
   }
+  setBallImgIndex(index) {
+    this.ball.ballTypeIndex = index;
+  }
   finish() {
     this.member = [];
     this.endFunc();
@@ -512,12 +526,20 @@ class BallManager {
    */
   getNext() {
     let next;
-    if (this.member.length > 0) {
-      let index = randomInt(this.member.length);
-      next = this.member[index];
-      this.member.splice(index, 1);
-    } else {//もう渡ってない人がいない
-      next = localVideo;//ラスト自分
+    if (isRound1) {
+      if (this.member.length > 0) {
+        let index = randomInt(this.member.length);
+        next = this.member[index];
+        this.member.splice(index, 1);
+      } else {//もう渡ってない人がいない
+        next = localVideo;//ラスト自分
+      }
+    } else {//ずっと巡るモード
+      let fromID = this.ball.from.ID;
+      do {
+        let index = randomInt(this.member.length);
+        next = this.member[index];
+      } while (next.ID === fromID)
     }
     return next;
   }
@@ -557,7 +579,7 @@ class BallManager {
     }
     function collBallHands() {
       for (let i = 0; i < 2; i++) {
-        let minMax = formatMinMax(ball.target, ball.target.minMaxes[i])
+        let minMax = formatMinMax(ball.target, ball.target.minMaxes[i]);
         if (minMax && collBallHand(minMax)) {
           return new Vec(pos.x, minMax.minY - ball.size / 2);
         }
@@ -604,11 +626,11 @@ class BallManager {
 }
 
 class Ball extends Obj {
-  constructor(pos, from, ballImg, speedR = 5) {
+  constructor(pos, from, ballTypeIndex, speedR = 5) {
     super(pos, defaultBallSize);
     this.target;//目標
     this.from = from;//出発
-    this.ballImg = ballImg;
+    this.ballTypeIndex = ballTypeIndex;
     this.fromPos = createVector();
     this.targetPos = createVector();
     this.rotation = 0;
@@ -630,7 +652,7 @@ class Ball extends Obj {
     push();
     translate(this.pos.x, this.pos.y);
     rotate(this.rotation);
-    image(this.ballImg, 0, 0, this.size, this.size);
+    image(ballImg[this.ballTypeIndex], 0, 0, this.size, this.size);
     pop();
   }
   Rotate() {

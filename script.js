@@ -357,7 +357,7 @@ function ChangeDrawRect() {
 
 function ChangeIsCatch() {
   if (isCatchBall) {
-    if (ballManager.isHost) {
+    if (ballManager.isHost || (!isRound1 && ballManager.ballMode === BALLMODE_TRACKING)) {//1巡で終わるモードじゃないなら誰でもキャッチボール終わらせられる
       ballManager.finish();
     }
     return;
