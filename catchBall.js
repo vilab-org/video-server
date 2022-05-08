@@ -495,6 +495,14 @@ class BallManager {
     if (isCanChange) {
       this.flyingMode = mode;
       $('#flyingSelect').val(mode);
+      switch(mode) {
+        case flyingTypes[0]:
+          $('#manualCatchCheck').hide(100);
+          break;
+        case flyingTypes[1]:
+          $('#manualCatchCheck').show(100);
+          break;
+      }
     } else {
       $('#flyingSelect').val(this.flyingMode);
     }

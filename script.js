@@ -38,6 +38,7 @@ $(function () {
   });
 
   //キャッチボール
+  //ユーザ選択方法
   let catchUserSelect = $('#catchUserSelect');
   let catchUserTypesLen = catchUserTypes.length;
   for (let i = 0; i < catchUserTypesLen; i++) {
@@ -65,6 +66,7 @@ $(function () {
       Send(CATCHBALL, { mode: FLYINGSELECT, state: ballManager.flyingMode });
     }
   });
+  $('#manualCatchCheck').hide();
 
   //ボールの種類
   let ballSelect = $('#ballSelect');
