@@ -146,6 +146,7 @@ function addOtherVideo(otherStream) {
 function removeOtherVideo(video, index) {
   video.videoButton.elt.remove();
   video.mikeButton.elt.remove();
+  video.capture.elt.remove();
   others.splice(index, 1);
   aveOthersHands = [undefined, undefined];
   ResizeAllVideos();
