@@ -460,7 +460,7 @@ class BallManager {
     let speedR = this.getBallSpeedR(ballTypeIndex);
     this.ball = new Ball(video.pos.copy(), video, ballTypeIndex, speedR);
   }
-  getBallSpeedR(index){
+  getBallSpeedR(index) {
     switch (index) {
       case 0: return 5;
       case 1: return 1;
@@ -472,8 +472,8 @@ class BallManager {
     if (isCanChange) {
       this.selectMode = mode;
       $("#catchUserSelect").val(mode);
-      
-      switch(this.selectMode){
+
+      switch (this.selectMode) {
         case catchUserTypes[0]:
           this.isUserHost = this.isHost === true;
           if (this.isHost) {
@@ -483,8 +483,8 @@ class BallManager {
         case catchUserTypes[1]:
           this.isUserHost = this.ball && this.ball.from.ID === localVideo.ID;
           break;
-        }
-      
+      }
+
     } else {
       $("#catchUserSelect").val(this.selectMode);
     }
@@ -495,7 +495,7 @@ class BallManager {
     if (isCanChange) {
       this.flyingMode = mode;
       $('#flyingSelect').val(mode);
-      switch(mode) {
+      switch (mode) {
         case flyingTypes[0]:
           $('#manualCatchCheck').hide(100);
           break;

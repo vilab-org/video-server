@@ -250,12 +250,6 @@ $(function () {
   }
 
   function addVideo(otherStream) {
-    /*
-            const videoDom = $('<video autoplay>');
-            videoDom.attr('id',otherStream.peerId);
-            videoDom.get(0).srcObject = otherStream;
-            $('.videosContainer').append(videoDom);
-    */
     addOtherVideo(otherStream);
   }
 
@@ -270,7 +264,6 @@ $(function () {
   }
 
   function removeAllRemoteVideos() {
-    $('.videosContainer').empty();
     removeAllOthers();
   }
 
@@ -300,7 +293,7 @@ function LeaveRoom() {
 
 function startRegularSend() {
   regularID = setInterval((args) => {
-    while(room) {
+    while (room) {
       if (sendData.length === 0) {
         if (stackSendData.length === 0) break;
         //配列の早いコピーらしい
@@ -324,7 +317,7 @@ function startRegularSend() {
   if (log) console.log("定期送信開始", regularID);
 
   function sliceSendData() {
-    console.warn("warning size",sendData);
+    console.warn("warning size", sendData);
     if (sendData.length !== 1) {
       let half = Math.floor(sendData.length / 2);
       stackSendData = sendData.slice(half).concat(stackSendData);//sendDataの後半 + stackSendData
@@ -355,7 +348,7 @@ function Send(type, msg) {
 function toJSON(classtype) {
   return JSON.stringify(classtype);
 }
-function fromJSON(json){
+function fromJSON(json) {
   return JSON.parse(json);
 }
 
