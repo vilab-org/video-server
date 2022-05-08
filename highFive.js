@@ -19,6 +19,7 @@ function HighFiveInit() {
   effectInterval = new Timer(0.1);
   effectImg = loadImage('/image/effect.png');
   clapAudio = new Howl({ src: '/audio/Clap01-1.mp3' });
+  clapAudio.volume(0.5);
 }
 //ハイタッチのメイン関数
 function HighFive() {
