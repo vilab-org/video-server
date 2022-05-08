@@ -282,7 +282,8 @@ function mouseReleased() {
   draggingVideo = null;
 }
 function getCanvasSize() {
-  return new Vec(document.getElementById('autoWidth').clientWidth, windowHeight);
+  let doc = document.getElementById('autoWidth');
+  return new Vec(doc.clientWidth, windowHeight - doc.clientHeight);
 }
 function sendVideoPos() {
   Send(MOVING, new Vec(localVideo.pos.x / windowWidth, localVideo.pos.y / windowHeight));
