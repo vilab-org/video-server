@@ -286,7 +286,7 @@ $(function () {
 });
 
 function removeAllOthers() {
-
+  if (log) console.log('removeAllOthers()');
   while (others.length > 0) {
     removeOtherVideo(others[0]);
   }
@@ -307,7 +307,7 @@ function startRegularSend() {
         stackSendData.length = 0;
       }
       try {
-        room.send(toJSON(sendData));
+        room.send(toJSON(sendData));//JSONにしないと空の配列が受信されることがある
         if (log && !(sendData.length === 1 && sendData[0].type === HANDRESULT)) {
           console.log('send', [...sendData]);
         }
@@ -318,7 +318,7 @@ function startRegularSend() {
       }
     }
 
-  }, 200);
+  }, 200);//これくらいが映像と合う
   if (log) console.log("定期送信開始", regularID);
 
   function sliceSendData() {
