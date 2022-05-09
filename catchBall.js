@@ -3,6 +3,7 @@ let ballManager;
 let ballImg;
 let failedBallImg;
 let defaultBallSize = 50;
+const throwThreshold = 0.35;
 const BALLMODE = 'BALLMODE';
 const BALLMODE_TRACKING = 'TRACKING';
 const BALLMODE_THROWING = 'THROWING';
@@ -96,6 +97,14 @@ function catchBallUpdate() {
         }
     }//switch end
     // 指さしなし
+    //投げた判定の高さ
+    push(); {
+      stroke(255);
+      strokeWeight(1);
+      drawingContext.setLineDash([from.size.x * 0.01, from.size.x * 0.1]);
+      let y = from.leftUpPos.y + from.size.y * throwThreshold;
+      line(from.leftUpPos.x, y, from.leftUpPos.x + from.size.x, y);
+    } pop();
     ball.update();
     let minMaxes = from.minMaxes;
     let handsPos = undefined;
@@ -133,7 +142,7 @@ function catchEnd() {
  * @param {vec} handsPos 
  */
 function getThrowJudge(video, handsPos) {
-  return handsPos && handsPos.y < 0.35;
+  return handsPos && handsPos.y < throwThreshold;
 }
 /**
  * ボールを投げたときに呼ばれる関数
