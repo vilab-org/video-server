@@ -27,6 +27,7 @@ function catchBallInit() {
     catchEnd();
   });
   ballImg = [loadImage('/image/ball.png'), loadImage('/image/nuigurumi_bear.png'), loadImage('/image/bakudan.png')];
+  //ballImg[0] = loadImage('/image/sports_soft_tennis_ball.png');
   failedBallImg = [undefined, loadImage('/image/nuigurumi_bear_boroboro.png'), loadImage('/image/bakuhatsu.png')];
 }
 /**
