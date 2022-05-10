@@ -78,7 +78,7 @@ function catchBallUpdate() {
           let hitInfo = getCollVideo(from, lineP);
           push();
           stroke(0, 255, 0);
-          strokeWeight(3);
+          strokeWeight(max(3, width * 0.003));
           if (hitInfo) {
             noFill();
             line(lineP.start.x, lineP.start.y, hitInfo.hitPos.x, hitInfo.hitPos.y);
@@ -89,7 +89,7 @@ function catchBallUpdate() {
               Send(CATCHBALL, { mode: STATE_NEXTUSER, from: undefined, target: hitVideo.ID });
             }
           } else {
-            drawingContext.setLineDash([10, 20]);
+            drawingContext.setLineDash([width * 0.01, width * 0.02]);
             line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
           }
           pop();
@@ -99,9 +99,9 @@ function catchBallUpdate() {
     // 指さしなし
     //投げた判定の高さ
     push(); {
-      stroke(255);
-      strokeWeight(1);
-      drawingContext.setLineDash([from.size.x * 0.01, from.size.x * 0.1]);
+      stroke(0, 255, 0);
+      strokeWeight(max(1, from.size.x * 0.01));
+      drawingContext.setLineDash([from.size.x * 0.02, from.size.x * 0.05]);
       let y = from.leftUpPos.y + from.size.y * throwThreshold;
       line(from.leftUpPos.x, y, from.leftUpPos.x + from.size.x, y);
     } pop();
