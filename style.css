@@ -136,7 +136,7 @@ video {
   top: 0;
 }
 
-/*吹き出し*/
+/*吹き出し https://1-notes.com/css-tooltip-design-collection/*/
 .tooltip {
 	position: absolute;
 	bottom: 3rem;
