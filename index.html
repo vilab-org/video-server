@@ -74,22 +74,53 @@
     <label class="tab_class" for="tab5">キャッチボール</label>
     <div class="content_class">
       <div class="vertical_margin">
-        <label for="catchUserSelect">投げる相手</label><select id="catchUserSelect"></select>
+        <label for="catchUserSelect" class="tooltip-parent">
+          投げる相手
+          <span class="tooltip">ボールを投げる相手の選択方法</span>
+        </label>
+        <select id="catchUserSelect"></select>
+
       </div>
       <div class="vertical_margin">
-        <label for="ballSelect">飛ぶ物</label><select id="ballSelect"></select>
+        <label for="ballSelect" class="tooltip-parent">
+          飛ぶ物
+          <span class="tooltip">ボールの見た目を変更</span>
+        </label>
+        <select id="ballSelect"></select>
       </div>
       <div class="vertical_margin">
-        <label for="flyingSelect">飛び方</label><select id="flyingSelect"></select>
+        <label for="flyingSelect" class="tooltip-parent">
+          飛び方
+          <span class="tooltip">ボールが飛ぶときの動き</span>
+        </label><select id="flyingSelect"> </select>
       </div>
       <div class="vertical_margin" id="manualCatchCheck">
-        <input type="checkbox" id="manualCatch" onchange="OnChangeManualCatch()">手動キャッチ</input>
+        <input type="checkbox" id="manualCatch" onchange="OnChangeManualCatch()">
+        <span class="tooltip-parent">
+          手動キャッチ
+          <span class="tooltip">
+            ON:手にボールを乗せないと失敗になる<br>
+            OFF:ボールが届いた時点でキャッチ判定になる
+          </span>
+        </span>
+        </input>
       </div>
       <div class="vertical_margin">
-        <input type="checkbox" id="round1" onchange="OnChangeRound1()" checked>1巡</input>
+        <input type="checkbox" id="round1" onchange="OnChangeRound1()" class="tooltip-parent" checked>
+        <span class="tooltip-parent">
+          1巡
+          <span class="tooltip">
+            ON:キャッチボールを始めた人に還ってきたら終了<br>
+            OFF:キャッチボールボタンを押すまで終わらない
+          </span>
+        </span>
+        </input>
       </div>
       <div class="vertical_margin">
-        <button type="button" id="ChangeIsCatch" onclick="ChangeIsCatch()">キャッチボール</button>
+        <button type="button" id="ChangeIsCatch" onclick="ChangeIsCatch()" class="tooltip-parent">
+          キャッチボール
+          <!--<span class="tooltip">吹き出しが表示される6</span>-->
+        </button>
       </div>
     </div>
   </div>
