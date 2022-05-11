@@ -135,3 +135,33 @@ video {
   left: 0;
   top: 0;
 }
+
+/*吹き出し https://1-notes.com/css-tooltip-design-collection/*/
+.tooltip {
+	position: absolute;
+	bottom: 3rem;
+	padding: 6px 10px;
+	background: cadetblue;
+	color: #FFF;
+	font-size: 0.8rem;
+	border-radius: 10px;
+	transition: 0.5s;
+	display: none;
+  box-shadow: 1px 1px rgb(63, 106, 107);
+}
+
+.tooltip:after {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 16px;
+	border: 5px solid transparent;
+	border-top: 14px solid cadetblue;
+  filter: drop-shadow(1px 1px rgb(63, 106, 107));
+}
+
+.tooltip-parent:hover .tooltip {
+  opacity: 1;
+	display: block;
+}
+/*吹き出しここまで*/
