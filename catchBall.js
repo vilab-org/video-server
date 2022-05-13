@@ -233,7 +233,9 @@ function getPointingLine(video) {
   let startP = createVector(floor(marks[8].x * floorValue) / floorValue, floor(marks[8].y * floorValue) / floorValue);
   let dire = startP.copy().sub(floor(marks[6].x * floorValue) / floorValue, floor(marks[6].y * floorValue) / floorValue);
   let bent = createVector(floor((marks[6].x - marks[5].x) * floorValue) / floorValue, floor((marks[6].y - marks[5].y) * floorValue) / floorValue);
-  let bentDot = floor(dire.dot(bent) * 10000) / 100;
+  dire.normalize();
+  bent.normalize();
+  let bentDot = dire.dot(bent);
   if (bentDot < threshold) return;
   if (mirror) {
     startP.x = 1 - startP.x;
