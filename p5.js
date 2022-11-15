@@ -44,7 +44,7 @@ function setupVideo(stream, peer) {
     let capture = createVideo();
     //Canvas API https://developer.mozilla.org/ja/docs/Web/API/Canvas_API
     //capture.hide();//canvas を使用した動画の操作 (en-US) https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas 
-    let videoSize = new Vec(320, 240);
+    let videoSize = createVector(320, 240);
 
     capture.elt.autoplay = true;
     capture.elt.muted = true;
@@ -127,7 +127,7 @@ function addOtherVideo(otherStream) {
   for (let i = 0; i < others.length; i++) {
     pos.x + others[i].size.x;
   }
-  let video = new Video(pos, new Vec(320, 240), otherStream.peerId, capture);
+  let video = new Video(pos, createVector(320, 240), otherStream.peerId, capture);
   video.capture.elt.srcObject = otherStream;
   video.videoButton.size(16, 16);
   video.mikeButton.size(16, 16);
@@ -586,9 +586,9 @@ function DrawArch(leftUp, rightUp, size, alphaArray, isHandEnabled = false) {
   //arc(x,y,w,h,start,end,[mode]);x: 中心のx座標,y: 中心のy座標,w: 幅,h: 高さ,start: 描画開始角度,end: 描画終了角度,mode: 描画モード
 
   fill(c.r, c.g, c.b, alphaArray[(mirror ? 1 : 0)]);
-  arc(leftUp.x, leftUp.y, size * 2, size * 2, 0, HALF_PI);
+  arc(leftUp.x, leftUp.y, size.x * 2, size.y * 2, 0, HALF_PI);
   fill(c.r, c.g, c.b, alphaArray[(mirror ? 0 : 1)]);
-  arc(rightUp.x, rightUp.y, size * 2, size * 2, HALF_PI, PI);
+  arc(rightUp.x, rightUp.y, size.x * 2, size.y * 2, HALF_PI, PI);
   if (isHandEnabled) {
     tint(c.r, c.g, c.b);
     image(handImgs[0], leftUp.x + size / 2, leftUp.y + size / 2);

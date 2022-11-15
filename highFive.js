@@ -36,6 +36,9 @@ function HighFive() {
     case highFiveTypes[3]:
       HybridHighFive(localVideo);
       break;
+    case highFiveTypes[4]:
+      HybridExpantion(localVideo);
+      break;
   }
   effectsMana.update2();
   otherEffectsMana.update2();
@@ -118,7 +121,7 @@ function UpPosHighFive(video) {
   let handsCollision = UpCollision(leftUp, rightUp, localMarks, size);
   let othersCollision = UpCollision(leftUp, rightUp, otherMarks, size);
   high5Collision = handsCollision[0] || handsCollision[1];
-  DrawArch(leftUp, rightUp, size, [handsCollision[0] ? 200 : 50, handsCollision[1] ? 200 : 50], !high5Collision);
+  DrawArch(leftUp, rightUp, new Vec(size, size), [handsCollision[0] ? 200 : 50, handsCollision[1] ? 200 : 50], !high5Collision);
   //Effect
   if (!effectInterval.isWait) {
     effectInterval.startTimer();
@@ -161,7 +164,7 @@ function HybridHighFive(video) {
   let localMarks = getCenterMarks(localVideo, video.minMaxes);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
   let localUpCollisions = UpCollision(leftUp, rightUp, localMarks, size);
-  DrawArch(leftUp, rightUp, size, [localUpCollisions[0] ? 50 : 25, localUpCollisions[1] ? 50 : 25], !(localUpCollisions[0] || localUpCollisions[1]));
+  DrawArch(leftUp, rightUp, new Vec(size, size), [localUpCollisions[0] ? 50 : 25, localUpCollisions[1] ? 50 : 25], !(localUpCollisions[0] || localUpCollisions[1]));
   for (let i = 0; i < 2; i++) {
     if (!localUpCollisions[i] || !otherMarks[i]) continue;//どっちかがundefinedならcontinue
     //ハイタッチゾーンに手が映っていたら
@@ -181,6 +184,42 @@ function HybridHighFive(video) {
 
 /*444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444*/
 function HybridExpantion(video) {
-  let size = new Vec(video.size.x / 2, vieo.size.y / 2);
-  
+  let size = new Vec(video.size.x / 2, video.size.y / 2);
+  let leftUp = video.leftUpPos;
+  let rightUp = getRightUpPos(video);
+  let localMarks = getCenterMarks(localVideo, video.minMaxes);
+  let localUpCollisions = ellipseCollisions(localVideo, localMarks);
+
+  DrawArch(leftUp, rightUp, size, [localUpCollisions[0] ? 50 : 25, localUpCollisions[1] ? 50 : 25], !(localUpCollisions[0] || localUpCollisions[1]));
+}
+
+function ellipseCollisions(video, marks) {
+  let colls = [false, false];
+  let leftUp = video.leftUpPos;
+  let rightUp = getRightUpPos(video);
+  if(marks[0]) {
+    let ellipse = new Obj((mirror ? rightUp : leftUp), video.size.copy().mult(0.5));
+    colls[0] = ellipseColl(ellipse, marks[0].pos);
+  }
+  if(marks[1]) {
+    let ellipse = new Obj((mirror ? leftUp : rightUp), video.size.copy().mult(0.5));
+    colls[1] = ellipseColl(ellipse, marks[1].pos);
+  }
+  return colls;
+
+  function ellipseColl(ellipse, markPos) { // 楕円と点の当たり判定
+    let ratio;
+    let radius;
+    let newPos = p5.Vector.sub(markPos, ellipse.pos); // 楕円を中心とした手の位置の座標
+    if(ellipse.size.x > ellipse.size.y) {
+      radius = ellipse.size.y;
+      ratio = ellipse.size.y / ellipse.size.x; // xを何倍縮めるか
+      newPos.x *= ratio;
+    } else {
+      radius = ellipse.size.x;
+      ratio = ellipse.size.x / ellipse.size.y; // yを何倍縮めるか
+      newPos.y *= ratio;
+    }
+    return (newPos.x * newPos.x + newPos.y * newPos.y) < radius * radius;
+  }
 }
