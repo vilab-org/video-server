@@ -178,3 +178,9 @@ function HybridHighFive(video) {
     }
   }
 }
+
+/*444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444*/
+function HybridExpantion(video) {
+  let size = new Vec(video.size.x / 2, vieo.size.y / 2);
+  
+}
