@@ -1,8 +1,4 @@
-setTimeout(() => {
-  if (localVideo === null) {
-    window.alert('止まってそうならリロードし（ctrl+R）てください');
-  }
-}, 10 * 1000);
+
 
 const hands = new Hands({
   locateFile: (file) => {
