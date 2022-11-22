@@ -93,7 +93,7 @@ function SamePosHandsHighFive() {
 }
 
 function SameCollision(center1, center2) {
-  let colDist = { col: false, dist: undefined };
+  let colDist = { col: false, sqrDist: undefined };
   let minSize = Math.min(center1.size.x, center2.size.x) * 2;
   let absolute = Math.abs(center1.size.x - center2.size.x) * 2;
   //中央円の大きさが小さい方の円2個分違ったらfalse
@@ -105,7 +105,7 @@ function SameCollision(center1, center2) {
   //距離が小さい円よりあったらfalse
   if (root > minSize * minSize) return colDist;
   colDist.col = true;
-  colDist.dist = Math.sqrt(root);
+  colDist.sqrDist = root;
   return colDist;
 }
 
@@ -173,7 +173,7 @@ function HybridHighFive(video) {
     let colDist = SameCollision(localMarks[i], otherMarks[i]);
     if (colDist.col) {
       high5Collision = true;
-      let num = (isDynamicEffect ? max(min(50 / colDist.dist, 5), 1) : 1);
+      let num = (isDynamicEffect ? max(min(2500 / colDist.sqrDist, 5), 1) : 1);
       for (let j = 0; j < num; j++) {
         effectsMana.addEffect(localMarks[i]);
         otherEffectsMana.addEffect(otherMarks[i]);
@@ -188,9 +188,25 @@ function HybridExpantion(video) {
   let leftUp = video.leftUpPos;
   let rightUp = getRightUpPos(video);
   let localMarks = getCenterMarks(localVideo, video.minMaxes);
+  let otherMarks = getCenterMarks(localVideo, aveOthersHands);
   let localUpCollisions = ellipseCollisions(localVideo, localMarks);
 
   DrawArch(leftUp, rightUp, size, [localUpCollisions[0] ? 50 : 25, localUpCollisions[1] ? 50 : 25], !(localUpCollisions[0] || localUpCollisions[1]));
+  for (let i = 0; i < 2; i++) {
+    if (!localUpCollisions[i] || !otherMarks[i]) continue;//どっちかがundefinedならcontinue
+    //ハイタッチゾーンに手が映っていたら
+    DrawRectC(video, video.minMaxes[i], 2, color(50, 200, 50));
+    DrawRectC(video, aveOthersHands[i], 2, color(200, 50, 50));
+    let colDist = SameCollision(localMarks[i], otherMarks[i]);
+    if (colDist.col) {
+      high5Collision = true;
+      let num = (isDynamicEffect ? max(min(2500 / colDist.sqrDist, 5), 1) : 1);
+      for (let j = 0; j < num; j++) {
+        effectsMana.addEffect(localMarks[i]);
+        otherEffectsMana.addEffect(otherMarks[i]);
+      }
+    }
+  }
 }
 
 function ellipseCollisions(video, marks) {
