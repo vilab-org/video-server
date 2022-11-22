@@ -58,7 +58,7 @@ function setupVideo(stream, peer) {
     }
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
-        if (handInterval++ > 0) {
+        if (handInterval++ > 1) {
           handInterval = 0;
           await hands.send({//手の映像を送信
             image: capture.elt
