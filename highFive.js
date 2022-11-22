@@ -200,11 +200,11 @@ function HybridExpantion(video) {
     let colDist = SameCollision(localMarks[i], otherMarks[i]);
     if (colDist.col) {
       high5Collision = true;
-      let num = (isDynamicEffect ? max(min(2500 / colDist.sqrDist, 5), 1) : 1);
-      for (let j = 0; j < num; j++) {
-        effectsMana.addEffect(localMarks[i]);
-        otherEffectsMana.addEffect(otherMarks[i]);
-      }
+      let num = (isDynamicEffect ? min(2500 / colDist.sqrDist, 3) : 1);// 距離から0～3の値を出す
+      let setColor = new Color(0, 255, 0);
+      if(num < 1) setColor = new Color(255, 0, 0);
+      else if(num < 2) setColor = new Color(255, 255, 0);
+      effectsMana.addEffect(localMarks[i], setColor);
     }
   }
 }

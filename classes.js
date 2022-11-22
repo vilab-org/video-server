@@ -250,7 +250,7 @@ class EffectsManager {
       this.pool.push(new Effect(createVector(), this.size, createVector(), this.color));
     }
   }
-  addEffect(circle) {
+  addEffect(circle, setColor = this.color) {
     let theta = int(random(360));
     let effect;
     if (this.pool.length > 0) {
@@ -266,6 +266,7 @@ class EffectsManager {
     }
 
     effect.pos = circle.pos.add(effect.dire);
+    effect.color = setColor;
     this.effects.push(effect);
   }
   update() {
@@ -305,7 +306,6 @@ class EffectsManager {
   }
   update2() {
     noStroke();
-    tint(this.color.getColor());
     let i = 0;
     let effectsLen = this.effects.length;
     while (i < effectsLen) {
@@ -324,6 +324,7 @@ class EffectsManager {
         push();
         translate(effect.pos.x, effect.pos.y);
         rotate(effect.rotate += 0.2);
+        tint(effect.color.getColor());
         image(effectImg, 0, 0, 10, 10);
         pop();
       }
