@@ -24,6 +24,8 @@ let mirror = true;
 let handInterval = 0;
 let animation = new Animation();
 
+const FRAMERATE = 30;
+const HANDSENDINTERVAL = 0.05;
 const MOVING = 'Moving';
 const RESIZE = 'Resize';
 const ENABLEVIDEO = 'Enable Video';
@@ -58,7 +60,7 @@ function setupVideo(stream, peer) {
     }
     let camera = new Camera(capture.elt, {
       onFrame: async () => {
-        if (handInterval++ > 1) {
+        if (handInterval > HANDSENDINTERVAL) {
           handInterval = 0;
           await hands.send({//手の映像を送信
             image: capture.elt
@@ -94,7 +96,7 @@ function preload() {
 }
 
 function setup() {
-  frameRate(30);
+  frameRate(FRAMERATE);
   imageMode(CENTER);
   rectMode(CENTER);
   ellipseMode(CENTER);
@@ -173,8 +175,11 @@ function draw() {
   if (handResults) {
     //(今回手を認識している || 前回手を認識している)
     if (handResults.multiHandLandmarks.length > 0 || wasHandResults) {
+      handInterval += HANDSENDINTERVAL / 2;
       wasHandResults = handResults.multiHandLandmarks.length > 0;
       Send(HANDRESULT, handResults);
+    } else {
+      handInterval += 1 / FRAMERATE;
     }
   }
   if (localVideo) {
