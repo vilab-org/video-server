@@ -70,8 +70,17 @@ function catchBallUpdate() {
       break;
   }
   function trackingMode() {
+    let minMaxes = from.minMaxes;
+    let handsPos = undefined;
+    for (let i = 0; i < 2; i++) {
+      if (minMaxes[i]) {
+        handsPos = new Vec((minMaxes[i].maxX + minMaxes[i].minX) / 2, (minMaxes[i].maxY + minMaxes[i].minY) / 2);
+        break;
+      }
+    }
+    if (handsPos.y < from.pos.y) return;
     switch (ballManager.selectMode) {
-      case catchUserTypes[0]:
+      case catchUserTypes[0]://ランダム選択
         break;
       case catchUserTypes[1]:
         let lineP = getPointingLine(from);
@@ -94,8 +103,8 @@ function catchBallUpdate() {
             line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
           }
           pop();
-          return;
-        }
+          return;//指さしありならボールの描画はしない
+        }// if (lineP) end
     }//switch end
     // 指さしなし
     //投げた判定の高さ
@@ -107,14 +116,6 @@ function catchBallUpdate() {
       line(from.leftUpPos.x, y, from.leftUpPos.x + from.size.x, y);
     } pop();
     ball.update();
-    let minMaxes = from.minMaxes;
-    let handsPos = undefined;
-    for (let i = 0; i < 2; i++) {
-      if (minMaxes[i]) {
-        handsPos = new Vec((minMaxes[i].maxX + minMaxes[i].minX) / 2, (minMaxes[i].maxY + minMaxes[i].minY) / 2);
-        break;
-      }
-    }
     if (handsPos) {
       let leftUp = from.leftUpPos;
       let x = leftUp.x + handsPos.x * from.size.x;
