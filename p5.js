@@ -25,7 +25,7 @@ let handInterval = 0;
 let animation = new Animation();
 
 const FRAMERATE = 30;
-const HANDSENDINTERVAL = 0.05;
+const HANDSENDINTERVAL = 0.5;//手を認識してなかったらこの秒だけ空ける
 const MOVING = 'Moving';
 const RESIZE = 'Resize';
 const ENABLEVIDEO = 'Enable Video';
@@ -89,6 +89,7 @@ function setupVideo(stream, peer) {
   ResizeAllVideos();
   if (log) console.log("localVideo:", localVideo);
   console.log(stream.getVideoTracks()[0]);
+  hands.send({ image: localVideo.capture.elt });
 }
 
 function preload() {
