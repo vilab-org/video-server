@@ -89,7 +89,7 @@ function setupVideo(stream, peer) {
   ResizeAllVideos();
   if (log) console.log("localVideo:", localVideo);
   console.log(stream.getVideoTracks()[0]);
-  hands.send({ image: localVideo.capture.elt });
+  setTimeout(() => { hands.send({ image: localVideo.capture.elt }); },0);//タスクキューに追加して処理を後回しにする
 }
 
 function preload() {
