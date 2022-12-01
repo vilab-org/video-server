@@ -190,13 +190,14 @@ function HybridExpantion(video) {
   let localMarks = getCenterMarks(localVideo, video.minMaxes);
   let otherMarks = getCenterMarks(localVideo, aveOthersHands);
   let localUpCollisions = ellipseCollisions(localVideo, localMarks);
+  let otherUpCollisions = ellipseCollisions(localVideo, otherMarks);
 
   DrawArch(leftUp, rightUp, size, [localUpCollisions[0] ? 50 : 25, localUpCollisions[1] ? 50 : 25], !(localUpCollisions[0] || localUpCollisions[1]));
   for (let i = 0; i < 2; i++) {
-    if (!localUpCollisions[i] || !otherMarks[i]) continue;//どっちかがundefinedならcontinue
+    if (otherUpCollisions[i]) DrawRectC(video, aveOthersHands[i], 2, color(200, 50, 50));
+    if (!otherMarks[i] || !localUpCollisions[i]) continue;
     //ハイタッチゾーンに手が映っていたら
     DrawRectC(video, video.minMaxes[i], 2, color(50, 200, 50));
-    DrawRectC(video, aveOthersHands[i], 2, color(200, 50, 50));
     let colDist = SameCollision(localMarks[i], otherMarks[i]);
     if (colDist.col) {
       high5Collision = true;
