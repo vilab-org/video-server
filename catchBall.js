@@ -78,7 +78,7 @@ function catchBallUpdate() {
         break;
       }
     }
-    if (handsPos.y < from.pos.y) return;
+    if (!handsPos || handsPos.y < from.pos.y) return;
     switch (ballManager.selectMode) {
       case catchUserTypes[0]://ランダム選択
         break;
