@@ -52,7 +52,7 @@ function catchBallUpdate() {
       ball.update();
       ball.Rotate();
       ball.setPosVec(ballMovePos(ball.fromPos, ball.targetPos, ball.amt, ball.from, ball.target));
-      ball.amt += deltaTime / 3;//3秒で到達
+      ball.amt += deltaTime / 2;//2秒で到達（1秒は早いし3秒は長い）
       if (ball.amt >= 1) {
         ball.amt = 1;
         if (manager.flyingMode === flyingTypes[1] && isManualCatch) { //放物線で飛んできて、手動キャッチの時はモードごと変える
