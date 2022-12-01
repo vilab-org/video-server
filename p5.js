@@ -82,6 +82,7 @@ function setupVideo(stream, peer) {
     if (log) console.log("camera", camera);
     HighFiveInit();
     catchBallInit();
+    setTimeout(() => { hands.send({ image: capture.elt }); },0);//タスクキューに追加して処理を後回しにする
   }
   localVideo.capture.elt.srcObject = stream;
   localVideo.capture.show();
@@ -89,7 +90,6 @@ function setupVideo(stream, peer) {
   ResizeAllVideos();
   if (log) console.log("localVideo:", localVideo);
   console.log(stream.getVideoTracks()[0]);
-  setTimeout(() => { hands.send({ image: localVideo.capture.elt }); },0);//タスクキューに追加して処理を後回しにする
 }
 
 function preload() {

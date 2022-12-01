@@ -78,7 +78,7 @@ function catchBallUpdate() {
         break;
       }
     }
-    if (!handsPos || handsPos.y < from.pos.y) return;
+    if (!handsPos || handsPos.y < 0.3) return;
     switch (ballManager.selectMode) {
       case catchUserTypes[0]://ランダム選択
         break;
@@ -107,6 +107,7 @@ function catchBallUpdate() {
         }// if (lineP) end
     }//switch end
     // 指さしなし
+    if (!ball.target) return;
     //投げた判定の高さ
     push(); {
       stroke(0, 255, 0);
@@ -122,7 +123,7 @@ function catchBallUpdate() {
       let y = leftUp.y + handsPos.y * from.size.y;
       ball.setPos(x, y);
       ball.setFromPos(x, y);
-      if (ball.target && ball.from.ID === localVideo.ID && getThrowJudge(from, handsPos)) {//投げた判定
+      if (ball.from.ID === localVideo.ID && getThrowJudge(from, handsPos)) {//投げた判定
         ballThrowed();
       }
     }
