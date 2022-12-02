@@ -120,6 +120,8 @@ $(function () {
   peer.on('open', function () {
     let id = peer.id;
     $('#my-id').text(id);
+    console.log("ID", peer.id);
+    if(localVideo && !localVideo.ID) localVideo.ID = peer.id;
     localID = id;
   });
 

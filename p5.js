@@ -52,6 +52,12 @@ function setupVideo(stream, peer) {
     capture.elt.muted = true;
 
     let pos = createVector(width / 2, height / 3);
+    setTimeout(() => {
+      if(pos.x < 0) pos.x *= -1;
+      else if(pos.x <= 50) pos.x = width/2;
+      if(pos.y < 0) pos.y *= -1;
+      else if(pos.y <= 50) pos.y = height/2;
+    }, 1000);
 
     localVideo = new Video(pos, videoSize, peer.id, capture);
     if (!localVideo.ID) {
@@ -588,7 +594,7 @@ function getRightUpPos(video) {
 
 function DrawArch(leftUp, rightUp, size, alphaArray, isHandEnabled = false) {
   let c = new Color(100, 225, 100);
-  stroke(c.r, c.g, c.b, 200);
+  stroke(c.r, c.g, c.b, 100);
   //arc(x,y,w,h,start,end,[mode]);x: 中心のx座標,y: 中心のy座標,w: 幅,h: 高さ,start: 描画開始角度,end: 描画終了角度,mode: 描画モード
 
   fill(c.r, c.g, c.b, alphaArray[(mirror ? 1 : 0)]);
