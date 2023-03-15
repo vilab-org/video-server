@@ -31,7 +31,7 @@ hands.setOptions({
   その分遅延が大きくなります．static_image_mode が true の場合は無視され，単にすべての画像に対して手指の検出が行われます．
   デフォルトは0.5。*/
 });
-console.log('hands options', hands.g.j);
+console.log('hands options', hands.h.h.options);
 
 function onResults(results) {
   localVideo.setResults(results);
