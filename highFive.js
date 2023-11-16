@@ -1,5 +1,3 @@
-
-
 let aveOthersHands = [
   [0, 0, 0, 0],
   [0, 0, 0, 0]
@@ -17,8 +15,8 @@ function HighFiveInit() {
   effectsMana = new EffectsManager(new Color(255, 255, 0));//init effect manager
   otherEffectsMana = new EffectsManager(new Color(255, 0, 255));
   effectInterval = new Timer(0.1);
-  effectImg = loadImage('/image/effect.png');
-  clapAudio = new Howl({ src: '/audio/Clap01-1.mp3' });
+  effectImg = loadImage('/video-server/image/effect.png');
+  clapAudio = new Howl({ src: '/video-server/audio/Clap01-1.mp3' });
   clapAudio.volume(0.5);
 }
 //ハイタッチのメイン関数

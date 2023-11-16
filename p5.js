@@ -1,6 +1,6 @@
 //https://qiita.com/yusuke84/items/54dce88f9e896903e64f
 //アイコン https://icooon-mono.com/
-let log = false;
+let log = true;
 let canvasSize;
 let localVideo = null;
 let localID;
@@ -11,11 +11,11 @@ let hideCapture = null;
 let wasHandResults = false;
 let blackimg;
 let handImgs;
-let VideONImg = '/image/VideON green.png';
-let VideOFFImg = '/image/VideOFF red.png';
-let MikeONImg = '/image/MikeON green.png';
-let MikeOFFImg = '/image/MikeOFF red.png';
-let font_nikumaru;
+let VideONImg = '/video-server/image/VideON green.png';
+let VideOFFImg = '/video-server/image/VideOFF red.png';
+let MikeONImg = '/video-server/image/MikeON green.png';
+let MikeOFFImg = '/video-server/image/MikeOFF red.png';
+//let font_nikumaru;
 let mathf;
 let deltaTime = 0;
 let averagePing = 0;
@@ -99,7 +99,7 @@ function setupVideo(stream, peer) {
 }
 
 function preload() {
-  font_nikumaru = loadFont('/fonts/07にくまるフォント.otf');
+  // font_nikumaru = loadFont('/video-server/fonts/07にくまるフォント.otf');
 }
 
 function setup() {
@@ -118,10 +118,10 @@ function setup() {
     ResizeAllVideos();
     RePosAllVideos();
   };
-  textFont(font_nikumaru);
+  //textFont(font_nikumaru);
 
-  blackimg = loadImage('/image/nekocan.png');
-  handImgs = [loadImage('/image/handLef.png'), loadImage('/image/handRig.png')];
+  blackimg = loadImage('/video-server/image/nekocan.png');
+  handImgs = [loadImage('/video-server/image/handLef.png'), loadImage('/video-server/image/handRig.png')];
   startRegularSend();
   console.log('complete setup');
 }

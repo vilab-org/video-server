@@ -4,7 +4,7 @@ document.onselectstart = function () {
 }
 
 //Skyway関連処理
-let APIKey = '96ff1dfd-a19d-4b53-a97d-376d0006d337';
+let APIKey = '3a9e6853-1f94-483b-9f2f-5ea53f958e61';
 let localStream = null;
 let room;
 let existingroom = null;
