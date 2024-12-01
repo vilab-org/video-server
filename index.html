@@ -1,133 +1,131 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 
-<head lang="ja">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>最っ高にハイなハイタッチ</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="/video-server/image/nekocan.png">
-  <!--
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>-->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="/video-server/classes.js"></script>
-  <script type="text/javascript" src="/video-server/handsInit.js"></script>
-<!--  <script type="text/javascript" src="/video-server/catchBall.js"></script> -->
-  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-  <script type="text/javascript" src="https://cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/p5.min.js"
-    integrity="sha512-b/htz6gIyFi3dwSoZ0Uv3cuv3Ony7EeKkacgrcVg8CMzu90n777qveu0PBcbZUA7TzyENGtU+qZRuFAkfqgyoQ=="
-    crossorigin="anonymous"></script>
-  <script type="text/javascript"
-    src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/addons/p5.sound.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.2/howler.min.js"></script>
-  <script type="text/javascript" src="/video-server/script.js"></script>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>最っ高にハイなハイタッチ</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- p5.js -->
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.1/lib/p5.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.1/lib/addons/p5.sound.min.js"></script>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="https://cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.2/howler.min.js"></script>
+
+    <script type="text/javascript" src="vidconf_common.js"></script>
 </head>
 
 <body>
-  <main>
-  </main>
-  <div class="area" id="autoWidth">
-    <input type="radio" name="tab_name" id="tab1" checked>
-    <label class="tab_class" for="tab1">非表示</label>
-    <input type="radio" name="tab_name" id="tab2">
-    <label class="tab_class" for="tab2">デバイス</label>
-    <div class="content_class">
-      <div class="vertical_margin">
-        <label for="videoSource">カメラ: </label><select id="videoSource"></select>
-      </div>
-      <div class="vertical_margin">
-        <label for="audioSource">マイク: </label><select id="audioSource"></select>
-      </div>
-    </div>
-    <input type="radio" name="tab_name" id="tab3">
-    <label class="tab_class" for="tab3">ルーム</label>
-    <div class="content_class">
-      <form id="make-call">
-        <input type="text" placeholder="部屋名..." id="join-room">
-        <button type="submit">入室する</button>
-      </form>
-      <div id="end-call">
-        <p>部屋名 <span id="room-id">...</span>
-          <button type="button" onclick="LeaveRoom()">退室</button>
-        </p>
-      </div>
-      <div class="vertical_margin">
-        ID: <span id="my-id">...</span>
-      </div>
-    </div>
-    <input type="radio" name="tab_name" id="tab4">
-    <label class="tab_class" for="tab4">ハイタッチ</label>
-    <div class="content_class">
-      <div class="vertical_margin">
-        <label for="highSelect">ハイタッチ</label><select id="highSelect"></select>
-      </div>
-      <div class="vertical_margin">
-        <input type="checkbox" id="dynamicEffect" onchange="OnChangeDynamic()">可変エフェクト色</input>
-      </div>
-      <div class="vertical_margin">
-        <input type="checkbox" id="changeDrawRect" onchange="ChangeDrawRect()">手のひら検出表示</input>
-      </div>
-    </div>
+    <main>
+    </main>
+    <div class="area" id="autoWidth">
+        <input type="radio" name="tab_name" id="tab1" checked>
+        <label class="tab_class" for="tab1">非表示</label>
+        <input type="radio" name="tab_name" id="tab2">
+        <label class="tab_class" for="tab2">デバイス</label>
+        <div class="content_class">
+            <div class="vertical_margin">
+                <label for="videoSource">カメラ: </label><select id="videoSource"></select>
+            </div>
+            <div class="vertical_margin">
+                <label for="audioSource">マイク: </label><select id="audioSource"></select>
+            </div>
+        </div>
+        <input type="radio" name="tab_name" id="tab3">
+        <label class="tab_class" for="tab3">ルーム</label>
+        <div class="content_class">
+            <form id="make-call">
+                <input type="text" placeholder="部屋名..." id="join-room">
+                <button type="submit">入室する</button>
+            </form>
+            <div id="end-call">
+                <p>部屋名 <span id="room-id">...</span>
+                    <button type="button" onclick="LeaveRoom()">退室</button>
+                </p>
+            </div>
+            <div class="vertical_margin">
+                ID: <span id="my-id">...</span>
+            </div>
+        </div>
+        <input type="radio" name="tab_name" id="tab4">
+        <label class="tab_class" for="tab4">ハイタッチ</label>
+        <div class="content_class">
+            <div class="vertical_margin">
+                <label for="highSelect">ハイタッチ</label><select id="highSelect"></select>
+            </div>
+            <div class="vertical_margin">
+                <input type="checkbox" id="dynamicEffect" onchange="OnChangeDynamic()" title="可変エフェクト色">可変エフェクト色</input>
+            </div>
+            <div class="vertical_margin">
+                <input type="checkbox" id="changeDrawRect" onchange="ChangeDrawRect()" title="手のひら検出表示">手のひら検出表示</input>
+            </div>
+        </div>
 
-    <input type="radio" name="tab_name" id="tab5">
-    <label class="tab_class" for="tab5">キャッチボール</label>
-    <div class="content_class">
-      <div class="vertical_margin">
-        <label for="catchUserSelect" class="tooltip-parent">
-          投げる相手
-          <span class="tooltip">ボールを投げる相手の選択方法</span>
-        </label>
-        <select id="catchUserSelect"></select>
+        <input type="radio" name="tab_name" id="tab5">
+        <label class="tab_class" for="tab5">キャッチボール</label>
+        <div class="content_class">
+            <div class="vertical_margin">
+                <label for="ballSelect" class="tooltip-parent">
+                    飛ぶ物
+                    <span class="tooltip">ボールの見た目を変更</span>
+                </label>
+                <select id="ballSelect"></select>
+            </div>
+            <div class="vertical_margin">
+                <label for="catchUserSelect" class="tooltip-parent">
+                    相手
+                    <span class="tooltip">ボールを投げる相手の選択方法</span>
+                </label>
+                <select id="catchUserSelect"></select>
 
-      </div>
-      <div class="vertical_margin">
-        <label for="ballSelect" class="tooltip-parent">
-          飛ぶ物
-          <span class="tooltip">ボールの見た目を変更</span>
-        </label>
-        <select id="ballSelect"></select>
-      </div>
-      <div class="vertical_margin">
-        <label for="flyingSelect" class="tooltip-parent">
-          飛び方
-          <span class="tooltip">ボールが飛ぶときの動き</span>
-        </label><select id="flyingSelect"> </select>
-      </div>
-      <div class="vertical_margin" id="manualCatchCheck">
-        <input type="checkbox" id="manualCatch" onchange="OnChangeManualCatch()">
-        <span class="tooltip-parent">
-          手動キャッチ
-          <span class="tooltip">
-            ON:手にボールを乗せないと失敗になる<br>
-            OFF:ボールが届いた時点でキャッチ判定になる
-          </span>
-        </span>
-        </input>
-      </div>
-      <div class="vertical_margin">
-        <input type="checkbox" id="round1" onchange="OnChangeRound1()" class="tooltip-parent" checked>
-        <span class="tooltip-parent">
-          1巡
-          <span class="tooltip">
-            ON:キャッチボールを始めた人に還ってきたら終了<br>
-            OFF:キャッチボールボタンを押すまで終わらない
-          </span>
-        </span>
-        </input>
-      </div>
-      <div class="vertical_margin">
-        <button type="button" id="ChangeIsCatch" onclick="ChangeIsCatch()" class="tooltip-parent">
-          キャッチボール
-          <!--<span class="tooltip">吹き出しが表示される6</span>-->
-        </button>
-      </div>
+            </div>
+            <div class="vertical_margin">
+                <label for="flyingSelect" class="tooltip-parent">
+                    飛び方
+                    <span class="tooltip">ボールが飛ぶときの動き</span>
+                </label><select id="flyingSelect"> </select>
+            </div>
+            <div class="vertical_margin" id="manualCatchCheck">
+                <input type="checkbox" id="manualCatch" onchange="OnChangeManualCatch()" title="キャッチ">
+                <span class="tooltip-parent">
+                    手動キャッチ
+                    <span class="tooltip">
+                        ON:手にボールを乗せないと失敗になる<br>1
+                        OFF:ボールが届いた時点でキャッチ判定になる
+                    </span>
+                </span>
+                </input>
+            </div>
+            <div class="vertical_margin">
+                <input type="checkbox" id="round1" onchange="OnChangeRound1()" class="tooltip-parent"
+                    title="キャッチ">
+                <span class="tooltip-parent">
+                    1巡
+                    <span class="tooltip">
+                        ON:キャッチボールを始めた人に還ってきたら終了<br>
+                        OFF:キャッチボールボタンを押すまで終わらない
+                    </span>
+                </span>
+                </input>
+            </div>
+            <div class="vertical_margin">
+                <button type="button" id="ChangeIsCatch" onclick="ChangeIsCatch()" class="tooltip-parent">
+                    キャッチボール
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
-  <script type="text/javascript" src="/video-server/p5.js"></script>
-  <script type="text/javascript" src="/video-server/highFive.js"></script>
-  <script type="text/javascript" src="/video-server/catchBall.js"></script>
 </body>
+<script type="text/javascript" src="vidconf_p5main.js"></script>
+<script type="text/javascript" src="vidconf_highfive.js"></script>
+<script type="text/javascript" src="vidconf_catchball.js"></script>
 
 </html>

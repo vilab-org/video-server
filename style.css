@@ -1,167 +1,168 @@
 html {
-  background: rgb(255, 255, 255) no-repeat center center fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
+    background: rgb(255, 255, 255) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
 
 p {
-  margin: 0;
+    margin: 0;
 }
 
 /*https://style.potepan.com/articles/21437.html*/
 .area {
-  width: auto;
-  height: auto;
-  flex-wrap: wrap;
-  display: flex;
-  position: sticky;
-  bottom: 0px;
+    width: auto;
+    height: auto;
+    flex-wrap: wrap;
+    display: flex;
+    position: sticky;
+    bottom: 0;
 }
 
 .tab_class {
-  width: calc(100%/5);
-  height: 50px;
-  background-color: darkgrey;
-  line-height: 50px;
-  font-size: 15px;
-  text-align: center;
-  display: block;
-  float: left;
-  order: -1;
-  font-weight: bold;
+    width: calc(100%/5);
+    height: 50px;
+    background-color: darkgrey;
+    line-height: 50px;
+    font-size: 15px;
+    text-align: center;
+    display: block;
+    float: left;
+    order: -1;
+    font-weight: bold;
 }
 
 input[name="tab_name"] {
-  display: none;
+    display: none;
 }
 
 input:checked+.tab_class {
-  background-color: cadetblue;
-  color: aliceblue;
+    background-color: cadetblue;
+    color: aliceblue;
 }
 
 .content_class {
-  display: none;
-  width: 100%;
-  height: 100%;
-  background-color: rgb(245, 245, 245);
-  color: black;
-  padding-left: 5px;
+    display: none;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(245, 245, 245);
+    color: black;
+    padding-left: 5px;
 }
 
 input:checked+.tab_class+.content_class {
-  display: flex;
-  justify-content: space-evenly;
+    display: flex;
+    justify-content: space-evenly;
 }
 
 /**/
 
 #my-id {
-  font-weight: bold;
+    font-weight: bold;
 }
 
 .vertical_margin {
-  margin-top: 1em;
-  margin-bottom: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 form {
-  margin-top: 1em;
-  margin-bottom: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 div #recording,
 div #end-call {
-  margin-top: 1em;
-  margin-bottom: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 #end-call {
-  display: none;
+    display: none;
 }
 
 #recording {
-  display: none;
+    display: none;
 }
 
 #downloadlink {
-  display: none;
+    display: none;
 }
 
 input[type=text] {
-  border-radius: 5px;
-  border: #22ebdd 1px solid;
-  color: #20b2aa;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5), 0 0 2px rgba(0, 0, 0, 0.6);
-  width: 40%;
-  font-size: 15px;
+    border-radius: 5px;
+    border: #22ebdd 1px solid;
+    color: #20b2aa;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5), 0 0 2px rgba(0, 0, 0, 0.6);
+    width: 40%;
+    font-size: 15px;
 }
 
 input[type=text]:focus {
-  border: solid 1px #17b1a7;
+    border: solid 1px #17b1a7;
 }
 
 input[type=text],
 select {
-  outline: none;
+    outline: none;
 }
 
 
 button {
-  background-color: cadetblue;
-  color: rgb(255, 255, 255);
-  border-radius: 7px;
-  border-style: none;
+    background-color: cadetblue;
+    color: rgb(255, 255, 255);
+    border-radius: 7px;
+    border-style: none;
 }
 
 button:hover {
-  /* 透明度を20%に指定 */
-  opacity: 0.8;
+    /* 透明度を20%に指定 */
+    opacity: 0.8;
 }
 
 .center {
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 video {
-  background: black;
-  float: left;
-  position: absolute;
-  left: 0;
-  top: 0;
+    background: black;
+    float: left;
+    position: absolute;
+    left: 0;
+    top: 0;
 }
 
 /*吹き出し https://1-notes.com/css-tooltip-design-collection/*/
 .tooltip {
-	position: absolute;
-	bottom: 3rem;
-	padding: 6px 10px;
-	background: cadetblue;
-	color: #FFF;
-	font-size: 0.8rem;
-	border-radius: 10px;
-	transition: 0.5s;
-	display: none;
-  box-shadow: 1px 1px rgb(63, 106, 107);
+    position: absolute;
+    bottom: 3rem;
+    padding: 6px 10px;
+    background: cadetblue;
+    color: #FFF;
+    font-size: 0.8rem;
+    border-radius: 10px;
+    transition: 0.5s;
+    display: none;
+    box-shadow: 1px 1px rgb(63, 106, 107);
 }
 
 .tooltip:after {
-	content: "";
-	position: absolute;
-	top: 100%;
-	left: 16px;
-	border: 5px solid transparent;
-	border-top: 14px solid cadetblue;
-  filter: drop-shadow(1px 1px rgb(63, 106, 107));
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 16px;
+    border: 5px solid transparent;
+    border-top: 14px solid cadetblue;
+    filter: drop-shadow(1px 1px rgb(63, 106, 107));
 }
 
 .tooltip-parent:hover .tooltip {
-  opacity: 1;
-	display: block;
+    opacity: 1;
+    display: block;
 }
+
 /*吹き出しここまで*/
