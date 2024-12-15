@@ -27,7 +27,7 @@ function HighFive() {
     effectManager.update();
     // otherEffectsMgr.update();
 
-    if (highFiveCollision && frameCount % 20 == 0) {
+    if (highFiveCollision && frameCount % 20 === 0) {
         clapAudio.play();
     }
 }
@@ -70,7 +70,7 @@ function SamePosHandsHighFive() {
 
                 if (touchCheck(myPalm, palm)) {
                     highFiveCollision = true;
-                    if (frameCount % 5 == 0) {
+                    if (frameCount % 5 === 0) {
                         effectManager.addParticle(winPos(myPalm.pos, myVideo));
                         effectManager.addParticle(winPos(palm.pos, video));
                     }
@@ -107,7 +107,7 @@ function FixedPosHighFive() {
             for (let i = 0; i < 2; i++) {
                 if (myInside[i] && otherInside[i]) {
                     touched[i]++;
-                    if (frameCount % 5 == 0) {
+                    if (frameCount % 5 === 0) {
                         effectManager.addParticle(winPos(otherInside[i].pos, video));
                     }
                 }
@@ -117,7 +117,7 @@ function FixedPosHighFive() {
     for (let i = 0; i < 2; i++) {
         if (touched[i] > 0) {
             highFiveCollision = true;
-            if (frameCount % 5 == 0) {
+            if (frameCount % 5 === 0) {
                 effectManager.addParticle(winPos(myInside[i].pos, myVideo));
             }
         }
@@ -155,7 +155,7 @@ function HybridHighFive() {
 
                 if (((myInside[0] && otherInside[0]) || (myInside[1] && otherInside[1])) && touchCheck(myPalm, palm)) {
                     highFiveCollision = true;
-                    if (frameCount % 5 == 0) {
+                    if (frameCount % 5 === 0) {
                         effectManager.addParticle(winPos(myPalm.pos, myVideo));
                         effectManager.addParticle(winPos(palm.pos, video));
                     }

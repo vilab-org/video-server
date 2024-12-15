@@ -8,6 +8,7 @@ const BALL_SELECTING = 'SELECTING';
 const BALL_THROWING = 'THROWING';
 const BALL_MOVING = 'MOVING';
 const BALL_CATCHING = 'CATCHING';
+const BALL_ANIME = 'ANIME';
 const BALL_CAUGHT = 'CAUGHT';
 const BALL_FINISH = 'FINISH';
 
@@ -59,20 +60,24 @@ class Ball {
         //ボールの表示
         push();
         translate(this.pos.x, this.pos.y);
-        rotate(this.angle);
-        if (ballImages[this.ballTypeNo])
+        if (this.state === BALL_MOVING || this.state === BALL_CATCHING)
+            rotate(this.angle);
+        if (ballImages[this.ballTypeNo]) {
+            imageMode(CENTER);
             image(ballImages[this.ballTypeNo], 0, 0, this.size, this.size);
+        }
         pop();
     }
 
     rotate() {
-        this.angle = this.angle + deltaTime * this.rotSpeed;
+        this.angle += deltaTime * this.rotSpeed;
     }
 
     startThrowing() {
         this.amt = 0;
         this.startPos.set(this.pos);
         this.targetPos.set(this.receiver.pos);
+        this.angle = 0;
         this.state = BALL_MOVING;
     }
 
@@ -94,8 +99,8 @@ class Ball {
  * キャッチボールのsetup
  */
 function catchBallInit() {
-    ballImages = [loadImage('image/ball.png'), loadImage('image/kumasan.png'), loadImage('image/bakudan.png')];
-    failedBallImages = [ballImages[0], loadImage('image/kumasan_boro.png'), loadImage('image/bakuhatsu.png')];
+    ballImages = [ loadImage('image/ball.png'), loadImage('image/kumasan.png'), loadImage('image/bakudan.png') ];
+    failedBallImages = [ ballImages[0], loadImage('image/kumasan_boro.png'), loadImage('image/bakuhatsu.png') ];
 
     //キャッチボールメニュー
     //ユーザ選択方法
@@ -125,7 +130,7 @@ function catchBallInit() {
             SendMessage(CATCHBALL, { mode: FLYINGSELECT, value: flyingMode });
         }
     });
-    $('#manualCatchCheck').hide();
+    // $('#manualCatchCheck').hide();
 
     //ボールの種類
     const ballSelect = $('#ballSelect');
@@ -161,24 +166,11 @@ function catchBallStart() {
 
     isCatchBall = true;
     host = myVideo;
-    ball.state = BALL_NONE;
 
     if (log) console.log(selectMode);
 
-    if (selectMode === pointingTypes[1]) {
-        const pos = relPos(ball.pos);
-        ball.state = BALL_SELECTING;
-        ball.thrower = myVideo
-        SendMessage(CATCHBALL, { mode: BALL_SELECTING, 
-            thrower: ball.thrower.id, receiver: undefined, position: pos });
-    } else {
-        ball.state = BALL_THROWING;
-        ball.thrower = myVideo;
-        ball.receiver = nextReceiver();
-        SendMessage(CATCHBALL, { mode: BALL_THROWING, 
-            thrower: ball.thrower.id, receiver: ball.receiver.id, position: pos });
-    }
-    // Ball.draw();
+    ball.state = BALL_SELECTING;
+    ball.thrower = myVideo
 }
 
 /**
@@ -206,40 +198,43 @@ function catchBallUpdate() {
     }
 
     switch (ball.state) {
-        case BALL_SELECTING:  // 投げる人が次を選択
-            pointingReceiver();
+        case BALL_SELECTING:
+            // ボール保持者が次を選択中
+            selectingReceiver();
             break;
 
-        case BALL_THROWING:  // 投げる人が投げる処理
-            if (thrower === myVideo)
-                throwingBall();
+        case BALL_THROWING:  
+            // （自分がボール保持者なら）投球処理をする
+            throwingBall();
             break;
 
-        case BALL_MOVING:  // ボールは全員で動く
+        case BALL_MOVING:
+            // 飛んでいるボールは全員の画面で別々に計算して動く
             ball.rotate();
             ball.move();
             // SendMessage(CATCHBALL, { mode: BALL_MOVING, thrower: thrower.id, receiver: undefined, position: relPos(Ball.pos) });
 
-            if (ball.amt >= 1) {
-                ball.amt = 0;
-                if (isManualCatch) {
-                    ball.state = BALL_CATCHING;
-                } else {
-                    // 受ける人がキャッチ処理
-                    if (receiver === myVideo)
-                        ballCaught();
-                    ball.receiver = undefined;
-                    ball.state = BALL_THROWING;
-                }
+            // ボールが到達したらキャッチ処理へ
+            if (ball.amt >= 1)
+                ball.state = BALL_CATCHING;
+            break;
+
+        case BALL_CATCHING:
+            // （自分がレシーバーなら）キャッチ処理をする
+            ball.amt = 0;
+            catchingBall();
+            if (isManualCatch && receiver) {
+               // ボールは全員の画面で別々に計算して落ちる
+                ball.pos.y += (receiver.size.y / height) * ball.fallSpeed;
+                ball.rotate();
             }
             break;
 
-        case BALL_CATCHING:  // 受ける人がキャッチ処理
-            ball.pos.y += (receiver.size.y / height) * ball.fallSpeed;
-            ball.rotate();
-            if (receiver === myVideo)
-                catchingBall();
+        case BALL_CAUGHT:
+            ball.thrower = ball.receiver;
+            ball.state = BALL_SELECTING;
             break;
+        
     }
     ball.draw();
 }
@@ -298,10 +293,22 @@ class LineSeg {
     }
 }
 
-function pointingReceiver() {
+function selectingReceiver() {
     const thrower = ball.thrower;
+
+    if (selectMode !== pointingTypes[1]) {
+        if (thrower === myVideo) {
+            ball.receiver = nextReceiver();
+            SendMessage(CATCHBALL, { mode: BALL_SELECTING, 
+                thrower: ball.thrower.id, receiver: ball.receiver.id, position: relPos(ball.pos) });
+            ball.state = BALL_THROWING;
+        }
+        return;
+    }
+
     const lineP = getPointingLine(thrower);
-    if (lineP) {//指さしあり
+    if (lineP) {
+        // 指差し中
         const hitInfo = getCollVideo(thrower, lineP);
 
         push();
@@ -322,15 +329,18 @@ function pointingReceiver() {
             line(lineP.start.x, lineP.start.y, lineP.end.x, lineP.end.y);
         }
         pop();
-    } else if (ball.receiver) {
+    } else if (thrower === myVideo && ball.receiver) {
         ball.state = BALL_THROWING;
+        SendMessage(CATCHBALL, { mode: BALL_THROWING, 
+            thrower: ball.thrower.id, receiver: ball.receiver.id, position: relPos(ball.pos) });
     }
+    console.log("B");
 }
 
 function throwingBall() {
     const thrower = ball.thrower;
 
-    // 投げる人だけが実行する処理
+    // この処理はボール保持者だけが実行する
     if (thrower !== myVideo) return;
 
     if (!ball.receiver) {
@@ -358,101 +368,109 @@ function throwingBall() {
     const y = thrower.topLeft.y + handCenter.y * thrower.size.y;
     ball.pos.set(x, y);
 
+    SendMessage(CATCHBALL, { mode: BALL_THROWING, 
+        thrower: ball.thrower.id, receiver: ball.receiver.id, position: relPos(ball.pos) });
+
     if (handCenter.y < throwThreshold) { //投げた判定
         ball.startThrowing();
+        ball.state = BALL_MOVING;
         SendMessage(CATCHBALL, { mode: BALL_MOVING, 
             startPos: relPos(ball.startPos), targetPos: relPos(ball.targetPos) });
-        ball.state = BALL_MOVING;
-    } else {
-        SendMessage(CATCHBALL, { mode: BALL_THROWING, 
-            thrower: ball.thrower.id, receiver: ball.receiver.id, position: relPos(ball.pos) });
     }
 }
 
 function catchingBall() {
-    const pos = ball.pos;
-    const movePos = collBallHands();
     const receiver = ball.receiver;
 
-    for (let i = 0; i < receiver.handCenters.length; i++) {
-        if (receiver.handCenters[i])
-            drawRect(receiver, receiver.handCenters[i], receiver.handSizes[i], 1);
+    // この処理はレシーバーだけが実行する
+    if (receiver !== myVideo || ball.amt > 0) return;
+
+    if (!isManualCatch) {
+        ballCaught();
+        return;
     }
 
-    if (movePos) ball.pos.set(movePos);//他の参加者も当たり判定計算するからこの処理だけ外に出してる
+    //for (let i = 0; i < receiver.handCenters.length; i++) {
+    //    if (receiver.handCenters[i])
+    //        drawRect(receiver, receiver.handCenters[i], receiver.handSizes[i], 1);
+    //}
 
-    if (receiver === myVideo) {
-        if (movePos) {
-            catchingTime += deltaTime;
-            if (catchingTime >= 0.5) {
-                catchingTime = 0;
-                if (log) console.log("キャッチ成功");
-                catchSuccessful((host === myVideo && isRoundOnce ? 2 : 1), true);
-                ballCaught();
-            }
-        } else if (pos.y - ball.size / 2 > ball.receiver.pos.y + ball.receiver.size.y / 2) {
-            if (log) console.log("キャッチ失敗");
-            catchSuccessful(0, true);
+    // if (movePos) ball.pos.set(movePos);//他の参加者も当たり判定計算するからこの処理だけ外に出してる
+
+    // SendMessage(CATCHBALL, { mode: BALL_CATCHING, position: relPos(ball.pos) });
+
+    if (collBallHands()) {
+        catchingTime += deltaTime;
+        if (catchingTime >= 0.5) {
+            catchingTime = 0;
+            if (log) console.log("キャッチ成功");
+            catchingAnimation((host === myVideo && isRoundOnce ? 2 : 1));
+            ballCaught();
         }
+    } else if (ball.pos.y > ball.receiver.pos.y + ball.receiver.size.y / 2 + defaultBallSize / 2) {
+        if (log) console.log("キャッチ失敗");
+        catchingAnimation(0);
+        ballCaught();
     }
 
     function collBallHands() {
-        for (let e of ball.receiver.handExtents) {
-            const extent = formatExtent(ball.receiver, e);
-            if (extent && collBallHand(extent)) {
-                return createVector(pos.x, extent.minY - ball.size / 2);
+        for (let extent of myVideo.handExtents) {
+            if (collBallAndHand(extent)) {
+                return true;
             }
         }
-        return undefined;
+        return false;
     }
 
-    function collBallHand(extent) {
-        return extent.minY <= pos.y + ball.size / 2 && pos.y - ball.size / 2 <= extent.maxY &&
-            extent.minX <= pos.x + ball.size / 2 && pos.x - ball.size / 2 <= extent.maxX;
-    }
-
-    function formatExtent(video, extent) {
-        if (!extent) return;
-        const minPos = video.topLeft;
-        const size = video.size;
-        return { minX: minPos.x + extent.minX * size.x, minY: minPos.y + extent.minY * size.y, 
-                 maxX: minPos.x + extent.maxX * size.x, maxY: minPos.y + extent.maxY * size.y };
+    function collBallAndHand(extent) {
+        const minX = myVideo.topLeft.x + extent.minX * myVideo.size.x;
+        const minY = myVideo.topLeft.y + extent.minY * myVideo.size.y;
+        const maxX = myVideo.topLeft.x + extent.maxX * myVideo.size.x;
+        const maxY = myVideo.topLeft.y + extent.maxY * myVideo.size.y;
+        return minY <= ball.pos.y && ball.pos.y <= maxY && minX <= ball.pos.x && ball.pos.x <= maxX;
     }
 }
 
-function catchSuccessful(successValue, hasBall) {
-    if (hasBall) {
-        SendMessage(CATCHBALL, { mode: BALL_CAUGHT, value: successValue });
+function catchingAnimation(successValue) {
+    const receiver = ball.receiver;
+    if (receiver === myVideo) {
+        SendMessage(CATCHBALL, { mode: BALL_ANIME, value: successValue });
     }
+
     let anime;
     switch (successValue) {
         case 0: {
             const index = getBallImgIndex();
             const failedImg = failedBallImages[index];
             if (failedImg) {
-                anime = createAnimeImg(failedImg, ball.pos.copy(), createVector(0, -0.2), (index === 1 ? ball.rotation : 0));
-            } else {
-                anime = createAnimeText("失敗", 32, color(50, 50, 255), ball.pos.copy(), createVector(0, -1));
+                animation.addAnime(
+                    createAnimeImg(failedImg, ball.pos.copy(), createVector(0, 2), (index === 1 ? ball.rotation : 0)));
             }
-            finishCatchBall();
+            animation.addAnime(
+                createAnimeText("失敗", 24, color(50, 50, 255), ball.pos.copy().add(0, defaultBallSize), createVector(0, 2)));
+            ball.pos.y = receiver.topLeft.y + receiver.size.y - defaultBallSize / 2;
             break;
         }
 
         case 1:
-            anime = createAnimeText("成功", 32, color(50, 255, 50), ball.pos.copy(), createVector(0, -1));
+            animation.addAnime(
+                createAnimeText("成功", 24, color(50, 255, 50), ball.pos.copy(), createVector(0, -2)));
             break;
 
         case 2:
-            anime = createAnimeText("大成功", 48, color(50, 255, 50), createVector(width / 2, height / 2), createVector(0, -2));
+            animation.addAnime(
+                createAnimeText("大成功", 32, color(50, 255, 50), createVector(width / 2, height / 2), createVector(0, -2)));
             break;
     }
-    if (anime) animation.addAnime(anime);
 }
 
 /**
  * ボールをキャッチしたときに呼ばれる関数
  */
 function ballCaught() {
+    //if (!ball.receiver) return;
+    //ball.receiver = undefined;
+
     //if (isRoundOnce) {
     //    finishCatchBall();
     //    return;
@@ -461,19 +479,10 @@ function ballCaught() {
     // console.log(Ball.receiver, myVideo);
 
     const pos = relPos(ball.pos);
-    ball.thrower = myVideo;
-
-    if (selectMode === pointingTypes[1]) {
-        ball.state = BALL_SELECTING;
-        SendMessage(CATCHBALL, { mode: BALL_SELECTING, 
-            thrower: ball.thrower.id, receiver: undefined, position: pos });
-    } else {
-        ball.state = BALL_THROWING;
-        ball.receiver = nextReceiver();
-        SendMessage(CATCHBALL, { mode: BALL_THROWING, 
-            thrower: ball.thrower.id, receiver: ball.receiver.id, position: pos });
-    }
-//    console.log(dataToSend);
+    ball.state = BALL_CAUGHT;
+    ball.amt = 0;
+    if (ball.receiver === myVideo)
+        SendMessage(CATCHBALL, { mode: BALL_CAUGHT, receiver: ball.receiver.id });
 }
 
 /**
@@ -629,11 +638,15 @@ function getCollVideo(from, pointingLine) {
 function receiveBallStatus(msg) {
     switch (msg.mode) {
         case BALL_SELECTING:
-            setThrowerAndReceiver();
+            ball.state = BALL_SELECTING;
+            _setThrowerAndReceiver();
+            selectingReceiver();
             break;
 
         case BALL_THROWING:
-            setThrowerAndReceiver();
+            ball.state = BALL_THROWING;
+            _setThrowerAndReceiver();
+            _setBallPosition();
             break;
 
         case BALL_MOVING:  // 動き始めに1回だけ呼ばれる 
@@ -643,17 +656,26 @@ function receiveBallStatus(msg) {
             break;
 
         case BALL_CATCHING:
+            ball.state = BALL_CATCHING;
+            _setBallPosition();
             break;
     
-        case BALL_CAUGHT:
+        case BALL_ANIME:
+            catchingAnimation(msg.value);
             break;
 
+        case BALL_CAUGHT:
+            ball.amt = 0;
+            ball.state = BALL_CAUGHT;
+            break;
+    
+    
         case BALL_FINISH:
             host = undefined;
             isCatchBall = false;
             break;
     
-            case USERSELECT:
+        case USERSELECT:
             setUserSelectMode(msg.value);
             break;
 
@@ -673,23 +695,20 @@ function receiveBallStatus(msg) {
             OnChangeRound1(msg.value);
             break;
 
-        case CATCHSUCCESSFUL:
-            catchSuccessful(msg.value, false);
-            break;
     }
 
-    function setThrowerAndReceiver() {
+    function _setThrowerAndReceiver() {
         isCatchBall = true;
-
         ball.thrower = memberVideos.get(msg.thrower);
         ball.receiver = memberVideos.get(msg.receiver);
+        //console.log(ball.thrower, ball.receiver);
+    }
 
+    function _setBallPosition() {
         if (msg.position) {
             const index = ballTypes.indexOf(ballType);
             const rotSpeed = ballRotatingSpeeds[index];
-
             ball.set(winPos(msg.position), index, rotSpeed);
-            // Ball.draw();
         }
     }
 }
@@ -734,6 +753,7 @@ function setFlyingSelectMode(mode) {
     if (isCanChange) {
         flyingMode = mode;
         $('#flyingSelect').val(mode);
+        /*
         switch (mode) {
             case flyingTypes[0]:
                 $('#manualCatchCheck').hide(100);
@@ -743,6 +763,7 @@ function setFlyingSelectMode(mode) {
                 $('#manualCatchCheck').show(100);
                 break;
         }
+        */
     } else {
         $('#flyingSelect').val(flyingMode);
     }

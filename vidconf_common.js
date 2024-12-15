@@ -256,7 +256,7 @@ function LeaveRoom() {
     $('#end-call').hide();
 }
 
-function startRegularSendMessage() {
+function startSendingMessages() {
     let sendData = [];
 
     regularID = setInterval((args) => {
@@ -264,7 +264,6 @@ function startRegularSendMessage() {
         if (sendData.length === 0) {
             if (dataToSend.length === 0) return;
             //配列の早いコピーらしい
-            //https://qiita.com/takahiro_itazuri/items/882d019f1d8215d1cb67#comment-1b338078985aea9f600a
             sendData = [...dataToSend];
             dataToSend = [];
         }
@@ -293,7 +292,7 @@ function startRegularSendMessage() {
     }
 }
 
-function stopRegularSendMessage() {
+function stopSendingMessages() {
     clearInterval(regularID);
     if (log) console.log("定期送信停止", regularID);
 }
@@ -336,8 +335,12 @@ function ReceiveDrawHands(checked) {
     document.getElementById('changeDrawRect').checked = checked;
 }
 
-function ChangeIsCatch() {
+function RequestBall() {
     catchBallStart();
+}
+
+function FinishCatchBall() {
+    finishCatchBall();
 }
 
 class VisualObject {
@@ -360,9 +363,9 @@ class Video {
         this.videoOn = false;
         this.micOn = false;
         this.handResults = { multiHandLandmarks: [] };
-        this.handCenters = [ undefined, undefined ];
-        this.handSizes = [ undefined, undefined ];
-        this.handExtents = [ undefined, undefined ];
+        this.handCenters = [];
+        this.handSizes = [];
+        this.handExtents = [];
         this.topLeft = createVector();
         this.ping = 1;
 
@@ -389,57 +392,29 @@ class Video {
         delete results.image;
         this.handResults = results;
 
-        this.handExtents = [ undefined, undefined ];
-        this.handCenters = [ undefined, undefined ];
-        this.handSizes = [ undefined, undefined ];
+        this.handExtents = [];
+        this.handCenters = [];
+        this.handSizes = [];
 
-        if (results) {
-            /*
-            for (let i = 0; i < results.multiHandLandmarks.length; i++) {
-                let minX = 1, minY = 1;
-                let maxX = 0, maxY = 0;
-                for (let mark of results.multiHandLandmarks[i]) {
-                    minX = Math.min(mark.x, minX);
-                    minY = Math.min(mark.y, minY);
-                    maxX = Math.max(mark.x, maxX);
-                    maxY = Math.max(mark.y, maxY);
-                }
-
-                let lr = (results.multiHandedness[i].label === 'Left') ? 0 : 1;
-                this.handExtents[lr] = (mirroring ?
-                    { minX: 1 - maxX, minY: minY, maxX: 1 - minX, maxY: maxY } :
-                    { minX: minX, minY: minY, maxX: maxX, maxY: maxY });
-                
-                let x = (minX + maxX) / 2;
-                if (mirroring) x = 1 - x;
-                this.handCenters[lr] = createVector(x, (minY + maxY) / 2);
-                this.handSizes[lr] = createVector(maxX - minX, maxY - minY);
+        for (let handMarks of results.multiHandLandmarks) {
+            let minX = 1, minY = 1;
+            let maxX = 0, maxY = 0;
+            for (let mark of handMarks) {
+                minX = Math.min(mark.x, minX);
+                minY = Math.min(mark.y, minY);
+                maxX = Math.max(mark.x, maxX);
+                maxY = Math.max(mark.y, maxY);
             }
-            */
 
-            this.handExtents = [];
-            this.handCenters = [];
-            this.handSizes = [];
+            this.handExtents.push(mirroring ?
+                { minX: 1 - maxX, minY: minY, maxX: 1 - minX, maxY: maxY } :
+                { minX: minX, minY: minY, maxX: maxX, maxY: maxY });
+            
+            let x = (minX + maxX) / 2;
+            if (mirroring) x = 1 - x;
 
-            for (let handMarks of results.multiHandLandmarks) {
-                let minX = 1, minY = 1;
-                let maxX = 0, maxY = 0;
-                for (let mark of handMarks) {
-                    minX = Math.min(mark.x, minX);
-                    minY = Math.min(mark.y, minY);
-                    maxX = Math.max(mark.x, maxX);
-                    maxY = Math.max(mark.y, maxY);
-                }
-
-                this.handExtents.push(mirroring ?
-                    { minX: 1 - maxX, minY: minY, maxX: 1 - minX, maxY: maxY } :
-                    { minX: minX, minY: minY, maxX: maxX, maxY: maxY });
-                
-                let x = (minX + maxX) / 2;
-                if (mirroring) x = 1 - x;
-                this.handCenters.push(createVector(x, (minY + maxY) / 2));
-                this.handSizes.push(createVector(maxX - minX, maxY - minY));
-            }
+            this.handCenters.push(createVector(x, (minY + maxY) / 2));
+            this.handSizes.push(createVector(maxX - minX, maxY - minY));
         }
     }
 }
@@ -504,7 +479,7 @@ function setupVideo(stream, peer) {
     myVideo.videoTag.hide();
     resizeAllVideos();
     if (log) console.log("myVideo:", myVideo);
-    console.log(stream.getVideoTracks()[0]);
+    // console.log(stream.getVideoTracks()[0]);
 }
 
 function addRemoteVideo(stream) {

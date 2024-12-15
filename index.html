@@ -61,9 +61,11 @@
             <div class="vertical_margin">
                 <label for="highSelect">ハイタッチ</label><select id="highSelect"></select>
             </div>
+            <!--
             <div class="vertical_margin">
                 <input type="checkbox" id="dynamicEffect" onchange="OnChangeDynamic()" title="可変エフェクト色">可変エフェクト色</input>
             </div>
+            -->
             <div class="vertical_margin">
                 <input type="checkbox" id="changeDrawRect" onchange="ChangeDrawRect()" title="手のひら検出表示">手のひら検出表示</input>
             </div>
@@ -104,6 +106,7 @@
                 </span>
                 </input>
             </div>
+            <!--
             <div class="vertical_margin">
                 <input type="checkbox" id="round1" onchange="OnChangeRound1()" class="tooltip-parent"
                     title="キャッチ">
@@ -116,9 +119,13 @@
                 </span>
                 </input>
             </div>
+            -->
             <div class="vertical_margin">
-                <button type="button" id="ChangeIsCatch" onclick="ChangeIsCatch()" class="tooltip-parent">
-                    キャッチボール
+                <button type="button" id="recquestBall" onclick="RequestBall()" class="tooltip-parent">
+                    ボール要求
+                </button>
+                <button type="button" id="finishCatchBall" onclick="FinishCatchBall()" class="tooltip-parent">
+                    終了
                 </button>
             </div>
         </div>

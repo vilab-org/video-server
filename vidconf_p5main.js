@@ -3,21 +3,21 @@
 const FRAME_RATE = 30;
 const HANDSENDINTERVAL = 0.5; //手を認識してなかったらこの秒だけ空ける
 
-const VIDEO_MOVING = 'Video Moving';
-const VIDEO_RESIZED = 'Video Resized';
-const HANDS_DETECTED = 'Hand Detected';
+const VIDEO_MOVING = 'VideoMoving';
+const VIDEO_RESIZED = 'VideoResized';
+const HANDS_DETECTED = 'HandDetected';
 
 // ボタン
-const VIDEO_MODE = 'Video Mode';
-const MIC_MODE = 'Mic Mode';
+const VIDEO_MODE = 'VideoMode';
+const MIC_MODE = 'MicMode';
 
 // GUI
-const CONFIG_HANDS_DISPLAY = 'Hands Display';
+const CONFIG_HANDS_DISPLAY = 'HandsDisplay';
 
-const HIGHSELECT = 'High Touch Select';
-const DYNAMICEFFECT = 'Dynamic effect';
+const HIGHSELECT = 'HighTouchSelect';
+const DYNAMICEFFECT = 'DynamicEffect';
 
-const CATCHBALL = 'Catch Ball';
+const CATCHBALL = 'CatchBall';
 
 //https://qiita.com/yusuke84/items/54dce88f9e896903e64f
 //アイコン https://icooon-mono.com/
@@ -160,7 +160,7 @@ function setup() {
     // blackimg = loadImage('image/nekocan.png');
     // handImgs = [ loadImage('image/handLef.png'), loadImage('image/handRig.png') ];
 
-    startRegularSendMessage();
+    startSendingMessages();
     console.log('complete setup');
 }
 
@@ -452,7 +452,7 @@ function createAnimeImg(img, pos, dire, rotateR = 0) {
     anime.alpha = 255;
     anime.update = () => {
         pos.add(dire);
-        anime.alpha -= deltaTime * 255;
+        anime.alpha -= deltaTime * 50;
         push();
         translate(pos.x, pos.y);
         tint(255, 255, 255, anime.alpha);
