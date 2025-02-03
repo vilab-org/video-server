@@ -312,12 +312,12 @@ function resizeAllVideos() {
     const num = memberVideos.size;
 
     const ratio = myVideo.size.y / myVideo.size.x; //xを基準としたyの比率
-    let w = (width * 0.9) / ceil(sqrt(num));
+    let w = (width / num) * 0.9;
     let h = w * ratio;
-    if (h > height * 0.7) {
-        h = height * 0.7;
-        w = h / ratio;
-    }
+//    if (width < height) {
+//        h = (height / num) * 0.9;
+//        w = width / ratio;
+//    }
     if (w === 0 || h === 0) {
         w = 320;
         h = 240;
